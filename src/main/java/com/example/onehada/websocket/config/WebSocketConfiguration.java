@@ -6,6 +6,12 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+
+/*
+ * WebSocket 클라이언트에서 간단한 메시징 프로토콜(예: STOMP)로 메시지 처리를 구성하는 방법을 정의
+ * 웹 소켓 서버를 활성화(#1)하고,
+ * WebSocketMessageBrokerConfigurer 인터페이스에서 웹 소켓 연결을 구성하는 메서드(#2, #3)를 구현
+ */
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
