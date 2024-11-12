@@ -29,7 +29,7 @@ public class WebSocketEventListener {
 	// 웹 소켓 연결 이벤트
 	@EventListener
 	public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-		log.info("Received a new web socket connection");
+		log.info("Received a new web socket connection: [event detail -> "+ event + "]");
 	}
 
 	// 웹 소켓 연결 해제 이벤트

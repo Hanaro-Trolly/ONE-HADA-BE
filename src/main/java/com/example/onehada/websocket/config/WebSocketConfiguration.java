@@ -16,7 +16,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
-	// #2
+	// #
 	// 특정 URL에 매핑하는 STOMP 엔드포인트를 등록하고 (선택 사항) SockJS 폴백 옵션을 활성화 및 구성
 	// addEndpoint              주어진 매핑 경로에서 WebSocket 끝점을 통해 STOMP를 등록
 	// setAllowedOriginPatterns 브라우저에서 교차 출처 요청이 허용되는 출처를 패턴으로 설정
