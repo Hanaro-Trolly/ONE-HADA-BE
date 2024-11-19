@@ -1,4 +1,4 @@
-package com.example.websocket.handler;
+package com.example.onehada.websocket.handler;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

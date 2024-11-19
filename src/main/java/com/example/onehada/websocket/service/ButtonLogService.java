@@ -1,6 +1,6 @@
-package com.example.websocket.service;
+package com.example.onehada.websocket.service;
 
-import com.example.websocket.model.ButtonClickEvent;
+import com.example.onehada.websocket.model.ButtonClickEvent;
 import org.springframework.stereotype.Service;
 
 @Service

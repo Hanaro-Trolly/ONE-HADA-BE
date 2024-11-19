@@ -1,4 +1,4 @@
-package com.example.websocket.model;
+package com.example.onehada.websocket.model;
 
 import java.time.LocalDateTime;
 import lombok.Data;
