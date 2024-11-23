@@ -38,3 +38,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### redis dump db ###
+dump.rdb
