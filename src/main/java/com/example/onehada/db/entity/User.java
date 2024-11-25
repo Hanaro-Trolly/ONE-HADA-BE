@@ -1,42 +1,64 @@
 package com.example.onehada.db.entity;
 
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class User {
+	private String userEmail;
+	private String userName;
+	private String simplePassword;
+}
+
+
+/*
 import java.time.LocalDate;
-
 import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int user_id;
+	@Column(name = "user_id")
+	private int userId;
 
-	@Column(length = 127, nullable = false)
-	private String user_name;
+	@Column(name = "user_name", length = 127, nullable = false)
+	private String userName;
 
-	@Column(length = 1, nullable = false)
-	private String user_gender;
+	@Column(name = "user_gender", length = 1, nullable = false)
+	private String userGender;
 
-	@Column(length = 127, nullable = false)
-	private String user_email;
+	@Column(name = "user_email", length = 127, nullable = false)
+	private String userEmail;
 
-	@Column(length = 20, nullable = false)
-	private String phone_number;
+	@Column(name = "phone_number", length = 20, nullable = false)
+	private String phoneNumber;
 
-	private String user_address;
+	@Column(name = "user_address")
+	private String userAddress;
 
-	@Column(length = 8, nullable = false)
-	private String user_birth;
+	@Column(name = "user_birth", length = 8, nullable = false)
+	private String userBirth;
 
 	@CreationTimestamp
-	@Column(nullable = false, updatable = false)
-	private LocalDate user_registered_date;
+	@Column(name = "user_registered_date", nullable = false, updatable = false)
+	private LocalDate userRegisteredDate;
 
-	private Long user_googleId;
-	private Long user_kakaoId;
-	private Long user_naverId;
+	@Column(name = "user_google_id")
+	private Long userGoogleId;
 
-	@Column(length = 8, nullable = false)
-	private String simple_password;
+	@Column(name = "user_kakao_id")
+	private Long userKakaoId;
+
+	@Column(name = "user_naver_id")
+	private Long userNaverId;
+
+	@Column(name = "simple_password", length = 8, nullable = false)
+	private String simplePassword;
 }
+*/
