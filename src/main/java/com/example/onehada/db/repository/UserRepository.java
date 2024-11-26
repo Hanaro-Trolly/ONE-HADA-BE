@@ -11,13 +11,8 @@ import java.util.Optional;
 public class UserRepository {
     private final Map<String, User> users = new HashMap<>();
 
-    // 테스트용 사용자 추가
-    public UserRepository() {
-        users.put("test@test.com", User.builder()
-            .userEmail("test@test.com")
-            .userName("테스트")
-            .simplePassword("1234")
-            .build());
+    public void save(User user) {
+        users.put(user.getUserEmail(), user);
     }
 
     public Optional<User> findByUserEmail(String email) {
