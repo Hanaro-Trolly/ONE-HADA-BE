@@ -15,8 +15,9 @@ public class Shortcut {
 	@Column(length = 100, nullable = false)
 	private String shortcutName;
 
-	@Column(nullable = false)
-	private String shortcutUrl;
+	@Lob
+	@Column(name = "shorcut_elements", columnDefinition = "JSON")
+	private String shortcutElements;
 
 	@Column(nullable = false)
 	private boolean isFavorite = false;
