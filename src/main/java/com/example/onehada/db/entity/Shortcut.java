@@ -6,18 +6,18 @@ import jakarta.persistence.*;
 public class Shortcut {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long shortcut_id;
+	private long shortcutId;
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)
 	private User user;
 
 	@Column(length = 100, nullable = false)
-	private String shortcut_name;
+	private String shortcutName;
 
 	@Column(nullable = false)
-	private String shortcut_url;
+	private String shortcutUrl;
 
 	@Column(nullable = false)
-	private boolean is_favorite = false;
+	private boolean isFavorite = false;
 }

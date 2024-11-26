@@ -6,23 +6,23 @@ import jakarta.persistence.*;
 public class Account {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private long accountId;
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)
 	private User user;
 
 	@Column(length = 127, nullable = false)
-	private String account_name;
+	private String accountName;
 
 	@Column(length = 31, nullable = false)
 	private String bank;
 
 	@Column(length = 31, nullable = false)
-	private String account_number;
+	private String accountNumber;
 
 	@Column(length = 31, nullable = false)
-	private String account_type;
+	private String accountType;
 
 	@Column(nullable = false)
 	private long balance = 0;

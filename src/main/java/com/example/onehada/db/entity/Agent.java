@@ -6,14 +6,14 @@ import jakarta.persistence.*;
 public class Agent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int agent_id;
+	private int agentId;
 
 	@Column(length = 127, nullable = false)
-	private String agent_name;
+	private String agentName;
 
 	@Column(length = 127, nullable = false)
-	private String agent_email;
+	private String agentEmail;
 
-	private String agent_pw;
+	private String agentPw;
 
 }
