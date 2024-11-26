@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 public class History {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long history_id;
+	private long historyId;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
@@ -18,8 +18,10 @@ public class History {
 
 	@Column(length = 100 , nullable = false)
 	private String historyName;
-	@Column(nullable = false)
-	private String historyUrl;
+
+	@Lob
+	@Column(name = "history_elements", columnDefinition = "JSON")
+	private String historyElements;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)

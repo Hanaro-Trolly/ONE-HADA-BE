@@ -10,26 +10,26 @@ import jakarta.persistence.*;
 public class Transaction {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long transaction_id;
+	private long transactionId;
 
 	@ManyToOne
 	@JoinColumn(name = "sender_account_id", nullable = false)
-	private Account sender_account;
+	private Account senderAccount;
 
 	@ManyToOne
 	@JoinColumn(name = "receiver_account_id", nullable = false)
-	private Account receiver_account;
+	private Account receiverAccount;
 
 	@Column(nullable = false)
 	private long amount;
 
 	@Column(length = 31)
-	private String sender_name;
+	private String senderName;
 
 	@Column(length = 31)
-	private String receiver_name;
+	private String receiverName;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
-	private LocalDateTime transaction_date;
+	private LocalDateTime transactionDate;
 }

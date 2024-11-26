@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS History (
     history_id bigint auto_increment primary key,
     user_id int not null,
     history_name varchar(100) not null,
-    history_url varchar(255) not null,
+    history_elements JSON,
     activity_date timestamp not null,
     foreign key (user_id) references user(user_id)
 );
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS Consultation (
 );
 
 CREATE TABLE IF NOT EXISTS Account (
-    id bigint auto_increment primary key,
+    account_id bigint auto_increment primary key,
     user_id int not null,
     account_name varchar(127) not null, 
     bank varchar(31) not null,

@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 public class Consultation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long consultation_id;
+	private long consultationId;
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)
@@ -21,12 +21,12 @@ public class Consultation {
 	private Agent agent;
 
 	@Column(length = 100, nullable = false)
-	private String consultation_title;
+	private String consultationTitle;
 
 	@Column(length = 1000)
-	private String consultation_content;
+	private String consultationContent;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
-	private LocalDateTime consultation_date;
+	private LocalDateTime consultationDate;
 }

@@ -10,33 +10,33 @@ import jakarta.persistence.*;
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int user_id;
+	private int userId;
 
 	@Column(length = 127, nullable = false)
-	private String user_name;
+	private String userName;
 
 	@Column(length = 1, nullable = false)
-	private String user_gender;
+	private String userGender;
 
 	@Column(length = 127, nullable = false)
-	private String user_email;
+	private String userEmail;
 
 	@Column(length = 20, nullable = false)
-	private String phone_number;
+	private String phoneNumber;
 
-	private String user_address;
+	private String userAddress;
 
 	@Column(length = 8, nullable = false)
-	private String user_birth;
+	private String userBirth;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
-	private LocalDate user_registered_date;
+	private LocalDate userRegisteredDate;
 
-	private Long user_googleId;
-	private Long user_kakaoId;
-	private Long user_naverId;
+	private Long userGoogleId;
+	private Long userKakaoId;
+	private Long userNaverId;
 
 	@Column(length = 8, nullable = false)
-	private String simple_password;
+	private String simplePassword;
 }
