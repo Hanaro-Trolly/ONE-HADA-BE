@@ -1,19 +1,19 @@
 package com.example.onehada.db.entity;
 
 
-import lombok.Builder;
-import lombok.Data;
+// import lombok.Builder;
+// import lombok.Data;
+//
+// @Data
+// @Builder
+// public class User {
+// 	private String userEmail;
+// 	private String userName;
+// 	private String simplePassword;
+// }
 
-@Data
-@Builder
-public class User {
-	private String userEmail;
-	private String userName;
-	private String simplePassword;
-}
 
 
-/*
 import java.time.LocalDate;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
@@ -61,4 +61,3 @@ public class User {
 	@Column(name = "simple_password", length = 8, nullable = false)
 	private String simplePassword;
 }
-*/
