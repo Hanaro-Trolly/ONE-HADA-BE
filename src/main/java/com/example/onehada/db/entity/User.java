@@ -1,26 +1,18 @@
 package com.example.onehada.db.entity;
 
-
-import lombok.Builder;
-import lombok.Data;
-
-@Data
-@Builder
-public class User {
-	private String userEmail;
-	private String userName;
-	private String simplePassword;
-}
-
-
-/*
 import java.time.LocalDate;
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,4 +53,3 @@ public class User {
 	@Column(name = "simple_password", length = 8, nullable = false)
 	private String simplePassword;
 }
-*/

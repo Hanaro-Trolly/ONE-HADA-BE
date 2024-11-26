@@ -3,7 +3,10 @@ package com.example.onehada.auth;
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
 import com.example.onehada.api.service.RedisService;
+import com.example.onehada.db.entity.User;
+import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,6 +32,25 @@ public class AuthIntegrationTest {
 
 	@Autowired
 	private RedisService redisService;
+
+	@Autowired
+	private UserRepository userRepository;
+
+	@BeforeEach
+	void setUp() {
+		// 테스트용 사용자 생성
+		User testUser = User.builder()
+			.userEmail("test@test.com")
+			.userName("테스트")
+			.simplePassword("1234")
+			// 필요한 경우 다른 필수 필드들도 설정
+			.userGender("M")
+			.phoneNumber("01012345678")
+			.userBirth("19900101")
+			.build();
+		
+		userRepository.save(testUser);
+	}
 
 	@Test
 	public void testLoginAndTokenStorage() throws Exception {
