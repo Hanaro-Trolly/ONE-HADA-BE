@@ -2,27 +2,39 @@ package com.example.onehada.auth;
 
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.api.auth.service.AuthService;
 import com.example.onehada.api.service.RedisService;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Optional;
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test") // 테스트 환경의 설정 파일을 로드
+@Transactional
 public class AuthIntegrationTest {
+
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -33,23 +45,83 @@ public class AuthIntegrationTest {
 	@Autowired
 	private RedisService redisService;
 
+	@Mock
+	private UserRepository userRepository1;
+
 	@Autowired
 	private UserRepository userRepository;
+	@InjectMocks
+	private AuthService authService; // UserRepository가 필요한 서비스
 
-	@BeforeEach
-	void setUp() {
-		// 테스트용 사용자 생성
+	// @BeforeEach
+	// void setUp() {
+	// 	// 테스트용 사용자 생성
+	// 	User testUser = User.builder()
+	// 		.userEmail("test@test.com")
+	// 		.userName("테스트")
+	// 		.simplePassword("1234")
+	// 		// 필요한 경우 다른 필수 필드들도 설정
+	// 		.userGender("M")
+	// 		.phoneNumber("01012345678")
+	// 		.userBirth("19900101")
+	// 		.build();
+	//
+	// 	userRepository.save(testUser);
+	//
+	// 	assertTrue(userRepository.findByUserEmail("test@test.com").isPresent(),
+	// 		"Test user should be saved in the database");
+	// }
+
+
+	@Test
+	void testHomeEndpoint() throws Exception {
+		// Given: 초기 상태 확인 (DB는 @Transactional로 인해 테스트 후 롤백)
+
+		// When: GET 요청 수행
+		mockMvc.perform(get("/"))
+			.andExpect(status().isOk());
+
+		// Then: User 저장 여부 확인
+		Optional<User> optionalUser = userRepository.findByUserEmail("test@tes.com");
+		assertTrue(optionalUser.isPresent(), "User should be present in the database");
+
+		User savedUser = optionalUser.get();
+		assertEquals("test@tes.com", savedUser.getUserEmail());
+		assertEquals("테스트", savedUser.getUserName());
+		assertEquals("1234", savedUser.getSimplePassword());
+		assertEquals("M", savedUser.getUserGender());
+		assertEquals("01012345678", savedUser.getPhoneNumber());
+		assertEquals("19900101", savedUser.getUserBirth());
+	}
+	@Test
+	public void setUptest(UserRepository userRepository2) {
+		// Given
+
+		// Given
 		User testUser = User.builder()
 			.userEmail("test@test.com")
 			.userName("테스트")
 			.simplePassword("1234")
-			// 필요한 경우 다른 필수 필드들도 설정
 			.userGender("M")
 			.phoneNumber("01012345678")
 			.userBirth("19900101")
 			.build();
-		
-		userRepository.save(testUser);
+
+		// When
+		userRepository2.save(testUser);
+
+		// Then: 데이터가 잘 저장되었는지 확인
+		Optional<User> retrievedUser = userRepository2.findByUserEmail("test@test.com");
+		assertTrue(retrievedUser.isPresent(), "User should be saved in the database");
+
+		// 저장된 데이터의 세부 내용 검증
+		User savedUser = retrievedUser.get();
+		assertEquals("test@test.com", savedUser.getUserEmail());
+		assertEquals("테스트", savedUser.getUserName());
+		assertEquals("1234", savedUser.getSimplePassword());
+		assertEquals("M", savedUser.getUserGender());
+		assertEquals("01012345678", savedUser.getPhoneNumber());
+		assertEquals("19900101", savedUser.getUserBirth());
 	}
 
 	@Test

@@ -30,6 +30,8 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
+        System.out.println("AuthService.login"+user);
+
         String accessToken = jwtService.generateAccessToken(user.getUserEmail());
         String refreshToken = jwtService.generateRefreshToken(user.getUserEmail());
 
