@@ -45,13 +45,9 @@ public class AuthIntegrationTest {
 	@Autowired
 	private RedisService redisService;
 
-	@Mock
-	private UserRepository userRepository1;
-
 	@Autowired
 	private UserRepository userRepository;
-	@InjectMocks
-	private AuthService authService; // UserRepository가 필요한 서비스
+
 
 	// @BeforeEach
 	// void setUp() {
@@ -92,9 +88,7 @@ public class AuthIntegrationTest {
 		assertEquals("1234", savedUser.getSimplePassword());
 	}
 	@Test
-	public void setUptest(UserRepository userRepository2) {
-		// Given
-
+	public void setUptest() {
 		// Given
 		User testUser = User.builder()
 			.userEmail("test@test.com")
@@ -106,13 +100,12 @@ public class AuthIntegrationTest {
 			.build();
 
 		// When
-		userRepository2.save(testUser);
+		userRepository.save(testUser);
 
-		// Then: 데이터가 잘 저장되었는지 확인
-		Optional<User> retrievedUser = userRepository2.findByUserEmail("test@test.com");
+		// Then
+		Optional<User> retrievedUser = userRepository.findByUserEmail("test@test.com");
 		assertTrue(retrievedUser.isPresent(), "User should be saved in the database");
 
-		// 저장된 데이터의 세부 내용 검증
 		User savedUser = retrievedUser.get();
 		assertEquals("test@test.com", savedUser.getUserEmail());
 		assertEquals("테스트", savedUser.getUserName());
