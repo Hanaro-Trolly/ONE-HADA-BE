@@ -43,7 +43,11 @@ public class SecurityConfig {
                     "/",
                     "/api/auth/**",
                     "/api/redis-test/**",
-                    "/api/redis/**"
+                    "/api/redis/**",
+                    "/api/mongo-test/**",
+                    "/users/**",
+                    "/ws/**",           // WebSocket 엔드포인트 추가
+                    "/ws"              // WebSocket 기본 경로 추가
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -55,9 +59,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*");
+        // "*" 대신 구체적인 출처 지정
+        configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);  // credentials 활성화
+
+        // 필요한 경우 추가 헤더 설정
+        configuration.addExposedHeader("Authorization");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
