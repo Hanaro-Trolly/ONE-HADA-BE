@@ -10,18 +10,18 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoro userRepositoro;
 
     // 모든 사용자 조회
     @GetMapping
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepositoro.findAll();
     }
 
     // 새 사용자 추가
     @PostMapping
     public User addUser(@RequestBody User user) {
-        return userRepository.save(user);
+        return userRepositoro.save(user);
     }
 }
 
