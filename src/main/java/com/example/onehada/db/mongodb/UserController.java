@@ -10,7 +10,7 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserRepositori userRepository;
+    private UserRepository userRepository;
 
     // 모든 사용자 조회
     @GetMapping
