@@ -44,6 +44,8 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/api/redis-test/**",
                     "/api/redis/**",
+                    "/api/mongo-test/**",
+                    "/users/**",
                     "/ws/**",           // WebSocket 엔드포인트 추가
                     "/ws"              // WebSocket 기본 경로 추가
                 ).permitAll()
