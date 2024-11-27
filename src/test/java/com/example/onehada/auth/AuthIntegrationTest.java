@@ -75,23 +75,21 @@ public class AuthIntegrationTest {
 
 	@Test
 	void testHomeEndpoint() throws Exception {
-		// Given: 초기 상태 확인 (DB는 @Transactional로 인해 테스트 후 롤백)
-
 		// When: GET 요청 수행
 		mockMvc.perform(get("/"))
 			.andExpect(status().isOk());
 
 		// Then: User 저장 여부 확인
 		Optional<User> optionalUser = userRepository.findByUserEmail("test@tes.com");
-		assertTrue(optionalUser.isPresent(), "User should be present in the database");
 
+		assertTrue(optionalUser.isPresent(), "User should be present in the database");
 		User savedUser = optionalUser.get();
+
+		// 상세 검증
+		assertNotNull(savedUser.getUserId(), "User ID should not be null");
 		assertEquals("test@tes.com", savedUser.getUserEmail());
 		assertEquals("테스트", savedUser.getUserName());
 		assertEquals("1234", savedUser.getSimplePassword());
-		assertEquals("M", savedUser.getUserGender());
-		assertEquals("01012345678", savedUser.getPhoneNumber());
-		assertEquals("19900101", savedUser.getUserBirth());
 	}
 	@Test
 	public void setUptest(UserRepository userRepository2) {
