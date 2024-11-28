@@ -1,63 +1,118 @@
 package com.example.onehada.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.util.List;
-
+import com.example.onehada.api.auth.dto.AuthRequest;
+import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.api.service.AccountService;
+import com.example.onehada.db.entity.Account;
+import com.example.onehada.db.entity.User;
+import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.db.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.onehada.api.service.AccountService;
-import com.example.onehada.db.dto.AccountDTO;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class AccountControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
 
-	@MockBean
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@Autowired
 	private AccountService accountService;
 
-	@BeforeEach
-	//해당 유저로 로그인,토큰반환
+	@Autowired
+	private UserRepository userRepository;
 
+	@Autowired
+	private AccountRepository accountRepository;
+
+	private String accessToken;
+
+	@BeforeEach
+	public void setUp() throws Exception {
+		// 1. 기존 데이터 정리
+		accountRepository.deleteAll();
+		userRepository.deleteAll();
+
+
+		// 2. 테스트용 유저 생성
+		User testUser = User.builder()
+			.userEmail("test@test.com")
+			.userName("테스트")
+			.simplePassword("1234")
+			.userGender("M")
+			.phoneNumber("01012345678")
+			.userBirth("19900101")
+			.build();
+
+		User savedUser = userRepository.save(testUser);
+
+		// 3. 테스트용 계좌 생성
+		Account testAccount = Account.builder()
+			.accountName("입출금")
+			.accountNumber("123456789")
+			.balance(1000000)
+			.bank("은행A")
+			.user(savedUser)
+			.accountType("normal")
+			.build();
+
+		accountRepository.save(testAccount);
+
+		// 4. 로그인 요청
+		AuthRequest loginRequest = AuthRequest.builder()
+			.email("test@test.com")
+			.simplePassword("1234")
+			.build();
+
+		MvcResult result = mockMvc.perform(post("/api/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(loginRequest)))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andReturn();
+
+		// 5. 토큰 저장
+		AuthResponse response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			AuthResponse.class
+		);
+
+		accessToken = "Bearer " + response.getAccessToken();
+	}
 
 	@Test
 	public void testGetUserAccounts_Success() throws Exception {
-		// Given
-		String accessToken = "valid-access-token";
-		String email = "test@test.com";
-
-		System.out.println("accessToken = " + accountService.getEmailFromToken(accessToken));
-
-
-
-		List<AccountDTO> accounts = List.of(
-			new AccountDTO(1, "입출금", "123456789", 1000000, "은행A"),
-			new AccountDTO(2, "적금", "987654321", 500000, "은행B")
-		);
-
-		// Mock Service
-		Mockito.when(accountService.getEmailFromToken(accessToken)).thenReturn(email);
-		Mockito.when(accountService.getUserAccounts(email)).thenReturn(accounts);
-
+		// 생성된 계좌의 실제 ID를 가져옴
+		Account savedAccount = accountRepository.findAccountsByUserUserEmail("test@test.com").get(0);
 		// When & Then
 		mockMvc.perform(get("/api/accounts")
 				.header("Authorization", accessToken))
+			.andDo(print())  // 실패 시 응답 내용 출력
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
 			.andExpect(jsonPath("$.message").value("계좌정보를 불러왔습니다."))
-			.andExpect(jsonPath("$.data[0].accountId").value(1))
+			.andExpect(jsonPath("$.data[0].accountId").value(savedAccount.getAccountId()))
 			.andExpect(jsonPath("$.data[0].accountName").value("입출금"))
 			.andExpect(jsonPath("$.data[0].accountNumber").value("123456789"))
 			.andExpect(jsonPath("$.data[0].balance").value(1000000))
