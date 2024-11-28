@@ -47,6 +47,28 @@ public class AuthService {
             .build();
     }
 
+    // Access Token과 Refresh Token 발급 및 Redis 저장
+    public AuthResponse generateTokens(String email, String name) {
+        // 지금은 유저등록 안되어있어서 주석처리
+        // User user = userRepository.findByUserEmail(email)
+        //     .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Access Token과 Refresh Token 생성
+        String accessToken = jwtService.generateAccessToken(email);
+        String refreshToken = jwtService.generateRefreshToken(email);
+
+        // Redis에 Refresh Token 저장
+        redisService.saveAccessToken(email, accessToken, accessTokenExpiration);
+        redisService.saveRefreshToken(email, refreshToken, refreshTokenExpiration);
+
+        return AuthResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .email(email)
+            .userName(name)
+            .build();
+    }
+
     public void logout(String token) {
         String email = jwtService.extractEmail(token.substring(7));
         String accessToken = redisService.getAccessToken(email);
