@@ -28,7 +28,6 @@ public class AccountController {
 	public ResponseEntity<?> getUserAccounts(@RequestHeader("Authorization") String Token) {
 		try {
 			// 유효한 토큰인지 확인하고 사용자 이메일 추출
-			System.out.println("accessToken = " + Token);
 			String accessToken = Token.replace("Bearer ", "");
 			String email = accountService.getEmailFromToken(accessToken);
 

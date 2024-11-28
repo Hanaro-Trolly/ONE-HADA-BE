@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,10 @@ public class AccountControllerTest {
 
 	@MockBean
 	private AccountService accountService;
+
+	@BeforeEach
+	//해당 유저로 로그인,토큰반환
+
 
 	@Test
 	public void testGetUserAccounts_Success() throws Exception {
