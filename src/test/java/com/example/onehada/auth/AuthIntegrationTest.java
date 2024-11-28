@@ -6,22 +6,29 @@ import com.example.onehada.api.service.RedisService;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Optional;
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test") // 테스트 환경의 설정 파일을 로드
+@Transactional
 public class AuthIntegrationTest {
 
 	@Autowired
@@ -38,23 +45,41 @@ public class AuthIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
-		// 테스트용 사용자 생성
+		userRepository.deleteAll();
+
 		User testUser = User.builder()
 			.userEmail("test@test.com")
 			.userName("테스트")
 			.simplePassword("1234")
-			// 필요한 경우 다른 필수 필드들도 설정
 			.userGender("M")
 			.phoneNumber("01012345678")
 			.userBirth("19900101")
 			.build();
-		
+
 		userRepository.save(testUser);
 	}
 
 	@Test
+	public void setUptest() {
+		// Given 유저 생성
+
+		// When 저장
+
+		// Then
+		Optional<User> retrievedUser = userRepository.findByUserEmail("test@test.com");
+		assertTrue(retrievedUser.isPresent(), "User should be saved in the database");
+
+		User savedUser = retrievedUser.get();
+		assertEquals("test@test.com", savedUser.getUserEmail());
+		assertEquals("테스트", savedUser.getUserName());
+		assertEquals("1234", savedUser.getSimplePassword());
+		assertEquals("M", savedUser.getUserGender());
+		assertEquals("01012345678", savedUser.getPhoneNumber());
+		assertEquals("19900101", savedUser.getUserBirth());
+	}
+
+	@Test
 	public void testLoginAndTokenStorage() throws Exception {
-		// Given
 		AuthRequest request = AuthRequest.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
@@ -77,7 +102,6 @@ public class AuthIntegrationTest {
 		assertNotNull(response.getRefreshToken());
 		assertEquals("test@test.com", response.getEmail());
 
-		// Redis 저장 확인
 		String storedAccessToken = redisService.getAccessToken("test@test.com");
 		String storedRefreshToken = redisService.getRefreshToken("test@test.com");
 
@@ -88,7 +112,7 @@ public class AuthIntegrationTest {
 
 	@Test
 	public void testLogoutAndBlacklist() throws Exception {
-		// Given - 먼저 로그인
+		// Given - 로그인
 		AuthRequest request = AuthRequest.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
