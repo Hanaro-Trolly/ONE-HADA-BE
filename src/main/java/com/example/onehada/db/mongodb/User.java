@@ -8,15 +8,27 @@ public class User {
     @Id
     private String id; // MongoDB 기본 키
     private String name;
+
+
+    private int age;
     private String email;
 
     // 기본 생성자
     public User() {}
 
     // 생성자
-    public User(String name, String email) {
+    public User(String name, String email, int age) {
         this.name = name;
+        this.age= age;
         this.email = email;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
     }
 
     // Getters and Setters

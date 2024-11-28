@@ -1,6 +1,11 @@
 spring:
   application:
     name: onehada
+  neo4j:
+    uri: neo4j+s://ad7123be.databases.neo4j.io
+    authentication:
+      username: neo4j
+      password: Rf-LERPmTM9UmAR2HEoxm9jr2RJKPAZMxMCzjIYD1fk
 
   datasource:
     #    # serverDB
@@ -9,7 +14,7 @@ spring:
     #    password: Hanaro0526!
     #    driver-class-name: com.mysql.cj.jdbc.Driver
     # local testDB
-    url: jdbc:mysql://localhost:3306/ONEHADA_localDB
+    url: jdbc:mysql://localhost:3306/ONEHADA_serverDB
     username: Trolli
     password: Trolli1!
     driver-class-name: com.mysql.cj.jdbc.Driver
