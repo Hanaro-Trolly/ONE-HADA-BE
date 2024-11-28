@@ -2,7 +2,6 @@ package com.example.onehada.auth;
 
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
-import com.example.onehada.api.auth.service.AuthService;
 import com.example.onehada.api.service.RedisService;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.UserRepository;
@@ -10,8 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +19,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,7 +30,6 @@ import java.util.Optional;
 @ActiveProfiles("test") // 테스트 환경의 설정 파일을 로드
 @Transactional
 public class AuthIntegrationTest {
-
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -48,48 +43,10 @@ public class AuthIntegrationTest {
 	@Autowired
 	private UserRepository userRepository;
 
+	@BeforeEach
+	void setUp() {
+		userRepository.deleteAll();
 
-	// @BeforeEach
-	// void setUp() {
-	// 	// 테스트용 사용자 생성
-	// 	User testUser = User.builder()
-	// 		.userEmail("test@test.com")
-	// 		.userName("테스트")
-	// 		.simplePassword("1234")
-	// 		// 필요한 경우 다른 필수 필드들도 설정
-	// 		.userGender("M")
-	// 		.phoneNumber("01012345678")
-	// 		.userBirth("19900101")
-	// 		.build();
-	//
-	// 	userRepository.save(testUser);
-	//
-	// 	assertTrue(userRepository.findByUserEmail("test@test.com").isPresent(),
-	// 		"Test user should be saved in the database");
-	// }
-
-
-	@Test
-	void testHomeEndpoint() throws Exception {
-		// When: GET 요청 수행
-		mockMvc.perform(get("/"))
-			.andExpect(status().isOk());
-
-		// Then: User 저장 여부 확인
-		Optional<User> optionalUser = userRepository.findByUserEmail("test@tes.com");
-
-		assertTrue(optionalUser.isPresent(), "User should be present in the database");
-		User savedUser = optionalUser.get();
-
-		// 상세 검증
-		assertNotNull(savedUser.getUserId(), "User ID should not be null");
-		assertEquals("test@tes.com", savedUser.getUserEmail());
-		assertEquals("테스트", savedUser.getUserName());
-		assertEquals("1234", savedUser.getSimplePassword());
-	}
-	@Test
-	public void setUptest() {
-		// Given
 		User testUser = User.builder()
 			.userEmail("test@test.com")
 			.userName("테스트")
@@ -99,8 +56,14 @@ public class AuthIntegrationTest {
 			.userBirth("19900101")
 			.build();
 
-		// When
 		userRepository.save(testUser);
+	}
+
+	@Test
+	public void setUptest() {
+		// Given 유저 생성
+
+		// When 저장
 
 		// Then
 		Optional<User> retrievedUser = userRepository.findByUserEmail("test@test.com");
@@ -117,7 +80,6 @@ public class AuthIntegrationTest {
 
 	@Test
 	public void testLoginAndTokenStorage() throws Exception {
-		// Given
 		AuthRequest request = AuthRequest.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
@@ -140,7 +102,6 @@ public class AuthIntegrationTest {
 		assertNotNull(response.getRefreshToken());
 		assertEquals("test@test.com", response.getEmail());
 
-		// Redis 저장 확인
 		String storedAccessToken = redisService.getAccessToken("test@test.com");
 		String storedRefreshToken = redisService.getRefreshToken("test@test.com");
 
@@ -151,7 +112,7 @@ public class AuthIntegrationTest {
 
 	@Test
 	public void testLogoutAndBlacklist() throws Exception {
-		// Given - 먼저 로그인
+		// Given - 로그인
 		AuthRequest request = AuthRequest.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
