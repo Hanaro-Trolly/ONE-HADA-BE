@@ -22,17 +22,6 @@ public class HomeController {
 
 	@GetMapping("/")
 	public String home() {
-		User testUser = User.builder()
-			.userEmail("test@tes.com")
-			.userName("테스트")
-			.simplePassword("1234")
-			.userGender("M")
-			.phoneNumber("01012345678")
-			.userBirth("19900101")
-			.build();
-
-		User savedUser = userRepository.save(testUser);
-		System.out.println("HomeController.home - Saved user with ID: " + savedUser.getUserId());
 
 		return "One, hada!";
 	}
