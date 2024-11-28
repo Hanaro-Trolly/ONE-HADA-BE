@@ -30,8 +30,9 @@ public class AccountService {
 
 	// 사용자 이메일로 계좌 정보 조회
 	public List<AccountDTO> getUserAccounts(String email) {
-		List<Account> accounts = accountRepository.findByUserUserEmail(email);
+		List<Account> accounts = accountRepository.findAccountsByUserUserEmail(email);
 
+		System.out.println("accounts = " + accounts);
 		// Account 엔티티를 DTO로 변환
 		return accounts.stream()
 			.map(account -> new AccountDTO(
