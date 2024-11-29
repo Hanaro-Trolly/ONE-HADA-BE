@@ -3,6 +3,8 @@ package com.example.onehada.api.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,18 +31,31 @@ public class AccountService {
 	}
 
 	// 사용자 이메일로 계좌 정보 조회
-	public List<AccountDTO> getUserAccounts(String email) {
+	public List<AccountDTO.accountsDTO> getUserAccounts(String email) {
 		List<Account> accounts = accountRepository.findAccountsByUserUserEmail(email);
 
-		System.out.println("accounts = " + accounts);
-		// Account 엔티티를 DTO로 변환
+		// Account 엔티티를 DTO로 변환(Construct 사용)
 		return accounts.stream()
-			.map(account -> new AccountDTO(
+			.map(account -> new AccountDTO.accountsDTO(
 				account.getAccountId(),
 				account.getAccountName(),
 				account.getAccountNumber(),
 				account.getBalance(),
 				account.getBank()))
 			.collect(Collectors.toList());
+	}
+	public AccountDTO.accountDetailDTO getAccountById(Long accountId) throws AccountNotFoundException {
+		Account account = accountRepository.findByAccountId(accountId)
+			.orElseThrow(() -> new AccountNotFoundException("존재하지 않는 계좌 id 입니다."));
+		//build 사용
+		return AccountDTO.accountDetailDTO.builder()
+			.userId(account.getUser().getUserId())
+			.accountId(account.getAccountId())
+			.accountName(account.getAccountName())
+			.accountNumber(account.getAccountNumber())
+			.accountType(account.getAccountType())
+			.balance(account.getBalance())
+			.bank(account.getBank())
+			.build();
 	}
 }
