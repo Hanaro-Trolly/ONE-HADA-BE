@@ -4,15 +4,15 @@ spring:
 
   datasource:
     #    # serverDB
-#    url: jdbc:mysql://ajoufinance.iptime.org:3306/ONEHADA_serverDB
-#    username: Trolli
-#    password: Hanaro0526!
-#    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://ajoufinance.iptime.org:3306/ONEHADA_serverDB
+    username: Trolli
+    password: Hanaro0526!
+    driver-class-name: com.mysql.cj.jdbc.Driver
     # local testDB
-      url: jdbc:mysql://127.0.0.1:3308/ONEHADA_localDB
-      username: root
-      password: TestRoot
-      driver-class-name: com.mysql.cj.jdbc.Driver
+#      url: jdbc:mysql://127.0.0.1:3308/ONEHADA_localDB
+#      username: root
+#      password: TestRoot
+#      driver-class-name: com.mysql.cj.jdbc.Driver
 
 
 

@@ -44,6 +44,18 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
+    // public List<String> extractRoles(String token) {
+    //     Claims claims = extractAllClaims(token);
+    //     Object rolesObject = claims.get("roles");
+    //     List<String> roles = new ArrayList<>();
+    //     if (rolesObject instanceof List) {
+    //         for (Object role : (List<?>) rolesObject) {
+    //             roles.add(role.toString());
+    //         }
+    //     }
+    //     return roles;
+    // }
+
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
             .setSigningKey(getSigningKey())
@@ -60,6 +72,20 @@ public class JwtService {
         final String email = extractEmail(token);
         return (email.equals(userEmail)) && !isTokenExpired(token);
     }
+
+
+    public boolean isValidToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token.replace("Bearer ", ""));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 
     private boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
