@@ -107,14 +107,18 @@ public class AccountController {
 			//DTO 생성
 			AccountDTO.accountTransferDTO fromAccountDTO = AccountDTO.accountTransferDTO.builder()
 				.accountId(fromAccount.getAccountId())
+				.accountNumber(fromAccount.getAccountNumber())
 				.accountName(fromAccount.getAccountName())
 				.balance(fromAccount.getBalance())
+				.bank(fromAccount.getBank())
 				.build();
 
 			AccountDTO.accountTransferDTO toAccountDTO = AccountDTO.accountTransferDTO.builder()
 				.accountId(toAccount.getAccountId())
 				.accountName(toAccount.getAccountName())
+				.accountName(toAccount.getAccountName())
 				.balance(toAccount.getBalance())
+				.bank(toAccount.getBank())
 				.build();
 
 			//계좌이체
