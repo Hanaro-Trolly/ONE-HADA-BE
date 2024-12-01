@@ -1,6 +1,7 @@
 package com.example.onehada.api.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.security.auth.login.AccountNotFoundException;
@@ -22,7 +23,7 @@ public class AccountService {
 	private final AuthService authService;
 
 	@Autowired
-	public AccountService(JwtService jwtService, AccountRepository accountRepository,AuthService authService) {
+	public AccountService(JwtService jwtService, AccountRepository accountRepository, AuthService authService) {
 		this.jwtService = jwtService;
 		this.accountRepository = accountRepository;
 		this.authService = authService;
@@ -47,21 +48,37 @@ public class AccountService {
 				account.getBank()))
 			.collect(Collectors.toList());
 	}
-	public AccountDTO.accountDetailDTO getAccountById(Long accountId ,int userId) throws AccountNotFoundException {
-		System.out.println("AccountService.getAccountById");
+
+	public Optional<AccountDTO.accountDetailDTO> getAccountById(Long accountId, int userId) throws AccountNotFoundException {
+
 		authService.validateAccountOwnership(accountId, userId);
 
-		Account account = accountRepository.findByAccountId(accountId)
-			.orElseThrow(() -> new AccountNotFoundException("존재하지 않는 계좌 id 입니다. ID : " + accountId));
-		//build 사용
-		return AccountDTO.accountDetailDTO.builder()
-			.userId(account.getUser().getUserId())
-			.accountId(account.getAccountId())
-			.accountName(account.getAccountName())
-			.accountNumber(account.getAccountNumber())
-			.accountType(account.getAccountType())
-			.balance(account.getBalance())
-			.bank(account.getBank())
-			.build();
+		// Account 조회
+		return accountRepository.findByAccountId(accountId)
+			.map(account -> AccountDTO.accountDetailDTO.builder()
+				.userId(account.getUser().getUserId())
+				.accountId(account.getAccountId())
+				.accountName(account.getAccountName())
+				.accountNumber(account.getAccountNumber())
+				.accountType(account.getAccountType())
+				.balance(account.getBalance())
+				.bank(account.getBank())
+				.build());
+	}
+	public Optional<AccountDTO.accountDetailDTO> getReceiverAccountById(Long accountId) throws AccountNotFoundException{
+		return accountRepository.findByAccountId(accountId)
+			.map(account -> AccountDTO.accountDetailDTO.builder()
+				.userId(account.getUser().getUserId())
+				.accountId(account.getAccountId())
+				.accountName(account.getAccountName())
+				.accountNumber(account.getAccountNumber())
+				.accountType(account.getAccountType())
+				.balance(account.getBalance())
+				.bank(account.getBank())
+				.build());
+	}
+
+	public boolean doesAccountExist(Long accountId) {
+		return accountRepository.existsById(accountId);
 	}
 }
