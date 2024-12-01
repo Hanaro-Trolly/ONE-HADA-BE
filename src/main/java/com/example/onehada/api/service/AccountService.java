@@ -8,6 +8,7 @@ import javax.security.auth.login.AccountNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.onehada.api.auth.service.AuthService;
 import com.example.onehada.api.auth.service.JwtService;
 import com.example.onehada.db.dto.AccountDTO;
 import com.example.onehada.db.entity.Account;
@@ -18,11 +19,13 @@ public class AccountService {
 
 	private final JwtService jwtService;
 	private final AccountRepository accountRepository;
+	private final AuthService authService;
 
 	@Autowired
-	public AccountService(JwtService jwtService, AccountRepository accountRepository) {
+	public AccountService(JwtService jwtService, AccountRepository accountRepository,AuthService authService) {
 		this.jwtService = jwtService;
 		this.accountRepository = accountRepository;
+		this.authService = authService;
 	}
 
 	// JWT에서 사용자 이메일 추출
@@ -44,9 +47,12 @@ public class AccountService {
 				account.getBank()))
 			.collect(Collectors.toList());
 	}
-	public AccountDTO.accountDetailDTO getAccountById(Long accountId) throws AccountNotFoundException {
+	public AccountDTO.accountDetailDTO getAccountById(Long accountId ,int userId) throws AccountNotFoundException {
+		System.out.println("AccountService.getAccountById");
+		authService.validateAccountOwnership(accountId, userId);
+
 		Account account = accountRepository.findByAccountId(accountId)
-			.orElseThrow(() -> new AccountNotFoundException("존재하지 않는 계좌 id 입니다."));
+			.orElseThrow(() -> new AccountNotFoundException("존재하지 않는 계좌 id 입니다. ID : " + accountId));
 		//build 사용
 		return AccountDTO.accountDetailDTO.builder()
 			.userId(account.getUser().getUserId())

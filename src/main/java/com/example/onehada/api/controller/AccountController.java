@@ -13,26 +13,34 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.onehada.api.auth.service.JwtService;
 import com.example.onehada.api.service.AccountService;
+import com.example.onehada.api.service.UserService;
 import com.example.onehada.db.dto.AccountDTO;
 import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.exception.authorization.AccessDeniedException;
+import com.example.onehada.exception.user.UserNotFoundException;
 
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
 
 	private final AccountService accountService;
+	private final JwtService jwtService;
+	private final UserService userService;
 
 	@Autowired
-	public AccountController(AccountService accountService) {
+	public AccountController(AccountService accountService, JwtService jwtService,UserService userService) {
 		this.accountService = accountService;
+		this.jwtService = jwtService;
+		this.userService = userService;
 	}
 
 	@GetMapping
-	public ResponseEntity<?> getUserAccounts(@RequestHeader("Authorization") String Token) {
+	public ResponseEntity<?> getUserAccounts(@RequestHeader("Authorization") String token) {
 		try {
 			// 유효한 토큰인지 확인하고 사용자 이메일 추출
-			String accessToken = Token.replace("Bearer ", "");
+			String accessToken = token.replace("Bearer ", "");
 			String email = accountService.getEmailFromToken(accessToken);
 
 			// 사용자 이메일로 계좌 정보 조회
@@ -47,16 +55,20 @@ public class AccountController {
 		}
 	}
 	@GetMapping("/{account_id}")
-	public ResponseEntity<?> getAccountById(@RequestHeader("Authorization") String Token,@PathVariable("account_id") Long accountId) {
+	public ResponseEntity<?> getAccountById(@RequestHeader("Authorization") String token,@PathVariable("account_id") Long accountId) {
 		try {
-			String accessToken = Token.replace("Bearer ", "");
+			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
+			int userId = userService.getUserByEmail(email).getUserId();
 
-			//Todo 토큰으로
-			AccountDTO.accountDetailDTO account = accountService.getAccountById(accountId);
+			AccountDTO.accountDetailDTO account = accountService.getAccountById(accountId, userId);
+
 			return ResponseEntity.ok(new ApiResponse(200, "OK", "단일 계좌 정보를 성공적으로 가져왔습니다.", account));
-		} catch (AccountNotFoundException ex) {
+		} catch (UserNotFoundException | AccountNotFoundException ex) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.body(new ApiResponse(400, "BAD_REQUEST", ex.getMessage(), null));
+		} catch (AccessDeniedException ex) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(new ApiResponse(403, "FORBIDDEN", ex.getMessage(), null));
 		}
 	}
 }
