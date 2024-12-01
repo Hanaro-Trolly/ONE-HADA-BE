@@ -45,6 +45,7 @@ public class SecurityConfig {
                     "/",
                     "/auth/login",
                     "/api/auth/**",
+                    "/api/admin/login",
                     "/api/redis-test/**",
                     "/api/redis/**",
                     "/api/mongo-test/**",

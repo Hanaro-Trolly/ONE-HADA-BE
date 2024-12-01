@@ -1,8 +1,14 @@
 package com.example.onehada.db.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Agent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,6 +20,6 @@ public class Agent {
 	@Column(length = 127, nullable = false)
 	private String agentEmail;
 
+	@Column(nullable = false)
 	private String agentPw;
-
 }

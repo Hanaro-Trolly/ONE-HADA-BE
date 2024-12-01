@@ -5,8 +5,14 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Consultation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
