@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ConsultationResponseDTO {
-	private String userId;
+	private Long userId;
 	private List<ConsultationDetailDTO> consultations;
 }

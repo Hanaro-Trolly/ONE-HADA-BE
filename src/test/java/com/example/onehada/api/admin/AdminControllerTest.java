@@ -104,8 +104,8 @@ public class AdminControllerTest {
 	@Test
 	void createAndGetConsultationTest() throws Exception {
 		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
-		request.setAgent_id(String.valueOf(testAgent.getAgentId()));
-		request.setUser_id(String.valueOf(testUser.getUserId()));
+		request.setAgent_id(testAgent.getAgentId());
+		request.setUser_id(testUser.getUserId());
 		request.setConsultation_title("테스트 상담");
 		request.setConsultation_content("테스트 상담 내용");
 		request.setConsultation_date(LocalDateTime.now());
@@ -171,8 +171,8 @@ public class AdminControllerTest {
 	@Test
 	void createConsultationInvalidUserTest() throws Exception {
 		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
-		request.setAgent_id(String.valueOf(testAgent.getAgentId()));
-		request.setUser_id("99999"); // 존재하지 않는 사용자 ID
+		request.setAgent_id(testAgent.getAgentId());
+		request.setUser_id(999999L); // 존재하지 않는 사용자 ID
 		request.setConsultation_title("테스트 상담");
 		request.setConsultation_content("테스트 상담 내용");
 		request.setConsultation_date(LocalDateTime.now());
@@ -182,6 +182,7 @@ public class AdminControllerTest {
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(400))
+			.andExpect(jsonPath("$.status").value("USER_NOT_FOUND"))
 			.andExpect(jsonPath("$.message").value("상담 데이터 추가 실패"));
 	}
 }

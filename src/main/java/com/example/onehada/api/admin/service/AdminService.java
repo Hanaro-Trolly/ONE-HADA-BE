@@ -56,8 +56,8 @@ public class AdminService {
 			.collect(Collectors.toList());
 	}
 
-	public ActivityLogResponseDTO getActivityLogs(String userId) throws UserNotFoundException {
-		User user = userRepository.findById(Integer.parseInt(userId))
+	public ActivityLogResponseDTO getActivityLogs(Long userId) throws UserNotFoundException {
+		User user = userRepository.findById(userId)
 			.orElseThrow(UserNotFoundException::new);
 
 		List<History> histories = historyRepository.findByUser(user);
@@ -78,10 +78,10 @@ public class AdminService {
 	@Transactional
 	public ConsultationCreateResponseDTO createConsultation(ConsultationCreateRequestDTO request) throws
 		UserNotFoundException, AgentNotFoundException {
-		User user = userRepository.findById(Integer.parseInt(request.getUser_id()))
+		User user = userRepository.findById(request.getUser_id())
 			.orElseThrow(UserNotFoundException::new);
 
-		Agent agent = agentRepository.findById(Integer.parseInt(request.getAgent_id()))
+		Agent agent = agentRepository.findById(request.getAgent_id())
 			.orElseThrow(AgentNotFoundException::new);
 
 		Consultation consultation = Consultation.builder()
@@ -95,8 +95,8 @@ public class AdminService {
 		return new ConsultationCreateResponseDTO(String.valueOf(consultation.getConsultationId()));
 	}
 
-	public ConsultationResponseDTO getConsultations(String userId) {
-		User user = userRepository.findById(Integer.parseInt(userId))
+	public ConsultationResponseDTO getConsultations(Long userId) {
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new RuntimeException("User not found"));
 
 		List<Consultation> consultations = consultationRepository.findByUser(user);
@@ -113,8 +113,8 @@ public class AdminService {
 		return new ConsultationResponseDTO(userId, details);
 	}
 
-	public UserResponseDTO getUser(String userId) {
-		User user = userRepository.findById(Integer.parseInt(userId))
+	public UserResponseDTO getUser(Long userId) {
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new RuntimeException("User not found"));
 
 		return new UserResponseDTO(

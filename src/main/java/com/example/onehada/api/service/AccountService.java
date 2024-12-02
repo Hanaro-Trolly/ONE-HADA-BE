@@ -49,7 +49,7 @@ public class AccountService {
 			.collect(Collectors.toList());
 	}
 
-	public Optional<AccountDTO.accountDetailDTO> getAccountById(Long accountId, int userId) throws AccountNotFoundException {
+	public Optional<AccountDTO.accountDetailDTO> getAccountById(Long accountId, Long userId) throws AccountNotFoundException {
 
 		authService.validateAccountOwnership(accountId, userId);
 

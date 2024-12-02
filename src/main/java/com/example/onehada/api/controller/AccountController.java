@@ -69,7 +69,7 @@ public class AccountController {
 		@PathVariable("account_id") Long accountId) {
 		try {
 			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
-			int userId = userService.getUserByEmail(email).getUserId();
+			Long userId = userService.getUserByEmail(email).getUserId();
 			System.out.println("userId = " + userId);
 
 			Optional<AccountDTO.accountDetailDTO> account = accountService.getAccountById(accountId, userId);
@@ -95,7 +95,7 @@ public class AccountController {
 		@RequestBody AccountDTO.accountTransferRequest transferRequest) {
 		try {
 			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
-			int userId = userService.getUserByEmail(email).getUserId();
+			Long userId = userService.getUserByEmail(email).getUserId();
 			System.out.println("userId = " + userId);
 			System.out.println("accountService = " + transferRequest.getFromAccountId());
 			// 계좌 이체 처리

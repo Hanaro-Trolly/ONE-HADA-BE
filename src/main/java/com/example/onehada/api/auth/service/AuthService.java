@@ -74,7 +74,7 @@ public class AuthService {
 
 
     //Validation
-    public void validateAccountOwnership(Long accountId, int userId) {
+    public void validateAccountOwnership(Long accountId, Long userId) {
         Account account = accountRepository.findById(accountId)
             .orElseThrow(() -> new AccountNotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
 

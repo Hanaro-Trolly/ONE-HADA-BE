@@ -34,7 +34,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/activity_logs/{userId}")
-	public ResponseEntity<?> getActivityLogs(@PathVariable String userId) throws UserNotFoundException {
+	public ResponseEntity<?> getActivityLogs(@PathVariable Long userId) throws UserNotFoundException {
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "활동 로그 조회 성공",
 			adminService.getActivityLogs(userId)
@@ -52,7 +52,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/consultation/{userId}")
-	public ResponseEntity<?> getConsultations(@PathVariable String userId) {
+	public ResponseEntity<?> getConsultations(@PathVariable Long userId) {
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "상담 데이터 조회 성공",
 			adminService.getConsultations(userId)
@@ -60,7 +60,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/user/{userId}")
-	public ResponseEntity<?> getUser(@PathVariable String userId) {
+	public ResponseEntity<?> getUser(@PathVariable Long userId) {
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "사용자 정보 조회 성공",
 			adminService.getUser(userId)

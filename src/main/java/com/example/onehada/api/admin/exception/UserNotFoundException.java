@@ -1,7 +1,7 @@
 package com.example.onehada.api.admin.exception;
 
-public class UserNotFoundException extends Exception {
+public class UserNotFoundException extends BaseException {
 	public UserNotFoundException() {
-		super("USER_NOT_FOUND");
+		super("USER_NOT_FOUND","상담 데이터 추가 실패");
 	}
 }

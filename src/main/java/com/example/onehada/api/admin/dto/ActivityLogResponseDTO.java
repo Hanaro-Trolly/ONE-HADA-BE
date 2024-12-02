@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class ActivityLogResponseDTO {
-	private String userId;
+	private Long userId;
 	private String user_name;
 	private List<ActivityLogDetailDTO> logs;
 }
