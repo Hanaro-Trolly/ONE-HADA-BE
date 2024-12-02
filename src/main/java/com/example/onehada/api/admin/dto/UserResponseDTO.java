@@ -7,7 +7,7 @@ import lombok.Getter;
 @Data
 @Getter
 @AllArgsConstructor
-public class UserResponse {
+public class UserResponseDTO {
 	private String id;
 	private String user_name;
 	private String user_birth;

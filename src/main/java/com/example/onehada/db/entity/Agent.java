@@ -5,7 +5,6 @@ import lombok.*;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,6 +19,6 @@ public class Agent {
 	@Column(length = 127, nullable = false)
 	private String agentEmail;
 
-	@Column(nullable = false)
 	private String agentPw;
+
 }

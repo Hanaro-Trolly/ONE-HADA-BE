@@ -9,8 +9,8 @@ import java.util.List;
 @Data
 @Getter
 @AllArgsConstructor
-public class ActivityLogResponse {
+public class ActivityLogResponseDTO {
 	private String userId;
 	private String user_name;
-	private List<ActivityLogDetail> logs;
+	private List<ActivityLogDetailDTO> logs;
 }

@@ -14,9 +14,9 @@ public class AdminController {
 	private final AdminService adminService;
 
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody AdminLoginRequest request) {
+	public ResponseEntity<?> login(@RequestBody AdminLoginRequestDTO request) {
 		try {
-			AdminLoginResponse response = adminService.login(request);
+			AdminLoginResponseDTO response = adminService.login(request);
 			return ResponseEntity.ok(new ApiResponse(200, "OK", "로그인 성공", response));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest()
@@ -54,7 +54,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/consultation")
-	public ResponseEntity<?> createConsultation(@RequestBody ConsultationCreateRequest request) {
+	public ResponseEntity<?> createConsultation(@RequestBody ConsultationCreateRequestDTO request) {
 		try {
 			return ResponseEntity.ok(new ApiResponse(
 				201, "CREATED", "상담 데이터 추가 성공",

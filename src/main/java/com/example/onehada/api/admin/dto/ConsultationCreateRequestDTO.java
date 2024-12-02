@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @Setter
 @Data
-public class ConsultationCreateRequest {
+public class ConsultationCreateRequestDTO {
 	private String id;
 	private String agent_id;
 	private String user_id;

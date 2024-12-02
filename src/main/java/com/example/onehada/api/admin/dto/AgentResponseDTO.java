@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AgentResponse {
+public class AgentResponseDTO {
 	private String id;
 	private String agent_name;
 	private String agent_email;

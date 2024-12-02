@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class ActivityLogDetail {
+public class ActivityLogDetailDTO {
 	private LocalDateTime timestamp;
 	private String details;
 }

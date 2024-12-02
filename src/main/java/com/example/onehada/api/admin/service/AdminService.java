@@ -19,21 +19,21 @@ public class AdminService {
 	private final HistoryRepository historyRepository;
 	private final ConsultationRepository consultationRepository;
 
-	public AdminLoginResponse login(AdminLoginRequest request) {
+	public AdminLoginResponseDTO login(AdminLoginRequestDTO request) {
 		Agent agent = agentRepository.findByAgentEmailAndAgentPw(
 				request.getAgent_email(),
 				request.getAgent_pw()
 			)
 			.orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-		return new AdminLoginResponse(
+		return new AdminLoginResponseDTO(
 			agent.getAgentId(),
 			agent.getAgentName(),
 			agent.getAgentEmail()
 		);
 	}
 
-	public List<AgentResponse> getAgents(String email, String name) {
+	public List<AgentResponseDTO> getAgents(String email, String name) {
 		List<Agent> agents;
 		if (email != null) {
 			agents = agentRepository.findByAgentEmailContaining(email);
@@ -44,7 +44,7 @@ public class AdminService {
 		}
 
 		return agents.stream()
-			.map(agent -> new AgentResponse(
+			.map(agent -> new AgentResponseDTO(
 				String.valueOf(agent.getAgentId()),
 				agent.getAgentName(),
 				agent.getAgentEmail(),
@@ -53,19 +53,19 @@ public class AdminService {
 			.collect(Collectors.toList());
 	}
 
-	public ActivityLogResponse getActivityLogs(String userId) {
+	public ActivityLogResponseDTO getActivityLogs(String userId) {
 		User user = userRepository.findById(Integer.parseInt(userId))
 			.orElseThrow(() -> new RuntimeException("User not found"));
 
 		List<History> histories = historyRepository.findByUser(user);
-		List<ActivityLogDetail> logs = histories.stream()
-			.map(history -> new ActivityLogDetail(
+		List<ActivityLogDetailDTO> logs = histories.stream()
+			.map(history -> new ActivityLogDetailDTO(
 				history.getActivityDate(),
 				history.getHistoryName()
 			))
 			.collect(Collectors.toList());
 
-		return new ActivityLogResponse(
+		return new ActivityLogResponseDTO(
 			userId,
 			user.getUserName(),
 			logs
@@ -73,7 +73,7 @@ public class AdminService {
 	}
 
 	@Transactional
-	public ConsultationCreateResponse createConsultation(ConsultationCreateRequest request) {
+	public ConsultationCreateResponseDTO createConsultation(ConsultationCreateRequestDTO request) {
 		User user = userRepository.findById(Integer.parseInt(request.getUser_id()))
 			.orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -88,16 +88,16 @@ public class AdminService {
 			.build();
 
 		consultation = consultationRepository.save(consultation);
-		return new ConsultationCreateResponse(String.valueOf(consultation.getConsultationId()));
+		return new ConsultationCreateResponseDTO(String.valueOf(consultation.getConsultationId()));
 	}
 
-	public ConsultationResponse getConsultations(String userId) {
+	public ConsultationResponseDTO getConsultations(String userId) {
 		User user = userRepository.findById(Integer.parseInt(userId))
 			.orElseThrow(() -> new RuntimeException("User not found"));
 
 		List<Consultation> consultations = consultationRepository.findByUser(user);
-		List<ConsultationDetail> details = consultations.stream()
-			.map(consultation -> new ConsultationDetail(
+		List<ConsultationDetailDTO> details = consultations.stream()
+			.map(consultation -> new ConsultationDetailDTO(
 				String.valueOf(consultation.getConsultationId()),
 				String.valueOf(consultation.getAgent().getAgentId()),
 				consultation.getConsultationTitle(),
@@ -106,14 +106,14 @@ public class AdminService {
 			))
 			.collect(Collectors.toList());
 
-		return new ConsultationResponse(userId, details);
+		return new ConsultationResponseDTO(userId, details);
 	}
 
-	public UserResponse getUser(String userId) {
+	public UserResponseDTO getUser(String userId) {
 		User user = userRepository.findById(Integer.parseInt(userId))
 			.orElseThrow(() -> new RuntimeException("User not found"));
 
-		return new UserResponse(
+		return new UserResponseDTO(
 			String.valueOf(user.getUserId()),
 			user.getUserName(),
 			user.getUserBirth(),

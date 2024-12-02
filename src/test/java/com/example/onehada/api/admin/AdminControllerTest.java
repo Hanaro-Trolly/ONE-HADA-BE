@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@WithMockUser(username = "admin", roles = "ADMIN")
 public class AdminControllerTest {
 
 	@Autowired
@@ -36,6 +38,9 @@ public class AdminControllerTest {
 	private UserRepository userRepository;
 
 	@Autowired
+	private AccountRepository accountRepository;
+
+	@Autowired
 	private ConsultationRepository consultationRepository;
 
 	@Autowired
@@ -47,33 +52,33 @@ public class AdminControllerTest {
 	@BeforeEach
 	void setUp() {
 		// 기존 데이터 정리
+		accountRepository.deleteAll();
 		historyRepository.deleteAll();
 		consultationRepository.deleteAll();
 		agentRepository.deleteAll();
 		userRepository.deleteAll();
 
 		// 테스트 상담원 생성
-		Agent agent = new Agent();
-		agent.setAgentEmail("test@admin.com");
-		agent.setAgentName("테스트 상담원");
-		agent.setAgentPw("password123");
-		testAgent = agentRepository.save(agent);
+		testAgent = agentRepository.save(Agent.builder()
+			.agentEmail("test@admin.com")
+			.agentName("테스트 상담원")
+			.agentPw("password123")
+			.build());
 
 		// 테스트 사용자 생성
-		User user = User.builder()
+		testUser = userRepository.save(User.builder()
 			.userEmail("user@test.com")
 			.userName("테스트 사용자")
 			.userGender("M")
 			.phoneNumber("01012345678")
 			.userBirth("19900101")
 			.simplePassword("1234")
-			.build();
-		testUser = userRepository.save(user);
+			.build());
 	}
 
 	@Test
 	void loginTest() throws Exception {
-		AdminLoginRequest request = new AdminLoginRequest();
+		AdminLoginRequestDTO request = new AdminLoginRequestDTO();
 		request.setAgent_email("test@admin.com");
 		request.setAgent_pw("password123");
 
@@ -98,7 +103,7 @@ public class AdminControllerTest {
 
 	@Test
 	void createAndGetConsultationTest() throws Exception {
-		ConsultationCreateRequest request = new ConsultationCreateRequest();
+		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
 		request.setAgent_id(String.valueOf(testAgent.getAgentId()));
 		request.setUser_id(String.valueOf(testUser.getUserId()));
 		request.setConsultation_title("테스트 상담");
@@ -133,10 +138,11 @@ public class AdminControllerTest {
 
 	@Test
 	void getActivityLogsTest() throws Exception {
-		// 테스트용 활동 로그 생성
-		History history = new History();
-		history.setUser(testUser);
-		history.setHistoryName("메인 페이지 방문");
+
+		History history = History.builder()
+			.user(testUser)
+			.historyName("메인 페이지 방문")
+			.build();
 		historyRepository.save(history);
 
 		mockMvc.perform(get("/api/admin/activity_logs/" + testUser.getUserId()))
@@ -149,7 +155,7 @@ public class AdminControllerTest {
 
 	@Test
 	void loginFailTest() throws Exception {
-		AdminLoginRequest request = new AdminLoginRequest();
+		AdminLoginRequestDTO request = new AdminLoginRequestDTO();
 		request.setAgent_email("wrong@admin.com");
 		request.setAgent_pw("wrongpassword");
 
@@ -164,7 +170,7 @@ public class AdminControllerTest {
 
 	@Test
 	void createConsultationInvalidUserTest() throws Exception {
-		ConsultationCreateRequest request = new ConsultationCreateRequest();
+		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
 		request.setAgent_id(String.valueOf(testAgent.getAgentId()));
 		request.setUser_id("99999"); // 존재하지 않는 사용자 ID
 		request.setConsultation_title("테스트 상담");

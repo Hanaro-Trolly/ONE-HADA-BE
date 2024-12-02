@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ConsultationDetail {
+public class ConsultationDetailDTO {
 	private String id;
 	private String agent_id;
 	private String consultation_title;

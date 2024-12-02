@@ -8,6 +8,6 @@ import lombok.Getter;
 @Data
 @Getter
 @AllArgsConstructor
-public class ConsultationCreateResponse {
+public class ConsultationCreateResponseDTO {
 	private String id;
 }
