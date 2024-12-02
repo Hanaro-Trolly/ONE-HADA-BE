@@ -18,27 +18,19 @@ public class Button {
     }
 
     private int clickpath;
-    private int age;
     private String email;
 
     // 기본 생성자
     public Button() {}
 
     // 생성자
-    public Button(String name, String email, int age, int clickpath) {
+    public Button(String name, String email, int clickpath) {
         this.name = name;
-        this.age= age;
         this.email = email;
         this.clickpath = clickpath;
     }
 
-    public int getAge() {
-        return age;
-    }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
 
     // Getters and Setters
     public String getId() {

@@ -48,6 +48,7 @@ public class SecurityConfig {
                     "/api/mongo-test/**",
                     "/api/transfer/**",
                     "/buttons/**",
+                    "/product/**",
                     "/ws/**",           // WebSocket 엔드포인트 추가
                     "/ws"              // WebSocket 기본 경로 추가
                 ).permitAll()

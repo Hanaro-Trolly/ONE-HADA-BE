@@ -13,6 +13,7 @@ public class ProductNode {
     @Id
     private String name;
 
+
     // 기본 생성자
     public ProductNode() {}
 

@@ -1,7 +1,7 @@
 package com.example.onehada.db.data.repository;
 
-import com.example.onehada.db.data.ProductNode;
-import org.springframework.data.neo4j.repository.Neo4jRepository;
+import com.example.onehada.db.data.Product;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface ProductRepository extends Neo4jRepository<ProductNode, String> {
+public interface ProductRepository extends MongoRepository<Product, String> {
 }

@@ -1,39 +1,29 @@
 package com.example.onehada.db.data.controller;
 
-import com.example.onehada.db.data.ProductNode;
-import com.example.onehada.db.data.service.ProductService;
+import com.example.onehada.db.data.Product;
+import com.example.onehada.db.data.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/product")
 public class ProductController {
 
-    private final ProductService productService;
+    @Autowired
+    private ProductRepository productRepository;
 
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
-
+    // 모든 사용자 조회
     @GetMapping
-    public List<ProductNode> getAllProducts() {
-        return productService.findAllProducts();
+    public List<Product> getAllUsers() {
+        return productRepository.findAll();
     }
 
+    // 새 사용자 추가
     @PostMapping
-    public ProductNode createProduct(@RequestBody ProductNode productNode) {
-        return productService.createProduct(productNode.getName());
-    }
-    @PostMapping("/addReco")
-    public String addRecommend(@RequestParam String ProductName, @RequestParam String buttonName) {
-        productService.addRecommend(ProductName, buttonName);
-        return ProductName + " is recommendation about " + buttonName;
-    }
-
-    @GetMapping("/{name}/recommends")
-    public Set<ProductNode> getRecommend(@PathVariable String name) {
-        return productService.findRecommends(name);
+    public Product addProduct(@RequestBody Product product) {
+        return productRepository.save(product);
     }
 }
+
