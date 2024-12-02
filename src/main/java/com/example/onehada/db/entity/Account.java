@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Account {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

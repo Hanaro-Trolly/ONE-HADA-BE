@@ -2,9 +2,14 @@ package com.example.onehada.api.auth.service;
 
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
+import com.example.onehada.db.repository.AccountRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.example.onehada.api.service.RedisService;
+import com.example.onehada.exception.account.AccountNotFoundException;
+import com.example.onehada.exception.authorization.AccessDeniedException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,12 +20,17 @@ public class AuthService {
     private final JwtService jwtService;
     private final RedisService redisService;
     private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
 
     @Value("${jwt.access.token.expiration}")
     private long accessTokenExpiration;
 
     @Value("${jwt.refresh.token.expiration}")
     private long refreshTokenExpiration;
+
+    // public AuthService(AccountRepository accountRepository) {
+    //     this.accountRepository = accountRepository;
+    // }
 
     public AuthResponse login(AuthRequest request) {
         User user = userRepository.findByUserEmail(request.getEmail())
@@ -61,4 +71,17 @@ public class AuthService {
             redisService.deleteValue("refresh:" + email);
         }
     }
+
+
+    //Validation
+    public void validateAccountOwnership(Long accountId, int userId) {
+        Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new AccountNotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
+
+        if (account.getUser().getUserId() != userId) {
+			throw new AccessDeniedException("User does not have access to this account");
+		}
+    }
+
+
 }
