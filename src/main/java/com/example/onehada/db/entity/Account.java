@@ -33,5 +33,6 @@ public class Account {
 	private String accountType;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private long balance = 0;
 }
