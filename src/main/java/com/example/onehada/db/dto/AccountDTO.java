@@ -1,14 +1,94 @@
 package com.example.onehada.db.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.time.LocalDateTime;
 
-@Data
-@AllArgsConstructor
+import com.example.onehada.db.entity.Account;
+import com.example.onehada.db.entity.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+
 public class AccountDTO {
-	private long accountId;
-	private String accountName;
-	private String accountNumber;
-	private long balance;
-	private String bank;
+	@Data
+	@AllArgsConstructor
+	public static class accountsDTO {
+		private long accountId;
+		private String accountName;
+		private String accountNumber;
+		private long balance;
+		private String bank;
+	}
+
+	@Data
+	@AllArgsConstructor
+	@Builder
+	public static class accountDetailDTO{
+		private long userId;
+		private long accountId;
+		private String accountName;
+		private String accountNumber;
+		private String accountType;
+		private long balance;
+		private String bank;
+	}
+
+	//정보 은닉성으로 Getter만 사용
+	@Getter
+	@AllArgsConstructor
+	@Builder
+	public static class accountTransferDTO{
+		private long userId;
+		private long accountId;
+		private String accountName;
+		private String accountNumber;
+		private String accountType;
+		private long balance;
+		private String bank;
+
+		// 잔액 업데이트 메서드 (setter 사용 지양)
+		public void updateBalance(long amount) {
+			this.balance += amount;
+		}
+		public Account toEntity(User user) {
+			return Account.builder()
+				.user(user)
+				.accountId(this.accountId)
+				.accountName(this.accountName)
+				.accountType(this.accountType)
+				.accountNumber(this.accountNumber)
+				.balance(this.balance)
+				.bank(this.bank)
+				.build();
+		}
+	}
+
+	@Getter
+	@Builder
+	public static class accountTransferRequest {
+		@JsonProperty("from_account_id")
+		private Long fromAccountId;
+
+		@JsonProperty("to_account_id")
+		private Long toAccountId;
+
+		private Long amount;
+
+		@JsonProperty("sender_message")
+		private String senderMessage;
+
+		@JsonProperty("receiver_message")
+		private String receiverMessage;
+	}
+
+	@Getter
+	@Builder
+	public static class accountTransferResponse {
+		private Long amount;
+		private LocalDateTime transactionDate;
+		private String senderView;
+		private String receiverView;
+	}
 }
