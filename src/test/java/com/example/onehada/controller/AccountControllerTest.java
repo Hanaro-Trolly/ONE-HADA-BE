@@ -6,6 +6,7 @@ import com.example.onehada.api.service.AccountService;
 import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.db.repository.HistoryRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,11 +46,14 @@ public class AccountControllerTest {
 	@Autowired
 	private AccountRepository accountRepository;
 
+	@Autowired
+	private HistoryRepository historyRepository;
+
 	private String accessToken;
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		// 1. 기존 데이터 정리
+		historyRepository.deleteAll();
 		accountRepository.deleteAll();
 		userRepository.deleteAll();
 

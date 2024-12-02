@@ -1,6 +1,9 @@
 package com.example.onehada.api.admin.service;
 
 import com.example.onehada.api.admin.dto.*;
+import com.example.onehada.api.admin.exception.AgentNotFoundException;
+import com.example.onehada.api.admin.exception.InvalidCredentialsException;
+import com.example.onehada.api.admin.exception.UserNotFoundException;
 import com.example.onehada.db.entity.*;
 import com.example.onehada.db.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +22,12 @@ public class AdminService {
 	private final HistoryRepository historyRepository;
 	private final ConsultationRepository consultationRepository;
 
-	public AdminLoginResponseDTO login(AdminLoginRequestDTO request) {
+	public AdminLoginResponseDTO login(AdminLoginRequestDTO request) throws InvalidCredentialsException {
 		Agent agent = agentRepository.findByAgentEmailAndAgentPw(
 				request.getAgent_email(),
 				request.getAgent_pw()
 			)
-			.orElseThrow(() -> new RuntimeException("Invalid credentials"));
+			.orElseThrow(InvalidCredentialsException::new);
 
 		return new AdminLoginResponseDTO(
 			agent.getAgentId(),
@@ -53,9 +56,9 @@ public class AdminService {
 			.collect(Collectors.toList());
 	}
 
-	public ActivityLogResponseDTO getActivityLogs(String userId) {
+	public ActivityLogResponseDTO getActivityLogs(String userId) throws UserNotFoundException {
 		User user = userRepository.findById(Integer.parseInt(userId))
-			.orElseThrow(() -> new RuntimeException("User not found"));
+			.orElseThrow(UserNotFoundException::new);
 
 		List<History> histories = historyRepository.findByUser(user);
 		List<ActivityLogDetailDTO> logs = histories.stream()
@@ -73,12 +76,13 @@ public class AdminService {
 	}
 
 	@Transactional
-	public ConsultationCreateResponseDTO createConsultation(ConsultationCreateRequestDTO request) {
+	public ConsultationCreateResponseDTO createConsultation(ConsultationCreateRequestDTO request) throws
+		UserNotFoundException, AgentNotFoundException {
 		User user = userRepository.findById(Integer.parseInt(request.getUser_id()))
-			.orElseThrow(() -> new RuntimeException("User not found"));
+			.orElseThrow(UserNotFoundException::new);
 
 		Agent agent = agentRepository.findById(Integer.parseInt(request.getAgent_id()))
-			.orElseThrow(() -> new RuntimeException("Agent not found"));
+			.orElseThrow(AgentNotFoundException::new);
 
 		Consultation consultation = Consultation.builder()
 			.user(user)

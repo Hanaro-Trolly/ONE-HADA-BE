@@ -3,7 +3,10 @@ package com.example.onehada.auth;
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
 import com.example.onehada.api.service.RedisService;
+import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
+import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.db.repository.HistoryRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,10 +44,18 @@ public class AuthIntegrationTest {
 	private RedisService redisService;
 
 	@Autowired
+	private AccountRepository accountRepository;
+
+	@Autowired
+	private HistoryRepository historyRepository;
+
+	@Autowired
 	private UserRepository userRepository;
 
 	@BeforeEach
 	void setUp() {
+		historyRepository.deleteAll();
+		accountRepository.deleteAll();
 		userRepository.deleteAll();
 
 		User testUser = User.builder()
