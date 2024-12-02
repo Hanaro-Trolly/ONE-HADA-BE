@@ -17,7 +17,7 @@ public class ProductNode {
     // 기본 생성자
     public ProductNode() {}
 
-    @Relationship(type = "Recommendation", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "Recommended", direction = Relationship.Direction.OUTGOING)
     private Set<ProductNode> recommendproduct;
     // 생성자
     public ProductNode(String name) {

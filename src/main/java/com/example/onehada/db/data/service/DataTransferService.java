@@ -45,16 +45,7 @@ public class DataTransferService {
         List<Button> mongoButtons = buttonMongoRepository.findAll();
         mongoButtons.forEach(button -> {
             ButtonNode buttonNode = new ButtonNode();
-            buttonNode.setId(button.getId());
-            buttonNode.setClickpath(button.getClickpath());
             buttonNode.setName(button.getName());
-
-
-            // 버튼과 관련된 제품 연결 (예시)
-            ProductNode relatedProduct = productNeo4jRepository.findById(button.getId()).orElse(null);
-            if (relatedProduct != null) {
-                buttonNode.setRecommendededProduct(relatedProduct);
-            }
 
             buttonNeo4jRepository.save(buttonNode);
         });

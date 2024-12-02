@@ -7,7 +7,7 @@ public class Button {
 
     @Id
     private String id; // MongoDB 기본 키
-    private String name; // product name
+    private String name; // button name
 
     public int getClickpath() {
         return clickpath;
@@ -21,7 +21,6 @@ public class Button {
     private String email;
 
     // 기본 생성자
-    public Button() {}
 
     // 생성자
     public Button(String name, String email, int clickpath) {

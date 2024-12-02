@@ -26,10 +26,11 @@ public class ProductNodeController {
     public ProductNode createProduct(@RequestBody ProductNode productNode) {
         return productService.createProduct(productNode.getName());
     }
+
     @PostMapping("/addReco")
-    public String addRecommend(@RequestParam String ProductName, @RequestParam String buttonName) {
-        productService.addRecommend(ProductName, buttonName);
-        return ProductName + " is recommendation about " + buttonName;
+    public String addRecommend(@RequestParam String buttonName,@RequestParam String ProductName) {
+        productService.addRecommend(buttonName, ProductName );
+        return buttonName + " recommend " + ProductName;
     }
 
     @GetMapping("/{name}/recommends")

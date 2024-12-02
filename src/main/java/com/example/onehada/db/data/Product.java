@@ -15,7 +15,6 @@ public class Product {
     private String name;
 
     // 기본 생성자
-    public Product() {}
 
     // 생성자
     public Product(String name) {
