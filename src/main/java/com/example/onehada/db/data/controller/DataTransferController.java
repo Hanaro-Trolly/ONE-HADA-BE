@@ -1,5 +1,6 @@
-package com.example.onehada.db.mongodb;
+package com.example.onehada.db.data.controller;
 
+import com.example.onehada.db.data.service.DataTransferService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

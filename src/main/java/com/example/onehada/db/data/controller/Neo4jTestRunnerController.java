@@ -1,15 +1,15 @@
-package com.example.onehada.db.mongodb;
+package com.example.onehada.db.data.controller;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Neo4jTestRunner implements CommandLineRunner {
+public class Neo4jTestRunnerController implements CommandLineRunner {
 
     private final Neo4jClient neo4jClient;
 
-    public Neo4jTestRunner(Neo4jClient neo4jClient) {
+    public Neo4jTestRunnerController(Neo4jClient neo4jClient) {
         this.neo4jClient = neo4jClient;
     }
 

@@ -1,4 +1,4 @@
-package com.example.onehada.db.mongodb;
+package com.example.onehada.db.data;
 
 import lombok.Data;
 import org.springframework.data.neo4j.core.schema.Id;
@@ -7,22 +7,20 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.Set;
 @Data
-@Node("Person")  // Neo4j의 노드 타입
-public class Person {
+@Node("Product")  // Neo4j의 노드 타입
+public class ProductNode {
 
     @Id
     private String name;
-    private int age;
 
     // 기본 생성자
-    public Person() {}
+    public ProductNode() {}
 
-    @Relationship(type = "FRIENDS_WITH", direction = Relationship.Direction.OUTGOING)
-    private Set<Person> friends;
+    @Relationship(type = "Recommendation", direction = Relationship.Direction.OUTGOING)
+    private Set<ProductNode> recommendproduct;
     // 생성자
-    public Person(String name, int age) {
+    public ProductNode(String name) {
         this.name = name;
-        this.age = age;
     }
 
     // Getter와 Setter
@@ -34,11 +32,6 @@ public class Person {
         this.name = name;
     }
 
-    public int getAge() {
-        return age;
-    }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
 }
+

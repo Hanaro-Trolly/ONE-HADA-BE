@@ -1,26 +1,35 @@
-package com.example.onehada.db.mongodb;
+package com.example.onehada.db.data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "users") // MongoDB 컬렉션 이름
-public class User {
+@Document(collection = "buttons") // MongoDB 컬렉션 이름
+public class Button {
 
     @Id
     private String id; // MongoDB 기본 키
-    private String name;
+    private String name; // product name
 
+    public int getClickpath() {
+        return clickpath;
+    }
 
+    public void setClickpath(int clickpath) {
+        this.clickpath = clickpath;
+    }
+
+    private int clickpath;
     private int age;
     private String email;
 
     // 기본 생성자
-    public User() {}
+    public Button() {}
 
     // 생성자
-    public User(String name, String email, int age) {
+    public Button(String name, String email, int age, int clickpath) {
         this.name = name;
         this.age= age;
         this.email = email;
+        this.clickpath = clickpath;
     }
 
     public int getAge() {

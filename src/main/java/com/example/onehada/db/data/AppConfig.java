@@ -1,4 +1,4 @@
-package com.example.onehada.db.mongodb;
+package com.example.onehada.db.data;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
