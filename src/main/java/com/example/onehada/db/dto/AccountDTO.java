@@ -3,6 +3,8 @@ package com.example.onehada.db.dto;
 import java.time.LocalDateTime;
 
 import com.example.onehada.db.entity.Account;
+import com.example.onehada.db.entity.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,9 +40,11 @@ public class AccountDTO {
 	@AllArgsConstructor
 	@Builder
 	public static class accountTransferDTO{
+		private long userId;
 		private long accountId;
 		private String accountName;
 		private String accountNumber;
+		private String accountType;
 		private long balance;
 		private String bank;
 
@@ -48,11 +52,15 @@ public class AccountDTO {
 		public void updateBalance(long amount) {
 			this.balance += amount;
 		}
-		public Account toEntity() {
+		public Account toEntity(User user) {
 			return Account.builder()
+				.user(user)
 				.accountId(this.accountId)
 				.accountName(this.accountName)
+				.accountType(this.accountType)
+				.accountNumber(this.accountNumber)
 				.balance(this.balance)
+				.bank(this.bank)
 				.build();
 		}
 	}
@@ -60,10 +68,18 @@ public class AccountDTO {
 	@Getter
 	@Builder
 	public static class accountTransferRequest {
+		@JsonProperty("from_account_id")
 		private Long fromAccountId;
+
+		@JsonProperty("to_account_id")
 		private Long toAccountId;
+
 		private Long amount;
+
+		@JsonProperty("sender_message")
 		private String senderMessage;
+
+		@JsonProperty("receiver_message")
 		private String receiverMessage;
 	}
 

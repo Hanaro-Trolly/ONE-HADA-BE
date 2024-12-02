@@ -96,30 +96,43 @@ public class AccountController {
 		try {
 			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
 			int userId = userService.getUserByEmail(email).getUserId();
+			System.out.println("userId = " + userId);
+			System.out.println("accountService = " + transferRequest.getFromAccountId());
 			// 계좌 이체 처리
 			AccountDTO.accountDetailDTO fromAccount = accountService.getAccountById(transferRequest.getFromAccountId(),
 					userId)
 				.orElseThrow(() -> new AccountNotFoundException("보내는 계좌를 찾을 수 없습니다."));
 
+			System.out.println("fromAccount = " + fromAccount);
+
 			AccountDTO.accountDetailDTO toAccount = accountService.getReceiverAccountById(transferRequest.getToAccountId())
 				.orElseThrow(() -> new AccountNotFoundException("받는 계좌를 찾을 수 없습니다."));
 
+			System.out.println("toAccount = " + toAccount);
+
 			//DTO 생성
 			AccountDTO.accountTransferDTO fromAccountDTO = AccountDTO.accountTransferDTO.builder()
+				.userId(fromAccount.getUserId())
 				.accountId(fromAccount.getAccountId())
 				.accountNumber(fromAccount.getAccountNumber())
 				.accountName(fromAccount.getAccountName())
+				.accountType(fromAccount.getAccountType())
 				.balance(fromAccount.getBalance())
 				.bank(fromAccount.getBank())
 				.build();
 
 			AccountDTO.accountTransferDTO toAccountDTO = AccountDTO.accountTransferDTO.builder()
+				.userId(toAccount.getUserId())
 				.accountId(toAccount.getAccountId())
+				.accountNumber(toAccount.getAccountNumber())
 				.accountName(toAccount.getAccountName())
-				.accountName(toAccount.getAccountName())
+				.accountType(toAccount.getAccountType())
 				.balance(toAccount.getBalance())
 				.bank(toAccount.getBank())
 				.build();
+
+			System.out.println("fromAccountDTO = " + fromAccountDTO.getAccountNumber());
+			System.out.println("toAccountDTO = " + toAccountDTO.getAccountNumber());
 
 			//계좌이체
 			AccountDTO.accountTransferResponse response = transactionService.transfer(fromAccountDTO, toAccountDTO,
