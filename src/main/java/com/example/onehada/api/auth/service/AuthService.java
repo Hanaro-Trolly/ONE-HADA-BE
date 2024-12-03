@@ -42,8 +42,8 @@ public class AuthService {
 
         System.out.println("AuthService.login"+user);
 
-        String accessToken = jwtService.generateAccessToken(user.getUserEmail());
-        String refreshToken = jwtService.generateRefreshToken(user.getUserEmail());
+        String accessToken = jwtService.generateAccessToken(user.getUserEmail(), user.getUserId());
+        String refreshToken = jwtService.generateRefreshToken(user.getUserEmail(), user.getUserId());
 
         // Redis에 토큰 저장 (만료시간 설정)
         redisService.saveAccessToken(user.getUserEmail(), accessToken, accessTokenExpiration);
@@ -54,6 +54,30 @@ public class AuthService {
             .refreshToken(refreshToken)
             .email(user.getUserEmail())
             .userName(user.getUserName())
+            .build();
+    }
+
+    // Access Token과 Refresh Token 발급 및 Redis 저장
+    public AuthResponse generateTokens(String email, String name, int userId) {
+        // 지금은 유저등록 안되어있어서 주석처리 ->
+        // 1. 이메일 + 프로바이더 확인하여 회원인지 아닌지 판별
+        // 2. 없을 경우 회원가입
+        // User user = userRepository.findByUserEmail(email)
+        //     .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Access Token과 Refresh Token 생성
+        String accessToken = jwtService.generateAccessToken(email, userId);
+        String refreshToken = jwtService.generateRefreshToken(email, userId);
+
+        // Redis에 Refresh Token 저장
+        redisService.saveAccessToken(email, accessToken, accessTokenExpiration);
+        redisService.saveRefreshToken(email, refreshToken, refreshTokenExpiration);
+
+        return AuthResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .email(email)
+            .userName(name)
             .build();
     }
 

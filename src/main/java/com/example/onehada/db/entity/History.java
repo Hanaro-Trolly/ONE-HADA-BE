@@ -28,6 +28,9 @@ public class History {
 	@Column(name = "history_elements", columnDefinition = "JSON")
 	private String historyElements;
 
+	@Column(name = "history_url")
+	private String historyUrl;
+
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime activityDate;
