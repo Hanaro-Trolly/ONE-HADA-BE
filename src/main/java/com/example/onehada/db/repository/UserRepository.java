@@ -9,9 +9,6 @@ import com.example.onehada.db.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByUserEmail(String email);
-	List<User> findByUserNameContaining(String userName);
-	List<User> findByUserBirth(String userBirth);
-	List<User> findByUserNameContainingAndUserBirth(String userName, String userBirth);
 
 	Optional<User> findByUserId(Long userId);
 
