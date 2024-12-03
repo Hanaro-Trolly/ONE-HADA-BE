@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class JwtService {
@@ -23,16 +25,20 @@ public class JwtService {
     @Value("${jwt.refresh.token.expiration}")
     private long refreshTokenExpiration;
 
-    public String generateAccessToken(String userEmail) {
-        return buildToken(userEmail, accessTokenExpiration);
+    public String generateAccessToken(String userEmail, int userId) {
+        return buildToken(userEmail, userId, accessTokenExpiration);
     }
 
-    public String generateRefreshToken(String userEmail) {
-        return buildToken(userEmail, refreshTokenExpiration);
+    public String generateRefreshToken(String userEmail, int userId) {
+        return buildToken(userEmail, userId, refreshTokenExpiration);
     }
 
-    private String buildToken(String userEmail, long expiration) {
+    private String buildToken(String userEmail, int userId, long expiration) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+
         return Jwts.builder()
+            .setClaims(claims)
             .setSubject(userEmail)
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -55,6 +61,10 @@ public class JwtService {
     //     }
     //     return roles;
     // }
+
+    public int extractUserId(String token) {
+        return extractAllClaims(token).get("userId", Integer.class);
+    }
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
