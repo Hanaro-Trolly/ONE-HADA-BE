@@ -1,5 +1,6 @@
 package com.example.onehada.db.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -12,27 +13,23 @@ public class ProductNode {
 
     @Id
     private String name;
+    private Set<ButtonNode> recommendedByButtons;
 
 
     // 기본 생성자
     public ProductNode() {}
 
-    @Relationship(type = "Recommended", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "Recommend", direction = Relationship.Direction.INCOMING)
+    @JsonIgnore
     private Set<ProductNode> recommendproduct;
     // 생성자
     public ProductNode(String name) {
         this.name = name;
     }
 
-    // Getter와 Setter
-    public String getName() {
-        return name;
+    public Set<ButtonNode> getRecommendedByButtons() {
+        return recommendedByButtons;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
 
 }
 

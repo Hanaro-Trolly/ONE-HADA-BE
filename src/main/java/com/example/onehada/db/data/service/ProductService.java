@@ -33,25 +33,43 @@ public class ProductService {
         return buttonNodeRepository.save(new ButtonNode(name));
     }
 
-    @Transactional
-    public void addRecommend(String buttonName, String productName) {
-        Optional<ProductNode> product = productNodeRepository.findById(productName);
-        Optional<ButtonNode> button = buttonNodeRepository.findById(buttonName);
+//    @Transactional
+//    public void addRecommend(String buttonName, String productName) {
+//        Optional<ProductNode> product = productNodeRepository.findById(productName);
+//        Optional<ButtonNode> button = buttonNodeRepository.findById(buttonName);
+//
+//        if (product.isPresent() && button.isPresent()) {
+//            button.get().getRecommendedProduct().add(button.get());
+//            product.get().getRecommendproduct().add(product.get());
+//            buttonNodeRepository.save(button.get());
+//            productNodeRepository.save(product.get());
+//        } else {
+//            if (product.isEmpty()) {
+//                throw new RuntimeException("Product not found: " + productName);
+//            }
+//            if (button.isEmpty()) {
+//                throw new RuntimeException("Button not found: " + buttonName);
+//            }
+//        }
+//    }
+@Transactional
+public void addRecommend(String buttonName, String productName) {
+    Optional<ProductNode> product = productNodeRepository.findById(productName);
+    Optional<ButtonNode> button = buttonNodeRepository.findById(buttonName);
 
-        if (product.isPresent() && button.isPresent()) {
-            button.get().getRecommendedProduct().add(button.get());
-            product.get().getRecommendproduct().add(product.get());
-            buttonNodeRepository.save(button.get());
-            productNodeRepository.save(product.get());
-        } else {
-            if (product.isEmpty()) {
-                throw new RuntimeException("Product not found: " + productName);
-            }
-            if (button.isEmpty()) {
-                throw new RuntimeException("Button not found: " + buttonName);
-            }
+    if (product.isPresent() && button.isPresent()) {
+        // 버튼이 상품을 추천
+        button.get().addRecommendedProduct(product.get());
+        buttonNodeRepository.save(button.get());
+    } else {
+        if (product.isEmpty()) {
+            throw new RuntimeException("Product not found: " + productName);
+        }
+        if (button.isEmpty()) {
+            throw new RuntimeException("Button not found: " + buttonName);
         }
     }
+}
     @Transactional(readOnly = true)
     public List<ProductNode> findAllProducts() {
         return productNodeRepository.findAll();
