@@ -11,6 +11,7 @@ import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.ShortcutRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.example.onehada.exception.NotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +45,18 @@ public class ShortcutService {
 	public ShortcutDTO createShortcut(ShortcutDTO shortcut, String token) {
 		Long userId = getUserIdFromToken(token);
 		User user = userRepository.findById(userId).orElseThrow( () -> new NotFoundException("유효하지 않은 사용자 입니다."));
+
 		Shortcut newShortcut = new Shortcut();
+		ObjectMapper objectMapper = new ObjectMapper();
+
+
+		System.out.println("newShortcut = " + newShortcut);
+		System.out.println("newShortcut elements= " + shortcut.getHistory_elements());
 		newShortcut.setUser(user);
 		newShortcut.setShortcutName(shortcut.getShortcut_name());
-		newShortcut.setShortcutElements(String.valueOf(shortcut.getHistory_id()));
+		System.out.println("newsourtcut element = " + shortcut.getHistory_elements());
+		System.out.println("newShortcut name= " + newShortcut.getShortcutName());
+		System.out.println("newShortcut elements = " + shortcut.getHistory_elements());
 		newShortcut.setShortcutUrl("/");
 		newShortcut.setFavorite(false);
 		shortcutRepository.save(newShortcut);

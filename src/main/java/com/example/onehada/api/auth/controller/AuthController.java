@@ -48,7 +48,8 @@ public class AuthController {
 
     @Data
     @AllArgsConstructor
-    class ErrorResponse {
+	static
+	class ErrorResponse {
         private String message;
     }
 

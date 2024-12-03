@@ -7,6 +7,7 @@ import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.example.onehada.api.service.RedisService;
+import com.example.onehada.exception.UnauthorizedException;
 import com.example.onehada.exception.account.AccountNotFoundException;
 import com.example.onehada.exception.authorization.AccessDeniedException;
 
@@ -59,15 +60,20 @@ public class AuthService {
 
     // Access Token과 Refresh Token 발급 및 Redis 저장
     public AuthResponse generateTokens(String email, String provider) {
-        // 지금은 유저등록 안되어있어서 주석처리 ->
-        // 1. 이메일 + 프로바이더 확인하여 회원인지 아닌지 판별
-        // 2. 없을 경우 회원가입
         User user = userRepository.findByUserEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Access Token과 Refresh Token 생성
-        System.out.println("email = " + email);
-        System.out.println("userId = " + user.getUserId());
+        boolean isUserValid = switch (provider.toLowerCase()) {
+            case "google" -> user.getUserGoogleId() != null && user.getUserGoogleId().equals(email);
+            case "kakao" -> user.getUserKakaoId() != null && user.getUserKakaoId().equals(email);
+            case "naver" -> user.getUserNaverId() != null && user.getUserNaverId().equals(email);
+            default -> throw new UnauthorizedException("Invalid provider: " + provider);
+        };
+
+        if (!isUserValid) {
+            throw new UnauthorizedException("User not registered with the specified provider");
+        }
+
         String accessToken = jwtService.generateAccessToken(email, user.getUserId());
         String refreshToken = jwtService.generateRefreshToken(email, user.getUserId());
 
