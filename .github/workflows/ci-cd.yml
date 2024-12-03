@@ -3,10 +3,10 @@ name: CI/CD Pipeline for ONEHADA_BE
 on:
   push:
     branches:
-      - main # main 브랜치에 푸시할 때 실행
+      - master # main 브랜치에 푸시할 때 실행
   pull_request:
     branches:
-      - main # main 브랜치에 PR이 열릴 때 실행
+      - master # main 브랜치에 PR이 열릴 때 실행
 
 jobs:
   build:
