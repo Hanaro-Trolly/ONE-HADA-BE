@@ -21,13 +21,13 @@ public class HistoryService {
 		this.jwtService = jwtService;
 	}
 
-	private int getUserIdFromToken(String token) {
+	private Long getUserIdFromToken(String token) {
 		String accessToken = token.replace("Bearer ", "");
 		return jwtService.extractUserId(accessToken);
 	}
 
 	public List<HistoryDTO> getUserHistories(String token) {
-		int userId = getUserIdFromToken(token);
+		Long userId = getUserIdFromToken(token);
 		List<History> histories = historyRepository.findHistoryByUserUserId(userId);
 		if (histories.isEmpty()) {
 			throw new NotFoundException("활동 내역이 존재하지 않습니다.");

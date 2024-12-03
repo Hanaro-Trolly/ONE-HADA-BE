@@ -15,7 +15,7 @@ import lombok.*;
 public class History {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long historyId;
+	private Long historyId;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)

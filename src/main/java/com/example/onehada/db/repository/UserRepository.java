@@ -9,6 +9,6 @@ import com.example.onehada.db.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByUserEmail(String email);
 
-	Optional<User> findByUserId(int userId);
+	Optional<User> findByUserId(Long userId);
 
 }

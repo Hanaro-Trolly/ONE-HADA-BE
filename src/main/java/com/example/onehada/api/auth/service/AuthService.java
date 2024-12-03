@@ -23,10 +23,10 @@ public class AuthService {
     private final AccountRepository accountRepository;
 
     @Value("${jwt.access.token.expiration}")
-    private long accessTokenExpiration;
+    private Long accessTokenExpiration;
 
     @Value("${jwt.refresh.token.expiration}")
-    private long refreshTokenExpiration;
+    private Long refreshTokenExpiration;
 
     // public AuthService(AccountRepository accountRepository) {
     //     this.accountRepository = accountRepository;
@@ -58,7 +58,7 @@ public class AuthService {
     }
 
     // Access Token과 Refresh Token 발급 및 Redis 저장
-    public AuthResponse generateTokens(String email, String name, int userId) {
+    public AuthResponse generateTokens(String email, String name, Long userId) {
         // 지금은 유저등록 안되어있어서 주석처리 ->
         // 1. 이메일 + 프로바이더 확인하여 회원인지 아닌지 판별
         // 2. 없을 경우 회원가입
@@ -102,7 +102,7 @@ public class AuthService {
         Account account = accountRepository.findById(accountId)
             .orElseThrow(() -> new AccountNotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
 
-        if (account.getUser().getUserId() != userId) {
+        if (!account.getUser().getUserId().equals(userId)) {
 			throw new AccessDeniedException("User does not have access to this account");
 		}
     }

@@ -55,4 +55,5 @@ public class User {
 
 	@Column(name = "simple_password", length = 8, nullable = false)
 	private String simplePassword;
+
 }

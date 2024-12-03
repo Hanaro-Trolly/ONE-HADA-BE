@@ -15,7 +15,7 @@ import lombok.*;
 public class Consultation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long consultationId;
+	private Long consultationId;
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)

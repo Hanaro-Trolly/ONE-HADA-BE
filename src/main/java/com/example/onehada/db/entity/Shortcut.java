@@ -10,7 +10,7 @@ import lombok.Setter;
 public class Shortcut {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long shortcutId;
+	private Long shortcutId;
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)

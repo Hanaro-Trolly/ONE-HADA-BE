@@ -19,21 +19,21 @@ public class JwtService {
     private String secret;
 
     @Value("${jwt.access.token.expiration}")
-    private long accessTokenExpiration;
+    private Long accessTokenExpiration;
 
     @Getter
     @Value("${jwt.refresh.token.expiration}")
-    private long refreshTokenExpiration;
+    private Long refreshTokenExpiration;
 
-    public String generateAccessToken(String userEmail, int userId) {
+    public String generateAccessToken(String userEmail, Long userId) {
         return buildToken(userEmail, userId, accessTokenExpiration);
     }
 
-    public String generateRefreshToken(String userEmail, int userId) {
+    public String generateRefreshToken(String userEmail, Long userId) {
         return buildToken(userEmail, userId, refreshTokenExpiration);
     }
 
-    private String buildToken(String userEmail, int userId, long expiration) {
+    private String buildToken(String userEmail, Long userId, Long expiration) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
 
@@ -62,8 +62,8 @@ public class JwtService {
     //     return roles;
     // }
 
-    public int extractUserId(String token) {
-        return extractAllClaims(token).get("userId", Integer.class);
+    public Long extractUserId(String token) {
+        return extractAllClaims(token).get("userId",Long.class);
     }
 
     private Claims extractAllClaims(String token) {
@@ -101,7 +101,7 @@ public class JwtService {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 
-    public long getExpirationFromToken(String token) {
+    public Long getExpirationFromToken(String token) {
         Claims claims = extractAllClaims(token);
         return claims.getExpiration().getTime() - System.currentTimeMillis();
     }

@@ -26,7 +26,7 @@ public class UserInfoController {
 	}
 
 	@GetMapping("/{userId}")
-	public ResponseEntity<?> getUser(@PathVariable int userId, @RequestHeader("Authorization") String token) {
+	public ResponseEntity<?> getUser(@PathVariable Long userId, @RequestHeader("Authorization") String token) {
 			User user = userInfoService.getUserId(token, userId);
 			UserInfoDTO userInfo = userInfoService.getUserInfo(user.getUserEmail());
 
@@ -34,7 +34,7 @@ public class UserInfoController {
 	}
 
 	@PatchMapping("/{user_id}")
-	public ResponseEntity<?> updateUser(@PathVariable int user_id, @RequestHeader("Authorization") String token,
+	public ResponseEntity<?> updateUser(@PathVariable Long user_id, @RequestHeader("Authorization") String token,
 		@RequestBody UserUpdateDTO infoUpdate) {
 
 			userInfoService.getUserId(token, user_id);

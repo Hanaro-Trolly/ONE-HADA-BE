@@ -27,13 +27,13 @@ public class ShortcutService {
 		this.jwtService = jwtService;
 	}
 
-	private int getUserIdFromToken(String token) {
+	private Long getUserIdFromToken(String token) {
 		String accessToken = token.replace("Bearer ", "");
 		return jwtService.extractUserId(accessToken);
 	}
 
 	public List<Shortcut> getShortcut(String token){
-		int userId = getUserIdFromToken(token);
+		Long userId = getUserIdFromToken(token);
 		List<Shortcut> shortcuts = shortcutRepository.findShortByUserUserId(userId);
 		if (shortcuts.isEmpty()) {
 			throw new NotFoundException("바로가기가 존재하지 않습니다.");
@@ -42,7 +42,7 @@ public class ShortcutService {
 	}
 
 	public ShortcutDTO createShortcut(ShortcutDTO shortcut, String token) {
-		int userId = getUserIdFromToken(token);
+		Long userId = getUserIdFromToken(token);
 		User user = userRepository.findById(userId).orElseThrow( () -> new NotFoundException("유효하지 않은 사용자 입니다."));
 		Shortcut newShortcut = new Shortcut();
 		newShortcut.setUser(user);

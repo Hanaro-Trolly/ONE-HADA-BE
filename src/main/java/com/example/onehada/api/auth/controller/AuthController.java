@@ -27,7 +27,7 @@ public class AuthController {
 
             String email = (String) payload.get("email");
             String name = (String) payload.get("name");
-            int userId = (int) payload.get("userId");
+            Long userId = (Long) payload.get("userId");
 
             AuthResponse tokens = authService.generateTokens(email, name, userId);
             return ResponseEntity.ok(tokens);

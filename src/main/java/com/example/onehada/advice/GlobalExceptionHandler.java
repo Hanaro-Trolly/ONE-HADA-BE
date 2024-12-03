@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
+import com.example.onehada.api.admin.exception.BaseException;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.ForbiddenException;
@@ -35,6 +35,12 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(BadRequestException.class)
 	public ResponseEntity<?> handleBadRequestException(BadRequestException e) {
 		return ResponseEntity.badRequest().body(new ApiResponse(400, "BAD_REQUEST", e.getMessage(), null));
+	}
+
+	@ExceptionHandler(BaseException.class)
+	public ResponseEntity<ApiResponse> handleBaseException(BaseException e) {
+		return ResponseEntity.badRequest()
+			.body(new ApiResponse(400, e.getCode(), e.getMessage(), null));
 	}
 
 	@ExceptionHandler(Exception.class)

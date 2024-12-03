@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class HistoryDTO {
 	private Long history_id;
-	private int user_id;
+	private Long user_id;
 	private String history_name;
 	private LocalDateTime activity_date;
 }

@@ -11,5 +11,5 @@ public interface ShortcutRepository extends JpaRepository<Shortcut, Long> {
 
 	List<Shortcut> findByShortcutId(Long shortcutId);
 
-	List<Shortcut> findShortByUserUserId(int userId);
+	List<Shortcut> findShortByUserUserId(Long userId);
 }

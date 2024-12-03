@@ -30,7 +30,7 @@ public class UserInfoService {
 		return jwtService.extractEmail(accessToken);
 	}
 
-	public User getUserId(String token, int userId) {
+	public User getUserId(String token, Long userId) {
 		validateToken(token);
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new NotFoundException("존재하지 않는 사용자 입니다."));
@@ -74,7 +74,7 @@ public class UserInfoService {
 	}
 
 	@Transactional
-	public UserUpdateDTO updateUser(int userId, UserUpdateDTO userUpdate) {
+	public UserUpdateDTO updateUser(Long userId, UserUpdateDTO userUpdate) {
 
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));

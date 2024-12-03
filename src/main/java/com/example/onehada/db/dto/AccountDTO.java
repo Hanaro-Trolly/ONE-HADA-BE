@@ -15,10 +15,10 @@ public class AccountDTO {
 	@Data
 	@AllArgsConstructor
 	public static class accountsDTO {
-		private long accountId;
+		private Long accountId;
 		private String accountName;
 		private String accountNumber;
-		private long balance;
+		private Long balance;
 		private String bank;
 	}
 
@@ -26,12 +26,12 @@ public class AccountDTO {
 	@AllArgsConstructor
 	@Builder
 	public static class accountDetailDTO{
-		private long userId;
-		private long accountId;
+		private Long userId;
+		private Long accountId;
 		private String accountName;
 		private String accountNumber;
 		private String accountType;
-		private long balance;
+		private Long balance;
 		private String bank;
 	}
 
@@ -40,16 +40,16 @@ public class AccountDTO {
 	@AllArgsConstructor
 	@Builder
 	public static class accountTransferDTO{
-		private long userId;
-		private long accountId;
+		private Long userId;
+		private Long accountId;
 		private String accountName;
 		private String accountNumber;
 		private String accountType;
-		private long balance;
+		private Long balance;
 		private String bank;
 
 		// 잔액 업데이트 메서드 (setter 사용 지양)
-		public void updateBalance(long amount) {
+		public void updateBalance(Long amount) {
 			this.balance += amount;
 		}
 		public Account toEntity(User user) {
