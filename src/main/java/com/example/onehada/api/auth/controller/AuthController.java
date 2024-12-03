@@ -1,10 +1,16 @@
 package com.example.onehada.api.auth.controller;
 
 import java.util.Map;
+import java.util.Optional;
 
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.api.auth.dto.SignInRequest;
+import com.example.onehada.api.auth.dto.SignInResponse;
 import com.example.onehada.api.auth.service.AuthService;
+import com.example.onehada.api.service.UserService;
+import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.db.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +26,58 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final UserService userRepository;
+
+    @PostMapping("/signin")
+    public ResponseEntity<ApiResponse> signIn(@RequestBody SignInRequest request) {
+        try {
+            // Check if user exists
+            Optional<User> existingUser = switch (request.getProvider().toLowerCase()) {
+                case "google" -> userRepository.findByUserEmailAndUserGoogleIdIsNotNull(request.getEmail());
+                case "kakao" -> userRepository.findByUserEmailAndUserKakaoIdIsNotNull(request.getEmail());
+                case "naver" -> userRepository.findByUserEmailAndUserNaverIdIsNotNull(request.getEmail());
+                default -> throw new RuntimeException("Unsupported provider: " + request.getProvider());
+            };
+
+            if (existingUser.isPresent()) {
+                // Existing user - generate tokens
+                User user = existingUser.get();
+                AuthResponse tokens = authService.generateTokens(
+                    user.getUserEmail(),
+                    user.getUserName(),
+                    user.getUserId()
+                );
+
+                SignInResponse signInResponse = SignInResponse.builder()
+                    .accessToken(tokens.getAccessToken())
+                    .refreshToken(tokens.getRefreshToken())
+                    .userId(user.getUserId().toString())
+                    .build();
+
+                return ResponseEntity.ok(new ApiResponse(
+                    200,
+                    "EXIST",
+                    "기존 로그인 성공",
+                    signInResponse
+                ));
+            } else {
+                // New user
+                return ResponseEntity.ok(new ApiResponse(
+                    200,
+                    "NEW",
+                    "새로운 사용자 입니다.",
+                    null
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse(
+                400,
+                "BAD_REQUEST",
+                "소셜 로그인 실패. " + e.getMessage(),
+                null
+            ));
+        }
+    }
 
     @PostMapping("/jwt")
     public ResponseEntity<?> generateJwt(@RequestBody Map<String, Object> payload) {
