@@ -4,22 +4,25 @@ spring:
 
   datasource:
     #    # serverDB
-#    url: jdbc:mysql://ajoufinance.iptime.org:3306/ONEHADA_serverDB
-#    username: Trolli
-#    password: Hanaro0526!
-#    driver-class-name: com.mysql.cj.jdbc.Driver
+    #    url: jdbc:mysql://ajoufinance.iptime.org:3306/ONEHADA_serverDB
+    #    username: Trolli
+    #    password: Hanaro0526!
+    #    driver-class-name: com.mysql.cj.jdbc.Driver
     # local testDB
-        url: jdbc:mysql://localhost:3306/ONEHADA_localDB
-        username: Trolli
-        password: Trolli1!
-        driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ONEHADA_localDB
+    username: Trolli
+    password: Trolli1!
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 
 
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        ddl-auto: update
+        format_sql: true
+    generate-ddl: true
 
   data:
     redis:

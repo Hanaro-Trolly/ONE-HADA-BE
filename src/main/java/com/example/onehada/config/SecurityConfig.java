@@ -1,5 +1,7 @@
 package com.example.onehada.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,9 +43,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/",
+                    "/auth/login",
                     "/api/auth/**",
+                    "/api/admin/login",
                     "/api/redis-test/**",
                     "/api/redis/**",
+                    "/api/mongo-test/**",
+                    "/users/**",
                     "/ws/**",           // WebSocket 엔드포인트 추가
                     "/ws"              // WebSocket 기본 경로 추가
                 ).permitAll()
@@ -58,7 +64,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // "*" 대신 구체적인 출처 지정
-        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1"));
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);  // credentials 활성화

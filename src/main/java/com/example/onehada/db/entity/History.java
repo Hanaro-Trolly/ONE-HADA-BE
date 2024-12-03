@@ -5,8 +5,13 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class History {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
