@@ -12,4 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	List<User> findByUserNameContaining(String userName);
 	List<User> findByUserBirth(String userBirth);
 	List<User> findByUserNameContainingAndUserBirth(String userName, String userBirth);
+
+	Optional<User> findByUserId(Long userId);
+
 }

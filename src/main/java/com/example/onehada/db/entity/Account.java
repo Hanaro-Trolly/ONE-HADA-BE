@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Account {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long accountId;
+	private Long accountId;
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)

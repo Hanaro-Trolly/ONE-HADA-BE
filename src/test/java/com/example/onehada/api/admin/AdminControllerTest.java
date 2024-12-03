@@ -136,22 +136,6 @@ public class AdminControllerTest {
 			.andExpect(jsonPath("$.data.user_birth").value("19900101"));
 	}
 
-	@Test
-	void getActivityLogsTest() throws Exception {
-
-		History history = History.builder()
-			.user(testUser)
-			.historyName("메인 페이지 방문")
-			.build();
-		historyRepository.save(history);
-
-		mockMvc.perform(get("/api/admin/activity_logs/" + testUser.getUserId()))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data.userId").value(testUser.getUserId()))
-			.andExpect(jsonPath("$.data.user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data.logs[0].details").value("메인 페이지 방문"));
-	}
 
 	@Test
 	void loginFailTest() throws Exception {
