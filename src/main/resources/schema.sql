@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS User (
-    user_id int auto_increment primary key,
+    user_id bigint auto_increment primary key,
     user_name varchar(127) not null,
     user_gender char(1) not null,
     user_email varchar(127) not null,
@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS User (
     user_address varchar(255),
     user_birth char(8) not null,
     user_registered_date timestamp not null,
-    user_google_id bigint,
-    user_kakao_id bigint,
-    user_naver_id bigint,
+    user_google_id varchar(127),
+    user_kakao_id varchar(127),
+    user_naver_id varchar(127),
     simple_password varchar(8) not null
 );
 
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS History (
 
 CREATE TABLE IF NOT EXISTS Shortcut (
     shortcut_id bigint auto_increment primary key,
-    user_id int not null,
+    user_id bigint not null,
     shortcut_name varchar(100) not null,
     shorcut_elements JSON,
     is_favorite boolean not null default false,
