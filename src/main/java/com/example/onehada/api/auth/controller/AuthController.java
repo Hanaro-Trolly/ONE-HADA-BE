@@ -5,6 +5,7 @@ import java.util.Map;
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
 import com.example.onehada.api.auth.service.AuthService;
+import com.example.onehada.db.dto.ApiResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,14 +26,12 @@ public class AuthController {
         try {
 
             String email = (String) payload.get("email");
-            String name = (String) payload.get("name");
-            Long userId = (Long) payload.get("userId");
-
-            AuthResponse tokens = authService.generateTokens(email, name, userId);
+            String provider = (String) payload.get("provider");
+            AuthResponse tokens = authService.generateTokens(email, provider);
             return ResponseEntity.ok(tokens);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse(e.getMessage()));
+                .body(new ApiResponse(401, "UNAUTHORIZED", "jwt: " + e.getMessage(), null));
         }
     }
 
