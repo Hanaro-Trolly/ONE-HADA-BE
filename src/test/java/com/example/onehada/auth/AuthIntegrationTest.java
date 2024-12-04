@@ -97,7 +97,7 @@ public class AuthIntegrationTest {
 			.build();
 
 		// When
-		MvcResult result = mockMvc.perform(post("/api/auth/login")
+		MvcResult result = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
@@ -129,7 +129,7 @@ public class AuthIntegrationTest {
 			.simplePassword("1234")
 			.build();
 
-		MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
@@ -141,7 +141,7 @@ public class AuthIntegrationTest {
 		);
 
 		// When - 로그아웃
-		mockMvc.perform(post("/api/auth/logout")
+		mockMvc.perform(post("/api/cert/logout")
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isOk());
 
@@ -149,7 +149,7 @@ public class AuthIntegrationTest {
 		assertTrue(redisService.isBlacklisted(response.getAccessToken()));
 
 		// 로그아웃된 토큰으로 접근 시도
-		mockMvc.perform(get("/api/auth/test")
+		mockMvc.perform(get("/api/cert/test")
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isUnauthorized());
 	}
@@ -162,7 +162,7 @@ public class AuthIntegrationTest {
 			.simplePassword("1234")
 			.build();
 
-		MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
@@ -174,7 +174,7 @@ public class AuthIntegrationTest {
 		);
 
 		// When & Then - 보호된 엔드포인트 접근
-		mockMvc.perform(get("/api/auth/test")
+		mockMvc.perform(get("/api/cert/test")
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isOk());
 	}
@@ -186,7 +186,7 @@ public class AuthIntegrationTest {
 			.simplePassword("wrongpass")
 			.build();
 
-		mockMvc.perform(post("/api/auth/login")
+		mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isUnauthorized());
