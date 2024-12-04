@@ -24,8 +24,8 @@ public class AdminService {
 
 	public AdminLoginResponseDTO login(AdminLoginRequestDTO request) throws InvalidCredentialsException {
 		Agent agent = agentRepository.findByAgentEmailAndAgentPw(
-				request.getAgent_email(),
-				request.getAgent_pw()
+				request.getAgentEmail(),
+				request.getAgentPw()
 			)
 			.orElseThrow(InvalidCredentialsException::new);
 
@@ -78,17 +78,17 @@ public class AdminService {
 	@Transactional
 	public ConsultationCreateResponseDTO createConsultation(ConsultationCreateRequestDTO request) throws
 		UserNotFoundException, AgentNotFoundException {
-		User user = userRepository.findById(request.getUser_id())
+		User user = userRepository.findById(request.getUserId())
 			.orElseThrow(UserNotFoundException::new);
 
-		Agent agent = agentRepository.findById(request.getAgent_id())
+		Agent agent = agentRepository.findById(request.getAgentId())
 			.orElseThrow(AgentNotFoundException::new);
 
 		Consultation consultation = Consultation.builder()
 			.user(user)
 			.agent(agent)
-			.consultationTitle(request.getConsultation_title())
-			.consultationContent(request.getConsultation_content())
+			.consultationTitle(request.getConsultationTitle())
+			.consultationContent(request.getConsultationContent())
 			.build();
 
 		consultation = consultationRepository.save(consultation);

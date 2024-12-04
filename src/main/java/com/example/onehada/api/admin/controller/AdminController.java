@@ -33,7 +33,7 @@ public class AdminController {
 		));
 	}
 
-	@GetMapping("/activity_logs/{userId}")
+	@GetMapping("/activityLogs/{userId}")
 	public ResponseEntity<?> getActivityLogs(@PathVariable Long userId) throws UserNotFoundException {
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "활동 로그 조회 성공",
@@ -69,17 +69,17 @@ public class AdminController {
 
 	@GetMapping("/user/search")
 	public ResponseEntity<?> searchUsers(
-		@RequestParam(required = false) String user_name,
-		@RequestParam(required = false) String user_birth
+		@RequestParam(required = false) String userName,
+		@RequestParam(required = false) String userBirth
 	) {
-		if (user_name == null && user_birth == null) {
+		if (userName == null && userBirth == null) {
 			return ResponseEntity.badRequest()
 				.body(new ApiResponse(400, "BAD_REQUEST", "검색 조건을 입력해주세요.", null));
 		}
 
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "사용자 검색 성공",
-			adminService.searchUsers(user_name, user_birth)
+			adminService.searchUsers(userName, userBirth)
 		));
 	}
 }

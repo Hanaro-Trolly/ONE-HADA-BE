@@ -11,6 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ActivityLogResponseDTO {
 	private Long userId;
-	private String user_name;
+	private String userName;
 	private List<ActivityLogDetailDTO> logs;
 }
