@@ -125,4 +125,26 @@ public class AdminService {
 			user.getUserGender()
 		);
 	}
+
+	public List<UserResponseDTO> searchUsers(String userName, String userBirth) {
+		List<User> users;
+
+		if (userName != null && userBirth != null) {
+			users = userRepository.findByUserNameContainingAndUserBirth(userName, userBirth);
+		} else if (userName != null) {
+			users = userRepository.findByUserNameContaining(userName);
+		} else {
+			users = userRepository.findByUserBirth(userBirth);
+		}
+
+		return users.stream()
+			.map(user -> new UserResponseDTO(
+				String.valueOf(user.getUserId()),
+				user.getUserName(),
+				user.getUserBirth(),
+				user.getPhoneNumber(),
+				user.getUserGender()
+			))
+			.collect(Collectors.toList());
+	}
 }

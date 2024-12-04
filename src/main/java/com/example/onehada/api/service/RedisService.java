@@ -38,7 +38,7 @@ public class RedisService {
 	}
 
 	// 새로운 메소드들 추가
-	public void saveAccessToken(String email, String token, long expiration) {
+	public void saveAccessToken(String email, String token, Long expiration) {
 		redisTemplate.opsForValue().set(
 			"access:" + email,
 			token,
@@ -47,7 +47,7 @@ public class RedisService {
 		);
 	}
 
-	public void saveRefreshToken(String email, String token, long expiration) {
+	public void saveRefreshToken(String email, String token, Long expiration) {
 		redisTemplate.opsForValue().set(
 			"refresh:" + email,
 			token,
@@ -56,7 +56,7 @@ public class RedisService {
 		);
 	}
 
-	public void saveActiveToken(String email, String token, long expiration) {
+	public void saveActiveToken(String email, String token, Long expiration) {
 		redisTemplate.opsForValue().set(
 			"active:" + email,
 			token,
@@ -65,7 +65,7 @@ public class RedisService {
 		);
 	}
 
-	public void addToBlacklist(String token, long expiration) {
+	public void addToBlacklist(String token, Long expiration) {
 		redisTemplate.opsForValue().set(
 			"blacklist:" + token,
 			"true",
@@ -80,8 +80,8 @@ public class RedisService {
 		);
 	}
 
-	public Long getActiveTokenCount(String email) {
-		return (long)redisTemplate.keys("access:" + email + ":*").size();
+	public int getActiveTokenCount(String email) {
+		return (int)redisTemplate.keys("access:" + email + ":*").size();
 	}
 
 	public String getAccessToken(String email) {
