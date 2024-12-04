@@ -66,4 +66,20 @@ public class AdminController {
 			adminService.getUser(userId)
 		));
 	}
+
+	@GetMapping("/user/search")
+	public ResponseEntity<?> searchUsers(
+		@RequestParam(required = false) String user_name,
+		@RequestParam(required = false) String user_birth
+	) {
+		if (user_name == null && user_birth == null) {
+			return ResponseEntity.badRequest()
+				.body(new ApiResponse(400, "BAD_REQUEST", "검색 조건을 입력해주세요.", null));
+		}
+
+		return ResponseEntity.ok(new ApiResponse(
+			200, "OK", "사용자 검색 성공",
+			adminService.searchUsers(user_name, user_birth)
+		));
+	}
 }

@@ -169,4 +169,55 @@ public class AdminControllerTest {
 			.andExpect(jsonPath("$.status").value("USER_NOT_FOUND"))
 			.andExpect(jsonPath("$.message").value("상담 데이터 추가 실패"));
 	}
+	@Test
+	void searchUsersByNameTest() throws Exception {
+		mockMvc.perform(get("/api/admin/user/search")
+				.param("user_name", "테스트"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("사용자 검색 성공"))
+			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+	}
+
+	@Test
+	void searchUsersByBirthTest() throws Exception {
+		mockMvc.perform(get("/api/admin/user/search")
+				.param("user_birth", "19900101"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+	}
+
+	@Test
+	void searchUsersByNameAndBirthTest() throws Exception {
+		mockMvc.perform(get("/api/admin/user/search")
+				.param("user_name", "테스트")
+				.param("user_birth", "19900101"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+	}
+
+	@Test
+	void searchUsersWithNoParamsTest() throws Exception {
+		mockMvc.perform(get("/api/admin/user/search"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.code").value(400))
+			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+			.andExpect(jsonPath("$.message").value("검색 조건을 입력해주세요."));
+	}
+
+	@Test
+	void searchUsersNoResultTest() throws Exception {
+		mockMvc.perform(get("/api/admin/user/search")
+				.param("user_name", "존재하지않는사용자"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data").isEmpty());
+	}
 }
