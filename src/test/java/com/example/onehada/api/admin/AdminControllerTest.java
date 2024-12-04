@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,8 +78,8 @@ public class AdminControllerTest {
 	@Test
 	void loginTest() throws Exception {
 		AdminLoginRequestDTO request = new AdminLoginRequestDTO();
-		request.setAgent_email("test@admin.com");
-		request.setAgent_pw("password123");
+		request.setAgentEmail("test@admin.com");
+		request.setAgentPw("password123");
 
 		mockMvc.perform(post("/api/admin/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -104,11 +103,11 @@ public class AdminControllerTest {
 	@Test
 	void createAndGetConsultationTest() throws Exception {
 		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
-		request.setAgent_id(testAgent.getAgentId());
-		request.setUser_id(testUser.getUserId());
-		request.setConsultation_title("테스트 상담");
-		request.setConsultation_content("테스트 상담 내용");
-		request.setConsultation_date(LocalDateTime.now());
+		request.setAgentId(testAgent.getAgentId());
+		request.setUserId(testUser.getUserId());
+		request.setConsultationTitle("테스트 상담");
+		request.setConsultationContent("테스트 상담 내용");
+		request.setConsultationDate(LocalDateTime.now());
 
 		// 상담 생성
 		mockMvc.perform(post("/api/admin/consultation")
@@ -140,8 +139,8 @@ public class AdminControllerTest {
 	@Test
 	void loginFailTest() throws Exception {
 		AdminLoginRequestDTO request = new AdminLoginRequestDTO();
-		request.setAgent_email("wrong@admin.com");
-		request.setAgent_pw("wrongpassword");
+		request.setAgentEmail("wrong@admin.com");
+		request.setAgentPw("wrongpassword");
 
 		mockMvc.perform(post("/api/admin/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -155,11 +154,11 @@ public class AdminControllerTest {
 	@Test
 	void createConsultationInvalidUserTest() throws Exception {
 		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
-		request.setAgent_id(testAgent.getAgentId());
-		request.setUser_id(999999L); // 존재하지 않는 사용자 ID
-		request.setConsultation_title("테스트 상담");
-		request.setConsultation_content("테스트 상담 내용");
-		request.setConsultation_date(LocalDateTime.now());
+		request.setAgentId(testAgent.getAgentId());
+		request.setUserId(999999L); // 존재하지 않는 사용자 ID
+		request.setConsultationTitle("테스트 상담");
+		request.setConsultationContent("테스트 상담 내용");
+		request.setConsultationDate(LocalDateTime.now());
 
 		mockMvc.perform(post("/api/admin/consultation")
 				.contentType(MediaType.APPLICATION_JSON)

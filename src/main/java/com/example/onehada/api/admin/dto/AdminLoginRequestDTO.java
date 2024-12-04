@@ -6,6 +6,6 @@ import lombok.*;
 @Setter
 @Data
 public class AdminLoginRequestDTO {
-	private String agent_email;
-	private String agent_pw;
+	private String agentEmail;
+	private String agentPw;
 }

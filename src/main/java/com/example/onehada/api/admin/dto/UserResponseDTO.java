@@ -9,8 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserResponseDTO {
 	private String id;
-	private String user_name;
-	private String user_birth;
-	private String user_phone;
-	private String user_gender;
+	private String userName;
+	private String userBirth;
+	private String userPhone;
+	private String userGender;
 }
