@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@WithMockUser(username = "admin", roles = "ADMIN") // jwt 적용 전
+//@WithMockUser(username = "admin", roles = "ADMIN") // jwt 적용 전
 public class AdminControllerTest {
 
 	@Autowired
