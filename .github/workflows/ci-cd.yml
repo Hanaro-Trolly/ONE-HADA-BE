@@ -17,32 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install yq
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y yq
-
       # 1.1. 환경변수 설정
       - name: Set environment variables from APPLICATION_YML
         run: |
+          cd ./src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > application.yml
-
-          # 각 항목을 환경변수로 설정
-          export SPRING_DATASOURCE_URL=$(yq eval '.spring.datasource.url' application.yml)
-          export SPRING_DATASOURCE_USERNAME=$(yq eval '.spring.datasource.username' application.yml)
-          export SPRING_DATASOURCE_PASSWORD=$(yq eval '.spring.datasource.password' application.yml)
-          export SPRING_DATASOURCE_DRIVER=$(yq eval '.spring.datasource.driver-class-name' application.yml)
-
-          export JWT_SECRET=$(yq eval '.jwt.secret' application.yml)
-          export JWT_ACCESS_TOKEN_EXPIRATION=$(yq eval '.jwt.access.token.expiration' application.yml)
-          export JWT_REFRESH_TOKEN_EXPIRATION=$(yq eval '.jwt.refresh.token.expiration' application.yml)
-
-          export REDIS_HOST=$(yq eval '.spring.data.redis.host' application.yml)
-          export REDIS_PORT=$(yq eval '.spring.data.redis.port' application.yml)
-          export REDIS_PASSWORD=$(yq eval '.spring.data.redis.password' application.yml)
-          export MONGODB_URI=$(yq eval '.spring.data.mongodb.uri' application.yml)
-
-          echo "Environment variables set successfully."
 
         # 2. JDK 설치 (Spring 애플리케이션 빌드에 필요)
       - name: Set up JDK 17

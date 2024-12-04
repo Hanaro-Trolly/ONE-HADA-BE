@@ -88,7 +88,7 @@ public class AccountControllerTest {
 			.simplePassword("1234")
 			.build();
 
-		MvcResult result = mockMvc.perform(post("/api/auth/login")
+		MvcResult result = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
 			.andDo(print())

@@ -133,7 +133,7 @@ public class AuthService {
                 return new ApiResponse(200, "EXIST", "계정연동 성공", null);
             }
 
-            String formattedBirth = request.getBirthdate().replaceAll("-", "");
+            String formattedBirth = request.getBirth().replaceAll("-", "");
             // 신규 사용자 생성
             User newUser = User.builder()
                 .userName(request.getName())
