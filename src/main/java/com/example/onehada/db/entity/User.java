@@ -7,9 +7,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,14 +45,15 @@ public class User {
 	private LocalDate userRegisteredDate;
 
 	@Column(name = "user_google_id")
-	private Long userGoogleId;
+	private String userGoogleId;
 
 	@Column(name = "user_kakao_id")
-	private Long userKakaoId;
+	private String userKakaoId;
 
 	@Column(name = "user_naver_id")
-	private Long userNaverId;
+	private String userNaverId;
 
 	@Column(name = "simple_password", length = 8, nullable = false)
 	private String simplePassword;
+
 }
