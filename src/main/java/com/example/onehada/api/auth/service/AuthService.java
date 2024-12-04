@@ -133,6 +133,7 @@ public class AuthService {
                 return new ApiResponse(200, "EXIST", "계정연동 성공", null);
             }
 
+            String formattedBirth = request.getBirthdate().replaceAll("-", "");
             // 신규 사용자 생성
             User newUser = User.builder()
                 .userName(request.getName())
@@ -141,7 +142,7 @@ public class AuthService {
                     request.getKakao() != null ? request.getKakao() : request.getNaver())
                 .phoneNumber(request.getPhone())
                 .userAddress(request.getAddress())
-                .userBirth(request.getBirthdate())
+                .userBirth(formattedBirth)
                 .userGoogleId(request.getGoogle())
                 .userKakaoId(request.getKakao())
                 .userNaverId(request.getNaver())
