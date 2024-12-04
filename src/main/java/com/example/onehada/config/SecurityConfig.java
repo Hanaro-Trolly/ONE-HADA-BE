@@ -64,7 +64,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // "*" 대신 구체적인 출처 지정
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1"));
+        configuration.setAllowedOrigins(List.of("http://frontend:3000", "http://127.0.0.1"));
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);  // credentials 활성화
