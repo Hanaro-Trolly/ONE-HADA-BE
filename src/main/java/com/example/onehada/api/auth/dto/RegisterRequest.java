@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class RegisterRequest {
 	private String name;
 	private String gender;
-	private String birthdate;
+	private String birth;
 	private String phone;
 	private String address;
 	private String google;
