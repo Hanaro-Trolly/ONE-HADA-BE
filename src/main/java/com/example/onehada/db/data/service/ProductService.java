@@ -6,6 +6,7 @@ import com.example.onehada.db.data.repository.ProductNodeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +24,10 @@ public class ProductService {
         this.productNodeRepository = productNodeRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductNode> getTop3RecommendedProducts(String buttonName) {
+        return productNodeRepository.findTop3RecommendedProductsByButton(buttonName);
+    }
     // @Transactional을 통해 트랜잭션 관리
     @Transactional
     public ProductNode createProduct(String name) {
@@ -33,29 +38,11 @@ public class ProductService {
         return buttonNodeRepository.save(new ButtonNode(name));
     }
 
-//    @Transactional
-//    public void addRecommend(String buttonName, String productName) {
-//        Optional<ProductNode> product = productNodeRepository.findById(productName);
-//        Optional<ButtonNode> button = buttonNodeRepository.findById(buttonName);
-//
-//        if (product.isPresent() && button.isPresent()) {
-//            button.get().getRecommendedProduct().add(button.get());
-//            product.get().getRecommendproduct().add(product.get());
-//            buttonNodeRepository.save(button.get());
-//            productNodeRepository.save(product.get());
-//        } else {
-//            if (product.isEmpty()) {
-//                throw new RuntimeException("Product not found: " + productName);
-//            }
-//            if (button.isEmpty()) {
-//                throw new RuntimeException("Button not found: " + buttonName);
-//            }
-//        }
-//    }
 @Transactional
 public void addRecommend(String buttonName, String productName) {
     Optional<ProductNode> product = productNodeRepository.findById(productName);
     Optional<ButtonNode> button = buttonNodeRepository.findById(buttonName);
+    buttonNodeRepository.incrementRecommendationWeight(buttonName, productName);
 
     if (product.isPresent() && button.isPresent()) {
         // 버튼이 상품을 추천
@@ -76,7 +63,7 @@ public void addRecommend(String buttonName, String productName) {
     }
     @Transactional(readOnly = true)
     public Set<ProductNode> findRecommends(String productName) {
-        return productNodeRepository.findById(productName).map(ProductNode::getRecommendproduct).orElse(Set.of());
+        return productNodeRepository.findById(productName).map(ProductNode::getRecommendproduct).orElse(Collections.emptySet());
     }
 
 

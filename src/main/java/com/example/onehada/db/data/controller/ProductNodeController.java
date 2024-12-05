@@ -2,6 +2,7 @@ package com.example.onehada.db.data.controller;
 
 import com.example.onehada.db.data.ProductNode;
 import com.example.onehada.db.data.service.ProductService;
+import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class ProductNodeController {
     }
 
     @PostMapping("/addReco")
+
     public String addRecommend(@RequestParam String buttonName,@RequestParam String ProductName) {
         productService.addRecommend(buttonName, ProductName );
         return buttonName + " recommend " + ProductName;
@@ -36,5 +38,9 @@ public class ProductNodeController {
     @GetMapping("/{name}/recommends")
     public Set<ProductNode> getRecommend(@PathVariable String name) {
         return productService.findRecommends(name);
+    }
+    @GetMapping("/recommend/{buttonName}")
+    public List<ProductNode> getRecommendedProducts(@PathVariable String buttonName) {
+        return productService.getTop3RecommendedProducts(buttonName);
     }
 }
