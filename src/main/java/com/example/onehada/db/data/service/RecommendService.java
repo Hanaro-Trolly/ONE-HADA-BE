@@ -12,14 +12,14 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class ProductService {
+public class RecommendService {
 
     private final ButtonNodeRepository buttonNodeRepository;
 
     private final ProductNodeRepository productNodeRepository;
 
     // 생성자 주입
-    public ProductService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository) {
+    public RecommendService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository) {
         this.buttonNodeRepository = buttonNodeRepository;
         this.productNodeRepository = productNodeRepository;
     }
