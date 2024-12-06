@@ -5,12 +5,17 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Consultation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long consultationId;
+	private Long consultationId;
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)

@@ -73,7 +73,7 @@ public class RedisIntegrationTest {
 		// Given
 		String email = "test@test.com";
 		String accessToken = "test-access-token";
-		long expiration = 3600000;
+		Long expiration = 3600000;
 
 		// When
 		redisService.saveActiveToken(email, accessToken, expiration);

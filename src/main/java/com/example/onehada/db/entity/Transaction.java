@@ -5,12 +5,20 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transaction {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long transactionId;
+	private Long transactionId;
 
 	@ManyToOne
 	@JoinColumn(name = "sender_account_id", nullable = false)
@@ -21,7 +29,7 @@ public class Transaction {
 	private Account receiverAccount;
 
 	@Column(nullable = false)
-	private long amount;
+	private Long amount;
 
 	@Column(length = 31)
 	private String senderName;

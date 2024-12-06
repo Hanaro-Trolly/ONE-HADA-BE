@@ -1,21 +1,23 @@
 package com.example.onehada.db.repository;
 
-import com.example.onehada.db.entity.User;
-import org.springframework.stereotype.Repository;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
-@Repository
-public class UserRepository {
-    private final Map<String, User> users = new HashMap<>();
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    public void save(User user) {
-        users.put(user.getUserEmail(), user);
-    }
+import com.example.onehada.db.entity.User;
 
-    public Optional<User> findByUserEmail(String email) {
-        return Optional.ofNullable(users.get(email));
-    }
+public interface UserRepository extends JpaRepository<User, Long> {
+	// 기존 메서드들
+	Optional<User> findByUserEmail(String email);
+	Optional<User> findByUserId(Long userId);
+	List<User> findByUserNameContaining(String userName);
+	List<User> findByUserBirth(String userBirth);
+	List<User> findByUserNameContainingAndUserBirth(String userName, String userBirth);
+
+	// 소셜 로그인을 위한 메서드들 추가
+	// Entity의 필드명과 정확히 일치하도록 수정
+	Optional<User> findByUserGoogleId(String userGoogleId);
+	Optional<User> findByUserKakaoId(String userKakaoId);
+	Optional<User> findByUserNaverId(String userNaverId);
 }
