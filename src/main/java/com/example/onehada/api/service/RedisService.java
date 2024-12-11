@@ -33,8 +33,12 @@ public class RedisService {
 		return (String)redisTemplate.opsForValue().get(key);
 	}
 
-	public void deleteValue(String key) {
-		redisTemplate.delete(key);
+	public boolean deleteValue(String key) {
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+			redisTemplate.delete(key);
+			return true;
+		}
+		return false;
 	}
 
 	// 새로운 메소드들 추가
