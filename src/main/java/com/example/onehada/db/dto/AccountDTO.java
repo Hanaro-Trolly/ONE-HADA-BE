@@ -16,9 +16,18 @@ public class AccountDTO {
 	@AllArgsConstructor
 	public static class accountsDTO {
 		private Long accountId;
+		private String accountType;
 		private String accountName;
 		private String accountNumber;
 		private Long balance;
+		private String bank;
+	}
+
+	@Getter
+	@Builder
+	public static class accountExistDTO{
+		private String userName;
+		private String accountId;
 		private String bank;
 	}
 
