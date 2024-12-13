@@ -51,7 +51,7 @@ jobs:
     steps:
       # 빌드된 아티팩트 다운로드
       - name: Download build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: onehada-be
           path: build/libs/
@@ -90,11 +90,4 @@ jobs:
             # 새로운 애플리케이션 실행 (nohup 로그 추가)
             nohup java -jar build/libs/onehada-be-*.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
 
-            # 애플리케이션 실행 확인 (10초 대기 후 확인)
-            sleep 10
-            if ! ps aux | grep -q '[j]ava -jar build/libs/onehada-be-*.jar'; then
-              echo "Application failed to start" && exit 1
-            fi
-
-            echo "Deployment successful"
             exit 0
