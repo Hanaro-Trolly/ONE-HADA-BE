@@ -13,5 +13,5 @@ public class SignInResponseDTO {
 	private int code;
 	private String status;
 	private String message;
-	private SignInResponseData data;
+	private SignInResponseDataDTO data;
 }

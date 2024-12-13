@@ -9,7 +9,7 @@ import com.example.onehada.api.auth.dto.RefreshTokenRequestDTO;
 import com.example.onehada.api.auth.dto.RegisterRequestDTO;
 import com.example.onehada.api.auth.dto.SignInRequestDTO;
 import com.example.onehada.api.auth.dto.SignInResponseDTO;
-import com.example.onehada.api.auth.dto.SignInResponseData;
+import com.example.onehada.api.auth.dto.SignInResponseDataDTO;
 import com.example.onehada.api.auth.service.AuthService;
 import com.example.onehada.api.auth.dto.PasswordRequestDTO;
 import com.example.onehada.api.service.UserService;
@@ -84,7 +84,7 @@ public class AuthController {
                     .code(200)
                     .status("EXIST")
                     .message("기존 로그인 성공")
-                    .data(SignInResponseData.builder()
+                    .data(SignInResponseDataDTO.builder()
                         .accessToken(tokens.getAccessToken())
                         .refreshToken(tokens.getRefreshToken())
                         .userId(String.valueOf(user.getUserId()))
