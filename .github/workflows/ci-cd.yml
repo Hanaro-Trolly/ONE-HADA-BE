@@ -142,6 +142,7 @@ jobs:
             # 프로젝트 디렉토리로 이동
             cd /home/${{ secrets.EC2_USERNAME }} || exit 1
 
+<<<<<<< HEAD
             # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
             PID=$(pgrep -f 'java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar')
             if [ -n "$PID" ]; then
@@ -162,6 +163,8 @@ jobs:
             java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar
 >>>>>>> b523ad0 (chore: ci-cd.yml 뭔가 될것같은 커밋)
 =======
+=======
+>>>>>>> 4e87ff0 (chore: ci-cd.yml 살인방지)
             # 새로운 애플리케이션 실행 (nohup으로 백그라운드 실행)
             nohup java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
 >>>>>>> 2c046ce (chore: ci-cd.yml 작은 변화)
