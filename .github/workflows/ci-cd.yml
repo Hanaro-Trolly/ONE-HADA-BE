@@ -38,7 +38,7 @@ jobs:
 
       # 빌드된 아티팩트 업로드
       - name: Upload build artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: onehada-be
           path: build/libs/onehada-be-*.jar
