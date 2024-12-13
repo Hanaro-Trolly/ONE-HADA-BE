@@ -87,7 +87,7 @@ public class AdminControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
-			.andExpect(jsonPath("$.data.agent_email").value("test@admin.com"));
+			.andExpect(jsonPath("$.data.agentEmail").value("test@admin.com"));
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class AdminControllerTest {
 				.param("email", "test@admin.com"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data[0].agent_email").value("test@admin.com"));
+			.andExpect(jsonPath("$.data[0].agentEmail").value("test@admin.com"));
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class AdminControllerTest {
 		mockMvc.perform(get("/api/admin/consultation/" + testUser.getUserId()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data.consultations[0].consultation_title")
+			.andExpect(jsonPath("$.data.consultations[0].consultationTitle")
 				.value("테스트 상담"));
 	}
 
@@ -129,10 +129,10 @@ public class AdminControllerTest {
 		mockMvc.perform(get("/api/admin/user/" + testUser.getUserId()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data.user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data.user_gender").value("M"))
-			.andExpect(jsonPath("$.data.user_phone").value("01012345678"))
-			.andExpect(jsonPath("$.data.user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data.userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data.userGender").value("M"))
+			.andExpect(jsonPath("$.data.userPhone").value("01012345678"))
+			.andExpect(jsonPath("$.data.userBirth").value("19900101"));
 	}
 
 
@@ -171,34 +171,34 @@ public class AdminControllerTest {
 	@Test
 	void searchUsersByNameTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_name", "테스트"))
+				.param("userName", "테스트"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
 			.andExpect(jsonPath("$.message").value("사용자 검색 성공"))
-			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"));
 	}
 
 	@Test
 	void searchUsersByBirthTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_birth", "19900101"))
+				.param("userBirth", "19900101"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"));
 	}
 
 	@Test
 	void searchUsersByNameAndBirthTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_name", "테스트")
-				.param("user_birth", "19900101"))
+				.param("userName", "테스트")
+				.param("userBirth", "19900101"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"));
 	}
 
 	@Test
@@ -213,7 +213,7 @@ public class AdminControllerTest {
 	@Test
 	void searchUsersNoResultTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_name", "존재하지않는사용자"))
+				.param("userName", "존재하지않는사용자"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data").isArray())
