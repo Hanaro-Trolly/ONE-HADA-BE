@@ -67,6 +67,7 @@ jobs:
       # 빌드된 아티팩트 다운로드
       - name: Download build artifact
 <<<<<<< HEAD
+<<<<<<< HEAD
         uses: actions/download-artifact@v3
         with:
           name: onehada-be
@@ -80,6 +81,9 @@ jobs:
       - name: Prepare deployment
 =======
         uses: actions/download-artifact@v2
+=======
+        uses: actions/download-artifact@v3
+>>>>>>> 2580f84 (chore: ci-cd.yml upload-artifact@v3 버전 수정)
         with:
           name: onehada-be
           path: build/libs/
@@ -119,6 +123,7 @@ jobs:
             # 새로운 애플리케이션 실행 (nohup 로그 추가)
             nohup java -jar build/libs/onehada-be-*.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 & || exit 1
 
+<<<<<<< HEAD
             # 애플리케이션 실행 확인 (10초 대기 후 확인)
             sleep 10
 <<<<<<< HEAD
@@ -131,4 +136,6 @@ jobs:
 
             echo "Deployment successful"
 >>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
+=======
+>>>>>>> 2580f84 (chore: ci-cd.yml upload-artifact@v3 버전 수정)
             exit 0
