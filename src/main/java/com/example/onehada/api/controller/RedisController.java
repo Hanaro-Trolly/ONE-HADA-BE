@@ -73,7 +73,7 @@ public class RedisController {
 		}
 	}
 
-	@GetMapping("/get/transfer")
+	@GetMapping("/transfer")
 	public ResponseEntity<ApiResponse> getValidationValue() {
 		List<String> keys = Arrays.asList("myaccount", "receiveaccount", "amount");
 
@@ -101,6 +101,33 @@ public class RedisController {
 		}
 	}
 
+	@PostMapping("/transfer")
+	public ResponseEntity<ApiResponse> saveTransferDetails() {
+		List<String> keys = Arrays.asList("myaccount", "receiveaccount", "amount");
+
+		Map<String, String> result = new HashMap<>();
+
+		try {
+			for (String key : keys) {
+				String value = redisService.getValue(key);
+				result.put(key, value != null ? value : "No value found");
+			}
+
+			return ResponseEntity.ok(new ApiResponse(
+				200,
+				"success",
+				"<Redis> 단일 정보 저장 -> 응답을 정상적으로 수행했습니다.",
+				result
+			));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(
+				500,
+				"INTERNAL_SERVER_ERROR",
+				"Failed to retrieve values: " + e.getMessage(),
+				null
+			));
+		}
+	}
 	@DeleteMapping("/delete")
 	public ResponseEntity<ApiResponse> deleteValue(@RequestParam("key") String key) {
 		try {
