@@ -74,28 +74,34 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            if [ -f /home/${{ secrets.EC2_USERNAME }}/app.pid ]; then
-              kill $(cat /home/${{ secrets.EC2_USERNAME }}/app.pid) || true
-              rm /home/${{ secrets.EC2_USERNAME }}/app.pid
-            fi
-            mkdir -p /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/
+            # 프로젝트 디렉토리로 이동
+            cd /home/${{ secrets.EC2_USERNAME }} || exit 1
 
-      # JAR 파일 전송
-      - name: Copy JAR to EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          source: 'onehada-0.0.1-SNAPSHOT.jar'
-          target: '/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/'
+            # Git 리포지토리 클론 (리포지토리가 없다면)
+            if [ ! -d "ONE-HADA-BE/.git" ]; then
+              git clone https://github.com/Hanaro-Trolly/ONE-HADA-BE.git
+            fi
+
+            cd ONE-HADA-BE || exit 1
+
+            # 최신 코드 가져오기
+            git fetch origin || exit 1
+            git reset --hard origin/master || exit 1
+
+            # 환경변수 설정
+            cd ./src/main/resources || exit 1
+            echo "${{ secrets.APPLICATION_YML }}" > application.yml || exit 1
+            cd ../../.. || exit 1
+
+            # Gradle 빌드 (테스트 제외)
+            ./gradlew clean build -x test || exit 1
 
             # 애플리케이션 실행
-            # 이전에 실행 중인 프로세스 종료
-            pkill -f 'java -jar' || true
+            # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
+            PID=$(pgrep -f 'java -jar build/libs/onehada-be-*.jar')
+            if [ -n "$PID" ]; then
+              kill -9 $PID
+            fi
 
             # 새로운 애플리케이션 실행
             nohup java -jar build/libs/onehada-be-*.jar > /dev/null 2>&1 & || exit 1
-
-            exit 0
