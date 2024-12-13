@@ -1,11 +1,8 @@
 rootProject.name = 'onehada'
 
-toolchainManagement {
+javaToolchains {
     jvm {
-        javaRepositories {
-            repository('foojay') {
-                resolverClass = org.gradle.toolchains.foojay.FoojayToolchainResolver
-            }
-        }
+        vendor = 'adoptopenjdk'
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
