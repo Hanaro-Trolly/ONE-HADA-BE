@@ -80,12 +80,12 @@ jobs:
             echo "${{ secrets.APPLICATION_YML }}" > application.yml || exit 1
             cd ../../.. || exit 1
 
-            # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
-            PID=$(pgrep -f 'java -jar build/libs/onehada*.jar')
-            if [ -n "$PID" ]; then
-              echo "Killing existing Java process with PID: $PID"
-              kill -9 $PID || exit 1
-            fi
+            # # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
+            # PID=$(pgrep -f 'java -jar build/libs/onehada*.jar')
+            # if [ -n "$PID" ]; then
+            #   echo "Killing existing Java process with PID: $PID"
+            #   kill -9 $PID || exit 1
+            # fi
 
             # 새로운 애플리케이션 실행 (nohup 로그 추가)
             nohup java -jar build/libs/onehada*.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
