@@ -26,7 +26,7 @@ jobs:
 
             # Git 리포지토리 클론 (리포지토리가 없다면)
             if [ ! -d "ONE-HADA-BE/.git" ]; then
-              git clone https://github.com/your-username/ONE-HADA-BE.git
+              git clone https://github.com/Hanaro-Trolly/ONE-HADA-BE.git
             fi
 
             cd ONE-HADA-BE || exit 1
