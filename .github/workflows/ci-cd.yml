@@ -50,6 +50,7 @@ jobs:
 <<<<<<< HEAD
         uses: actions/upload-artifact@v3
         with:
+<<<<<<< HEAD
           name: onehada-be
           path: build/libs/onehada-0.0.1-SNAPSHOT.jar
 =======
@@ -61,10 +62,14 @@ jobs:
           name: onehada-be
           path: build/libs/onehada-be-*.jar
 >>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
+=======
+          name: onehada-be # 동일한 이름으로 업로드
+          path: build/libs/onehada-be-*.jar # 올바른 경로로 설정
+>>>>>>> a8532fd (chore: ci-cd.yml 또 수정)
 
   # 배포 작업
   deploy:
-    needs: build
+    needs: build # 빌드 작업이 끝나야 배포가 실행됨
     runs-on: ubuntu-latest
 
     steps:
@@ -74,6 +79,7 @@ jobs:
 <<<<<<< HEAD
         uses: actions/download-artifact@v3
         with:
+<<<<<<< HEAD
           name: onehada-be
           path: .
 
@@ -90,6 +96,9 @@ jobs:
 >>>>>>> 2580f84 (chore: ci-cd.yml upload-artifact@v3 버전 수정)
         with:
           name: onehada-be
+=======
+          name: onehada-be # 업로드된 아티팩트 이름과 동일하게 설정
+>>>>>>> a8532fd (chore: ci-cd.yml 또 수정)
           path: build/libs/
 
       # EC2에 배포
