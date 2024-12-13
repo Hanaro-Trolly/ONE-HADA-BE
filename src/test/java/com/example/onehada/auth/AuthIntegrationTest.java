@@ -1,9 +1,8 @@
 package com.example.onehada.auth;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.api.auth.dto.AuthRequestDTO;
+import com.example.onehada.api.auth.dto.AuthResponseDTO;
 import com.example.onehada.api.service.RedisService;
-import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
 import com.example.onehada.db.repository.HistoryRepository;
@@ -91,7 +90,7 @@ public class AuthIntegrationTest {
 
 	@Test
 	public void testLoginAndTokenStorage() throws Exception {
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
 			.build();
@@ -104,9 +103,9 @@ public class AuthIntegrationTest {
 			.andReturn();
 
 		// Then
-		AuthResponse response = objectMapper.readValue(
+		AuthResponseDTO response = objectMapper.readValue(
 			result.getResponse().getContentAsString(),
-			AuthResponse.class
+			AuthResponseDTO.class
 		);
 
 		assertNotNull(response.getAccessToken());
@@ -124,7 +123,7 @@ public class AuthIntegrationTest {
 	@Test
 	public void testLogoutAndBlacklist() throws Exception {
 		// Given - 로그인
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
 			.build();
@@ -135,9 +134,9 @@ public class AuthIntegrationTest {
 			.andExpect(status().isOk())
 			.andReturn();
 
-		AuthResponse response = objectMapper.readValue(
+		AuthResponseDTO response = objectMapper.readValue(
 			loginResult.getResponse().getContentAsString(),
-			AuthResponse.class
+			AuthResponseDTO.class
 		);
 
 		// When - 로그아웃
@@ -157,7 +156,7 @@ public class AuthIntegrationTest {
 	@Test
 	public void testProtectedEndpointWithValidToken() throws Exception {
 		// Given - 로그인
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
 			.build();
@@ -168,9 +167,9 @@ public class AuthIntegrationTest {
 			.andExpect(status().isOk())
 			.andReturn();
 
-		AuthResponse response = objectMapper.readValue(
+		AuthResponseDTO response = objectMapper.readValue(
 			loginResult.getResponse().getContentAsString(),
-			AuthResponse.class
+			AuthResponseDTO.class
 		);
 
 		// When & Then - 보호된 엔드포인트 접근
@@ -181,7 +180,7 @@ public class AuthIntegrationTest {
 
 	@Test
 	public void testLoginWithInvalidCredentials() throws Exception {
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("wrong@email.com")
 			.simplePassword("wrongpass")
 			.build();
