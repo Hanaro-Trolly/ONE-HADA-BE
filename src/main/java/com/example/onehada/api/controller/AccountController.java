@@ -58,9 +58,9 @@ public class AccountController {
 		}
 	}
 
-	@GetMapping("/{account_id}")
+	@GetMapping("/{accountId}")
 	public ResponseEntity<?> getAccountById(@RequestHeader("Authorization") String token,
-		@PathVariable("account_id") Long accountId) {
+		@PathVariable("accountId") Long accountId) {
 		try {
 			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
 			Long userId = userService.getUserByEmail(email).getUserId();
@@ -78,8 +78,8 @@ public class AccountController {
 		}
 	}
 
-	@GetMapping("/exist/{account_id}")
-	public ResponseEntity<?> checkAccountExistence(@PathVariable("account_id") Long accountId) {
+	@GetMapping("/exist/{accountId}")
+	public ResponseEntity<?> checkAccountExistence(@PathVariable("accountId") Long accountId) {
 		boolean exists = accountService.doesAccountExist(accountId);
 		AccountDTO.accountExistDTO account = accountService.getExistAccount(accountId);
 		return ResponseEntity.ok(new ApiResponse(200, String.valueOf(exists), "계좌 존재 여부 확인 성공", account));

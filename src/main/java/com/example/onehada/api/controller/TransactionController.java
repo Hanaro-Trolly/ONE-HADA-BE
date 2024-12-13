@@ -59,8 +59,8 @@ public class TransactionController {
 		}
 	}
 
-	@GetMapping("/{account_id}")
-	public ResponseEntity<?> getTransactions(@PathVariable("account_id") Long accountId,
+	@GetMapping("/{accountId}")
+	public ResponseEntity<?> getTransactions(@PathVariable("accountId") Long accountId,
 		@RequestBody TransactionDTO.transactionRequest request) {
 		try {
 			List<TransactionDTO.transactionDTO> transactions = transactionService.getTransactions(accountId, request);
