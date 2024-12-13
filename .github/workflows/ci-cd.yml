@@ -91,21 +91,11 @@ jobs:
           source: 'onehada-0.0.1-SNAPSHOT.jar'
           target: '/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/'
 
-      # 애플리케이션 실행
-      - name: Start Application
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          script: |
-            cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE
+            # 애플리케이션 실행
+            # 이전에 실행 중인 프로세스 종료
+            pkill -f 'java -jar' || true
 
-            # JAR 파일 실행 권한 부여
-            chmod +x build/libs/onehada-0.0.1-SNAPSHOT.jar
+            # 새로운 애플리케이션 실행
+            nohup java -jar build/libs/onehada-be-*.jar > /dev/null 2>&1 & || exit 1
 
-            # 애플리케이션 실행 및 PID 저장
-            nohup java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 & echo $! > /home/${{ secrets.EC2_USERNAME }}/app.pid
-
-            echo "Application started!" >> /home/${{ secrets.EC2_USERNAME }}/app.log
+            exit 0
