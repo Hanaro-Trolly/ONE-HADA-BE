@@ -73,13 +73,6 @@ jobs:
             # 프로젝트 디렉토리로 이동
             cd /home/${{ secrets.EC2_USERNAME }} || exit 1
 
-            # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
-            PID=$(pgrep -f 'java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar')
-            if [ -n "$PID" ]; then
-              echo "Killing existing Java process with PID: $PID"
-              kill -9 $PID || exit 1
-            fi
-
             # 새로운 애플리케이션 실행 (nohup으로 백그라운드 실행)
             nohup java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
 
