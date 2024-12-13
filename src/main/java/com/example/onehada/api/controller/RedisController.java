@@ -11,12 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.onehada.api.service.RedisService;
 import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.db.dto.TransactionDTO;
 
 @RestController
 @RequestMapping("/api/redis")
@@ -73,10 +75,8 @@ public class RedisController {
 		}
 	}
 
-	@GetMapping("/transfer")
-	public ResponseEntity<ApiResponse> getValidationValue() {
-		List<String> keys = Arrays.asList("myaccount", "receiveaccount", "amount");
-
+	@PostMapping("/transfer")
+	public ResponseEntity<ApiResponse> getValidationValue(@RequestBody List<String> keys) {
 		Map<String, String> result = new HashMap<>();
 
 		try {
@@ -88,7 +88,7 @@ public class RedisController {
 			return ResponseEntity.ok(new ApiResponse(
 				200,
 				"success",
-				"<Redis> 단일 정보 저장 -> 응답을 정상적으로 수행했습니다.",
+				"<Redis> 단일 정보 조회 -> 응답을 정상적으로 수행했습니다.",
 				result
 			));
 		} catch (Exception e) {
@@ -102,30 +102,31 @@ public class RedisController {
 	}
 
 	@PostMapping("/transfer")
-	public ResponseEntity<ApiResponse> saveTransferDetails() {
-		List<String> keys = Arrays.asList("myaccount", "receiveaccount", "amount");
-
-		Map<String, String> result = new HashMap<>();
-
+	public ResponseEntity<ApiResponse> saveTransferDetails(@RequestBody Map<String, String> transferRequest) {
 		try {
-			for (String key : keys) {
-				String value = redisService.getValue(key);
-				result.put(key, value != null ? value : "No value found");
+			Map<String, String> transferDetails = new HashMap<>();
+
+			for (Map.Entry<String, String> entry : transferRequest.entrySet()) {
+				transferDetails.put(entry.getKey(), entry.getValue());
+				redisService.saveValue(entry.getKey(), entry.getValue());
 			}
 
-			return ResponseEntity.ok(new ApiResponse(
+			ApiResponse response = new ApiResponse(
 				200,
 				"success",
-				"<Redis> 단일 정보 저장 -> 응답을 정상적으로 수행했습니다.",
-				result
-			));
+				"<Redis> 계좌 이체 필요정보 -> 정상적으로 수행했습니다.",
+				transferDetails
+			);
+
+			return ResponseEntity.ok(response);
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(
+			ApiResponse response = new ApiResponse(
 				500,
-				"INTERNAL_SERVER_ERROR",
-				"Failed to retrieve values: " + e.getMessage(),
+				"error",
+				"계좌 이체 정보를 저장하는 중 오류가 발생했습니다: " + e.getMessage(),
 				null
-			));
+			);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 	}
 	@DeleteMapping("/delete")
