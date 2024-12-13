@@ -22,7 +22,14 @@ jobs:
           port: 22
           script: |
             # 프로젝트 디렉토리로 이동
-            cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE || exit 1
+            cd /home/${{ secrets.EC2_USERNAME }} || exit 1
+
+            # Git 리포지토리 클론 (리포지토리가 없다면)
+            if [ ! -d "ONE-HADA-BE/.git" ]; then
+              git clone https://github.com/your-username/ONE-HADA-BE.git
+            fi
+
+            cd ONE-HADA-BE || exit 1
 
             # 최신 코드 가져오기
             git fetch origin || exit 1
