@@ -50,7 +50,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 빌드된 아티팩트 업로드
+      # 빌드된 아티팩트  업로드
       - name: Upload build artifact
 <<<<<<< HEAD
 <<<<<<< HEAD
