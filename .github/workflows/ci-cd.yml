@@ -24,11 +24,6 @@ jobs:
             # 프로젝트 디렉토리로 이동
             cd /home/${{ secrets.EC2_USERNAME }} || exit 1
 
-            # Git 리포지토리 클론 (리포지토리가 없다면)
-            if [ ! -d "ONE-HADA-BE/.git" ]; then
-              git clone https://github.com/Hanaro-Trolly/ONE-HADA-BE.git
-            fi
-
             cd ONE-HADA-BE || exit 1
 
             # 최신 코드 가져오기
@@ -44,8 +39,17 @@ jobs:
             ./gradlew clean build -x test || exit 1
 
             # 애플리케이션 실행
-            # 이전에 실행 중인 프로세스 종료
-            pkill -f 'java -jar' || true
+            # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
+            PID=$(pgrep -f 'java -jar build/libs/onehada-be-*.jar')
+            if [ -n "$PID" ]; then
+              kill -9 $PID
+            fi
 
-            # 새로운 애플리케이션 실행
-            nohup java -jar build/libs/onehada-be-*.jar > /dev/null 2>&1 & || exit 1
+            # 새로운 애플리케이션 실행 (nohup 로그 추가)
+            nohup java -jar build/libs/onehada-be-*.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 & || exit 1
+
+            # 애플리케이션 실행 확인 (10초 대기 후 확인)
+            sleep 10
+            ps aux | grep 'java -jar' || exit 1
+
+            exit 0
