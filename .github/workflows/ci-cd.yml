@@ -49,5 +49,3 @@ jobs:
 
             # 새로운 애플리케이션 실행
             nohup java -jar build/libs/onehada-be-*.jar > /dev/null 2>&1 & || exit 1
-
-            exit 0
