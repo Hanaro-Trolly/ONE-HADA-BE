@@ -9,8 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class ConsultationDetailDTO {
 	private String id;
-	private String agent_id;
-	private String consultation_title;
-	private String consultation_content;
-	private LocalDateTime consultation_date;
+	private String agentId;
+	private String consultationTitle;
+	private String consultationContent;
+	private LocalDateTime consultationDate;
 }

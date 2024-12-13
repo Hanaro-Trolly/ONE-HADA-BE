@@ -7,8 +7,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class RefreshTokenRequest {
-	private String refreshToken;
+@NoArgsConstructor
+public class SignInResponseDTO {
+	private int code;
+	private String status;
+	private String message;
+	private SignInResponseDataDTO data;
 }

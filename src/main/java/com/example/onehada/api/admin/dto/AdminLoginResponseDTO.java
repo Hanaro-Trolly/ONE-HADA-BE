@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class AdminLoginResponseDTO {
 	private Long id;
-	private String agent_name;
-	private String agent_email;
+	private String agentName;
+	private String agentEmail;
 }

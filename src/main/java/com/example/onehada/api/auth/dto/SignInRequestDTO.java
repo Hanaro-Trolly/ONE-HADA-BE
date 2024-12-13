@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignInResponse {
-	private int code;
-	private String status;
-	private String message;
-	private SignInResponseData data;
+public class SignInRequestDTO {
+	private String provider;
+	private String email;
 }
