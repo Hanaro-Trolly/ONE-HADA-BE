@@ -32,6 +32,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # 환경변수 설정 (application.yml 작성)
+      - name: Set application.yml for environment
+        run: |
+          echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
+
       # Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean build -x test
@@ -67,18 +72,6 @@ jobs:
           script: |
             # 프로젝트 디렉토리로 이동
             cd /home/${{ secrets.EC2_USERNAME }} || exit 1
-
-            # 최신 코드 가져오기 (git pull로 최적화)
-            if [ ! -d "ONE-HADA-BE/.git" ]; then
-              git clone https://github.com/Hanaro-Trolly/ONE-HADA-BE.git || exit 1
-            fi
-            cd ONE-HADA-BE || exit 1
-            git pull origin master || exit 1
-
-            # 환경변수 설정
-            cd ./src/main/resources || exit 1
-            echo "${{ secrets.APPLICATION_YML }}" > application.yml || exit 1
-            cd ../../.. || exit 1
 
             # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
             PID=$(pgrep -f 'java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar')
