@@ -140,7 +140,7 @@ jobs:
           port: 22
           script: |
             # 프로젝트 디렉토리로 이동
-            cd /home/${{ secrets.EC2_USERNAME }} || exit 1
+            cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE || exit 1
 
 <<<<<<< HEAD
             # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
