@@ -3,15 +3,15 @@ package com.example.onehada.api.auth.controller;
 import java.util.Map;
 import java.util.Optional;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.dto.AuthResponse;
-import com.example.onehada.api.auth.dto.RefreshTokenRequest;
-import com.example.onehada.api.auth.dto.RegisterRequest;
-import com.example.onehada.api.auth.dto.SignInRequest;
-import com.example.onehada.api.auth.dto.SignInResponse;
+import com.example.onehada.api.auth.dto.AuthRequestDTO;
+import com.example.onehada.api.auth.dto.AuthResponseDTO;
+import com.example.onehada.api.auth.dto.RefreshTokenRequestDTO;
+import com.example.onehada.api.auth.dto.RegisterRequestDTO;
+import com.example.onehada.api.auth.dto.SignInRequestDTO;
+import com.example.onehada.api.auth.dto.SignInResponseDTO;
 import com.example.onehada.api.auth.dto.SignInResponseData;
 import com.example.onehada.api.auth.service.AuthService;
-import com.example.onehada.api.auth.dto.PasswordRequest;
+import com.example.onehada.api.auth.dto.PasswordRequestDTO;
 import com.example.onehada.api.service.UserService;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.db.entity.User;
@@ -39,7 +39,7 @@ public class AuthController {
             String name = (String) payload.get("name");
             Long userId = (Long) payload.get("userId");
 
-            AuthResponse tokens = authService.generateTokens(email, name, userId);
+            AuthResponseDTO tokens = authService.generateTokens(email, name, userId);
             return ResponseEntity.ok(tokens);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -49,7 +49,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> login(@RequestBody AuthRequestDTO request) {
         try {
             return ResponseEntity.ok(authService.login(request));
         } catch (RuntimeException e) {
@@ -70,7 +70,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<SignInResponse> signIn(@RequestBody SignInRequest request) {
+    public ResponseEntity<SignInResponseDTO> signIn(@RequestBody SignInRequestDTO request) {
         try {
             // provider와 이메일로 기존 사용자 확인
             // AuthService를 통해 사용자 조회
@@ -78,9 +78,9 @@ public class AuthController {
             if (existingUser.isPresent()) {
                 User user = existingUser.get();
                 // 토큰 생성
-                AuthResponse tokens = authService.generateTokens(user.getUserEmail(), user.getUserName(), user.getUserId());
+                AuthResponseDTO tokens = authService.generateTokens(user.getUserEmail(), user.getUserName(), user.getUserId());
 
-                return ResponseEntity.ok(SignInResponse.builder()
+                return ResponseEntity.ok(SignInResponseDTO.builder()
                     .code(200)
                     .status("EXIST")
                     .message("기존 로그인 성공")
@@ -91,13 +91,13 @@ public class AuthController {
                         .build())
                     .build());
             }
-            return ResponseEntity.ok(SignInResponse.builder()
+            return ResponseEntity.ok(SignInResponseDTO.builder()
                 .code(200)
                 .status("NEW")
                 .message("새로운 사용자 입니다.")
                 .build());
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(SignInResponse.builder()
+            return ResponseEntity.badRequest().body(SignInResponseDTO.builder()
                 .code(400)
                 .status("BAD_REQUEST")
                 .message("소셜 로그인 실패. " + e.getMessage())
@@ -106,7 +106,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequestDTO request) {
         try {
             ApiResponse response = authService.register(request);
             return ResponseEntity.ok(response);
@@ -117,7 +117,7 @@ public class AuthController {
     }
 
     @PostMapping("/password")
-    public ResponseEntity<ApiResponse> setPassword(@RequestBody PasswordRequest request) {
+    public ResponseEntity<ApiResponse> setPassword(@RequestBody PasswordRequestDTO request) {
         try {
             ApiResponse response = authService.setPassword(request);
             return ResponseEntity.ok(response);
@@ -128,9 +128,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequestDTO request) {
         try {
-            AuthResponse newTokens = authService.refreshToken(request.getRefreshToken());
+            AuthResponseDTO newTokens = authService.refreshToken(request.getRefreshToken());
             return ResponseEntity.ok(new ApiResponse(200, "OK", "토큰 갱신 성공", newTokens));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

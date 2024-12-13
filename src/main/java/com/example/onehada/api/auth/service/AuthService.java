@@ -4,10 +4,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.dto.AuthResponse;
-import com.example.onehada.api.auth.dto.PasswordRequest;
-import com.example.onehada.api.auth.dto.RegisterRequest;
+import com.example.onehada.api.auth.dto.AuthRequestDTO;
+import com.example.onehada.api.auth.dto.AuthResponseDTO;
+import com.example.onehada.api.auth.dto.PasswordRequestDTO;
+import com.example.onehada.api.auth.dto.RegisterRequestDTO;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
@@ -39,7 +39,7 @@ public class AuthService {
     //     this.accountRepository = accountRepository;
     // }
 
-    public AuthResponse login(AuthRequest request) {
+    public AuthResponseDTO login(AuthRequestDTO request) {
         User user = userRepository.findByUserEmail(request.getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -56,7 +56,7 @@ public class AuthService {
         redisService.saveAccessToken(user.getUserEmail(), accessToken, accessTokenExpiration);
         redisService.saveRefreshToken(user.getUserEmail(), refreshToken, refreshTokenExpiration);
 
-        return AuthResponse.builder()
+        return AuthResponseDTO.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .email(user.getUserEmail())
@@ -65,7 +65,7 @@ public class AuthService {
     }
 
     // Access Token과 Refresh Token 발급 및 Redis 저장
-    public AuthResponse generateTokens(String email, String name, Long userId) {
+    public AuthResponseDTO generateTokens(String email, String name, Long userId) {
         // 지금은 유저등록 안되어있어서 주석처리 ->
         // 1. 이메일 + 프로바이더 확인하여 회원인지 아닌지 판별
         // 2. 없을 경우 회원가입
@@ -80,7 +80,7 @@ public class AuthService {
         redisService.saveAccessToken(email, accessToken, accessTokenExpiration);
         redisService.saveRefreshToken(email, refreshToken, refreshTokenExpiration);
 
-        return AuthResponse.builder()
+        return AuthResponseDTO.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .email(email)
@@ -112,7 +112,7 @@ public class AuthService {
         }
     }
 
-    public ApiResponse register(RegisterRequest request) {
+    public ApiResponse register(RegisterRequestDTO request) {
         try {
             // 소셜 계정 중 하나라도 있는지 확인
             String primaryEmail = Stream.of(request.getGoogle(), request.getKakao(), request.getNaver())
@@ -158,7 +158,7 @@ public class AuthService {
             throw new RuntimeException("회원가입 실패: " + e.getMessage());
         }
     }
-    public ApiResponse setPassword(PasswordRequest request) {
+    public ApiResponse setPassword(PasswordRequestDTO request) {
         User user = userRepository.findByUserEmail(request.getEmail())
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
@@ -168,7 +168,7 @@ public class AuthService {
         return new ApiResponse(200, "OK", "간편비밀번호 등록 성공", null);
     }
 
-    public AuthResponse refreshToken(String refreshToken) {
+    public AuthResponseDTO refreshToken(String refreshToken) {
         if (!jwtService.isValidToken(refreshToken)) {
             throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
         }
