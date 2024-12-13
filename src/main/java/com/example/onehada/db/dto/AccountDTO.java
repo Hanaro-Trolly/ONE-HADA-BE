@@ -31,24 +31,10 @@ public class AccountDTO {
 		private String bank;
 	}
 
-	@Data
-	@AllArgsConstructor
-	@Builder
-	public static class accountDetailDTO{
-		private Long userId;
-		private Long accountId;
-		private String accountName;
-		private String accountNumber;
-		private String accountType;
-		private Long balance;
-		private String bank;
-	}
-
-	//정보 은닉성으로 Getter만 사용
 	@Getter
 	@AllArgsConstructor
 	@Builder
-	public static class accountTransferDTO{
+	public static class accountDetailDTO{
 		private Long userId;
 		private Long accountId;
 		private String accountName;
@@ -73,7 +59,6 @@ public class AccountDTO {
 				.build();
 		}
 	}
-
 	@Getter
 	@Builder
 	public static class accountTransferRequest {
