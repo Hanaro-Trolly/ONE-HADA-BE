@@ -80,19 +80,19 @@ public class AccountService {
 				.build());
 	}
 
-	public boolean doesAccountExist(Long accountId) {
-		return accountRepository.existsById(accountId);
+	public boolean doesAccountExist(String accountNumber) {
+		return accountRepository.existsByAccountNumber(accountNumber);
 	}
 
-	public AccountDTO.accountExistDTO getExistAccount(Long accountId) {
-		Optional<Account> accountOptional = accountRepository.findByAccountId(accountId);
+	public AccountDTO.accountExistDTO getExistAccount(String accountNumber) {
+		Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
 
 		return accountOptional.map(account -> AccountDTO.accountExistDTO.builder()
-				.accountId(account.getAccountId().toString())
+				.accountNumber(account.getAccountNumber())
 				.userName(account.getUser().getUserName())
 				.bank(account.getBank())
 				.build())
 			//Todo 리팩토링 toAccountNotFound
-			.orElseThrow(() -> new UserNotFoundException(" id: " + accountId));
+			.orElseThrow(() -> new UserNotFoundException(" AccountNumber: " + accountNumber));
 	}
 }
