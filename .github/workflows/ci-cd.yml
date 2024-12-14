@@ -61,12 +61,6 @@ jobs:
           name: onehada-be
           path: /tmp/onehada-be/
 
-      # EC2 서버의 호스트 키를 수동으로 등록
-      - name: Add EC2 host to known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
       # EC2에 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
