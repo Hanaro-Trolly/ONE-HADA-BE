@@ -32,63 +32,21 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b5c7ec9 (chore: ci-cd.yml 큰 변화)
       # 환경변수 설정 (application.yml 작성)
       - name: Set application.yml for environment
         run: |
           echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
 
-<<<<<<< HEAD
-=======
->>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
-=======
->>>>>>> b5c7ec9 (chore: ci-cd.yml 큰 변화)
       # Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
       # 빌드된 아티팩트 업로드
       - name: Upload build artifact
-<<<<<<< HEAD
-<<<<<<< HEAD
         uses: actions/upload-artifact@v3
         with:
-<<<<<<< HEAD
-<<<<<<< HEAD
-          name: onehada-be
-<<<<<<< HEAD
-<<<<<<< HEAD
-          path: build/libs/onehada-0.0.1-SNAPSHOT.jar
-=======
-        uses: actions/upload-artifact@v2
-=======
-        uses: actions/upload-artifact@v3
->>>>>>> 0f011b5 (chore: ci-cd.yml upload-artifact@ 한번 더 수정)
-        with:
-          name: onehada-be
-          path: build/libs/onehada-be-*.jar
->>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
-=======
-          name: onehada-be # 동일한 이름으로 업로드
-<<<<<<< HEAD
-          path: build/libs/onehada-be-*.jar # 올바른 경로로 설정
->>>>>>> a8532fd (chore: ci-cd.yml 또 수정)
-=======
-          path: build/libs/onehada*.jar # 올바른 경로로 설정
->>>>>>> 7fdd4ef (chore: 빌드파일명 수정)
-=======
           name: onehada-be
           path: build/libs/onehada-0.0.1-SNAPSHOT.jar
->>>>>>> b523ad0 (chore: ci-cd.yml 뭔가 될것같은 커밋)
-=======
-          path: /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar
->>>>>>> 28379d5 (chore: ci-cd.yml 파이프라인 수정)
-=======
-          path: build/libs/onehada-0.0.1-SNAPSHOT.jar
->>>>>>> d61d8d9 (chore: ci-cd.yml 아티팩트 업로드 경로 수정)
 
   # 배포 작업
   deploy:
@@ -96,53 +54,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 빌드된 아티팩트 다운로드 (CI 서버에서 다운로드)
+      # 빌드된 아티팩트 다운로드
       - name: Download build artifact
-<<<<<<< HEAD
-<<<<<<< HEAD
         uses: actions/download-artifact@v3
         with:
-<<<<<<< HEAD
-<<<<<<< HEAD
           name: onehada-be
-<<<<<<< HEAD
-          path: .
-
-      # 다운로드된 파일 확인
-      - name: List files
-        run: ls -la
-
-      # 기존 프로세스 종료 및 디렉토리 준비
-      - name: Prepare deployment
-=======
-        uses: actions/download-artifact@v2
-=======
-        uses: actions/download-artifact@v3
->>>>>>> 2580f84 (chore: ci-cd.yml upload-artifact@v3 버전 수정)
-        with:
-          name: onehada-be
-=======
-          name: onehada-be # 업로드된 아티팩트 이름과 동일하게 설정
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> a8532fd (chore: ci-cd.yml 또 수정)
-          path: build/libs/
-=======
-          path: build/libs/onehada-be-*.jar
->>>>>>> 59569d7 (chore: 작은 수정)
-=======
-          path: build/libs/onehada*.jar
->>>>>>> 7fdd4ef (chore: 빌드파일명 수정)
-=======
-          name: onehada-be
-          path: build/libs/
-=======
           path: /tmp/onehada-be/
->>>>>>> 28379d5 (chore: ci-cd.yml 파이프라인 수정)
 
       # EC2에 배포
       - name: Deploy to EC2
->>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          # 먼저 JAR 파일을 EC2로 전송
+          script: |
+            # 기존 프로세스 종료
+            pkill -f onehada-0.0.1-SNAPSHOT.jar || true
+
+            # 배포 디렉토리 생성
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/
+
+      # JAR 파일 전송
+      - name: Copy JAR to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: '/tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar'
+          target: '/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/'
+
+      # 애플리케이션 실행
+      - name: Start Application
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -150,94 +97,12 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            # EC2 서버로 배포 디렉토리 이동
-            cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE || exit 1
+            cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            # 기존에 실행 중인 Java 프로세스 종료
-            pkill -f 'java -jar' || true
+            # JAR 파일 실행 권한 부여
+            chmod +x build/libs/onehada-0.0.1-SNAPSHOT.jar
 
-<<<<<<< HEAD
-            # 아티팩트를 EC2로 복사
-            scp /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${EC2_USERNAME}@${EC2_HOST}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
-
-<<<<<<< HEAD
-            # 이전에 실행 중인 프로세스 종료 (정확한 프로세스를 종료)
-            PID=$(pgrep -f 'java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar')
-            if [ -n "$PID" ]; then
-              echo "Killing existing Java process with PID: $PID"
-              kill -9 $PID || exit 1
-            fi
-=======
-=======
->>>>>>> 268592b (chore: ci-cd.yml 살인금지)
-            # 아티팩트를 EC2로 복사 후 실행
-            nohup java -jar /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
->>>>>>> 576617e (chore: ci-cd.yml 파일 복사과정 제거)
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-            # 새로운 애플리케이션 실행 (nohup 로그 추가)
-<<<<<<< HEAD
-            nohup java -jar build/libs/onehada-be-*.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 & || exit 1
-=======
-            nohup java -jar build/libs/onehada*.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
->>>>>>> 1c01e74 (chore: 빌드파일명 한번 더 수정)
-=======
-            # 새로운 애플리케이션 실행 (포그라운드 실행)
-            java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar
->>>>>>> b523ad0 (chore: ci-cd.yml 뭔가 될것같은 커밋)
-=======
-=======
->>>>>>> 4e87ff0 (chore: ci-cd.yml 살인방지)
-            # 새로운 애플리케이션 실행 (nohup으로 백그라운드 실행)
-<<<<<<< HEAD
+            # 애플리케이션 실행
             nohup java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
->>>>>>> 2c046ce (chore: ci-cd.yml 작은 변화)
-=======
-            nohup java -jar /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
->>>>>>> 28379d5 (chore: ci-cd.yml 파이프라인 수정)
-
-<<<<<<< HEAD
-            # 애플리케이션 실행 확인 (10초 대기 후 확인)
-            sleep 10
-<<<<<<< HEAD
-            ps aux | grep 'java -jar' || exit 1
-
-=======
-            if ! ps aux | grep -q '[j]ava -jar build/libs/onehada-be-*.jar'; then
-              echo "Application failed to start" && exit 1
-            fi
-
-            echo "Deployment successful"
->>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
-=======
->>>>>>> 2580f84 (chore: ci-cd.yml upload-artifact@v3 버전 수정)
-=======
-            # GitHub Runner에서 /tmp/onehada-be/ 경로에 다운로드된 아티팩트를 EC2로 복사
-            scp /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
-=======
-            # SFTP로 빌드된 아티팩트 복사
-            sftp -oStrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ <<< $'put /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar' || exit 1
->>>>>>> dd7d37b (chore: ci-cd.yml appleboy/ssh-actions에 맞게 복사 명령어 변경)
-=======
-            # SCP 명령어로 파일 복사
-            scp -oStrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
->>>>>>> 4257739 (chore: ci-cd.yml 복사명령어 다시다시 수정)
-
-            # JAR 파일이 정상적으로 복사되었는지 확인
-            if [ ! -f /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar ]; then
-              echo "Error: JAR file not found on EC2 server!" >> /home/${{ secrets.EC2_USERNAME }}/app.log
-              exit 1
-            fi
-
-            # 새로운 애플리케이션 실행 (nohup으로 백그라운드 실행)
-            echo "Starting application..." >> /home/${{ secrets.EC2_USERNAME }}/app.log
-            nohup java -jar /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
 
             echo "Application started!" >> /home/${{ secrets.EC2_USERNAME }}/app.log
->>>>>>> 1ac7267 (chore: ci-cd.yml 복사과정 및 로깅 추가)
-            exit 0
