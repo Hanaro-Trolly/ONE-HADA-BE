@@ -61,7 +61,7 @@ jobs:
           name: onehada-be
           path: /tmp/onehada-be/
 
-      # EC2에 배포
+      # EC2 서버로 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
