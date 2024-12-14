@@ -23,7 +23,6 @@ public class TransactionDTO {
 		private Long postReceiverBalance;
 		private String transactionType;
 		private LocalDateTime transactionDateTime;
-		private String counterAccountNumber;
 		private String senderView;
 		private String receiverView;
 		// DTO 변환 메서드
