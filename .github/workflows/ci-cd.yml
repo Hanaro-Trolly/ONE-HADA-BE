@@ -216,7 +216,7 @@ jobs:
 >>>>>>> 2580f84 (chore: ci-cd.yml upload-artifact@v3 버전 수정)
 =======
             # GitHub Runner에서 /tmp/onehada-be/ 경로에 다운로드된 아티팩트를 EC2로 복사
-            scp /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${EC2_USERNAME}@${EC2_HOST}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
+            scp /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
 
             # JAR 파일이 정상적으로 복사되었는지 확인
             if [ ! -f /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar ]; then
