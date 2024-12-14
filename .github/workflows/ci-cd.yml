@@ -60,6 +60,7 @@ jobs:
 <<<<<<< HEAD
           name: onehada-be
 <<<<<<< HEAD
+<<<<<<< HEAD
           path: build/libs/onehada-0.0.1-SNAPSHOT.jar
 =======
         uses: actions/upload-artifact@v2
@@ -85,6 +86,9 @@ jobs:
 =======
           path: /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar
 >>>>>>> 28379d5 (chore: ci-cd.yml 파이프라인 수정)
+=======
+          path: build/libs/onehada-0.0.1-SNAPSHOT.jar
+>>>>>>> d61d8d9 (chore: ci-cd.yml 아티팩트 업로드 경로 수정)
 
   # 배포 작업
   deploy:
