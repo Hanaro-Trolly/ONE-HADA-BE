@@ -59,7 +59,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: onehada-be
-          path: /tmp/onehada-be/
+          path: .
+
+      # 다운로드된 파일 확인
+      - name: List files
+        run: ls -la
 
       # 기존 프로세스 종료 및 디렉토리 준비
       - name: Prepare deployment
@@ -70,13 +74,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            # PID 파일이 있다면 해당 프로세스 종료
             if [ -f /home/${{ secrets.EC2_USERNAME }}/app.pid ]; then
               kill $(cat /home/${{ secrets.EC2_USERNAME }}/app.pid) || true
               rm /home/${{ secrets.EC2_USERNAME }}/app.pid
             fi
-
-            # 배포 디렉토리 생성
             mkdir -p /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/
 
       # JAR 파일 전송
@@ -87,7 +88,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          source: '/tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar'
+          source: 'onehada-0.0.1-SNAPSHOT.jar'
           target: '/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/'
 
       # 애플리케이션 실행
