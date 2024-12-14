@@ -154,6 +154,7 @@ jobs:
             cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE || exit 1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             # 기존에 실행 중인 Java 프로세스 종료
             pkill -f 'java -jar' || true
 
@@ -213,4 +214,20 @@ jobs:
 >>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
 =======
 >>>>>>> 2580f84 (chore: ci-cd.yml upload-artifact@v3 버전 수정)
+=======
+            # GitHub Runner에서 /tmp/onehada-be/ 경로에 다운로드된 아티팩트를 EC2로 복사
+            scp /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${EC2_USERNAME}@${EC2_HOST}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
+
+            # JAR 파일이 정상적으로 복사되었는지 확인
+            if [ ! -f /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar ]; then
+              echo "Error: JAR file not found on EC2 server!" >> /home/${{ secrets.EC2_USERNAME }}/app.log
+              exit 1
+            fi
+
+            # 새로운 애플리케이션 실행 (nohup으로 백그라운드 실행)
+            echo "Starting application..." >> /home/${{ secrets.EC2_USERNAME }}/app.log
+            nohup java -jar /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
+
+            echo "Application started!" >> /home/${{ secrets.EC2_USERNAME }}/app.log
+>>>>>>> 1ac7267 (chore: ci-cd.yml 복사과정 및 로깅 추가)
             exit 0
