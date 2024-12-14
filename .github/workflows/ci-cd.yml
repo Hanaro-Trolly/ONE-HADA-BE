@@ -61,18 +61,20 @@ jobs:
           name: onehada-be
           path: /tmp/onehada-be/
 
-      # EC2에 배포
-      - name: Deploy to EC2
+      # 기존 프로세스 종료 및 디렉토리 준비
+      - name: Prepare deployment
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          # 먼저 JAR 파일을 EC2로 전송
           script: |
-            # 기존 프로세스 종료
-            pkill -f onehada-0.0.1-SNAPSHOT.jar || true
+            # PID 파일이 있다면 해당 프로세스 종료
+            if [ -f /home/${{ secrets.EC2_USERNAME }}/app.pid ]; then
+              kill $(cat /home/${{ secrets.EC2_USERNAME }}/app.pid) || true
+              rm /home/${{ secrets.EC2_USERNAME }}/app.pid
+            fi
 
             # 배포 디렉토리 생성
             mkdir -p /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/
@@ -102,7 +104,7 @@ jobs:
             # JAR 파일 실행 권한 부여
             chmod +x build/libs/onehada-0.0.1-SNAPSHOT.jar
 
-            # 애플리케이션 실행
-            nohup java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
+            # 애플리케이션 실행 및 PID 저장
+            nohup java -jar build/libs/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 & echo $! > /home/${{ secrets.EC2_USERNAME }}/app.pid
 
             echo "Application started!" >> /home/${{ secrets.EC2_USERNAME }}/app.log
