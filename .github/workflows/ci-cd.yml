@@ -140,7 +140,7 @@ jobs:
           path: /tmp/onehada-be/
 >>>>>>> 28379d5 (chore: ci-cd.yml 파이프라인 수정)
 
-      # EC2에 배포
+      # EC2 서버로 배포
       - name: Deploy to EC2
 >>>>>>> 5415ab4 (chore : ci-cd.yml 완전 재건축)
         uses: appleboy/ssh-action@v0.1.8
