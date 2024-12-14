@@ -156,6 +156,7 @@ jobs:
             # 기존에 실행 중인 Java 프로세스 종료
             pkill -f 'java -jar' || true
 
+<<<<<<< HEAD
             # 아티팩트를 EC2로 복사
             scp /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${EC2_USERNAME}@${EC2_HOST}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
 
@@ -166,6 +167,10 @@ jobs:
               echo "Killing existing Java process with PID: $PID"
               kill -9 $PID || exit 1
             fi
+=======
+            # 아티팩트를 EC2로 복사 후 실행
+            nohup java -jar /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
+>>>>>>> 576617e (chore: ci-cd.yml 파일 복사과정 제거)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
