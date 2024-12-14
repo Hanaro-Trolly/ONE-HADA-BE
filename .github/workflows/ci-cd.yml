@@ -61,7 +61,7 @@ jobs:
           name: onehada-be
           path: /tmp/onehada-be/
 
-      # EC2 서버로 배포
+      # EC2에 배포
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -73,8 +73,8 @@ jobs:
             # EC2 서버로 배포 디렉토리 이동
             cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE || exit 1
 
-            # SFTP로 빌드된 아티팩트 복사
-            sftp -oStrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ <<< $'put /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar' || exit 1
+            # SCP 명령어로 파일 복사
+            scp -oStrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
 
             # JAR 파일이 정상적으로 복사되었는지 확인
             if [ ! -f /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar ]; then
