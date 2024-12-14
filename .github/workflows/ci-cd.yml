@@ -46,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: onehada-be
-          path: /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar
+          path: build/libs/onehada-0.0.1-SNAPSHOT.jar
 
   # 배포 작업
   deploy:
