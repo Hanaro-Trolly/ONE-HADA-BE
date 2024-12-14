@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,55 +28,7 @@ public class RedisController {
 	@Autowired
 	private RedisService redisService;
 
-	@PostMapping("/set")
-	public ResponseEntity<ApiResponse> setValue(@RequestParam("key") String key, @RequestParam("value") String value) {
-		try {
-			redisService.saveValue(key, value);
-
-			return ResponseEntity.ok(new ApiResponse(
-				200,
-				"success",
-				"Value saved successfully!",
-				Map.of("key", key, "value", value)));
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(
-				500,
-				"error",
-				"Failed to save value: " + e.getMessage(),
-				null));
-		}
-	}
-
-	@GetMapping("/get")
-	public ResponseEntity<ApiResponse> getValue(@RequestParam("key") String key) {
-		try {
-			String value = redisService.getValue(key);
-			if (value != null) {
-				return ResponseEntity.ok(new ApiResponse(
-					200,
-					"success",
-					"Value retrieved successfully!",
-					Map.of("key", key, "value", value)
-				));
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
-					404,
-					"error",
-					"No value found for the given key!",
-					null
-				));
-			}
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(
-				500,
-				"error",
-				"Failed to retrieve value: " + e.getMessage(),
-				null
-			));
-		}
-	}
-
-	@PostMapping("/transfer")
+	@GetMapping
 	public ResponseEntity<ApiResponse> getValidationValue(@RequestBody List<String> keys) {
 		Map<String, String> result = new HashMap<>();
 
@@ -101,7 +54,7 @@ public class RedisController {
 		}
 	}
 
-	@PostMapping("/transfer")
+	@PostMapping
 	public ResponseEntity<ApiResponse> saveTransferDetails(@RequestBody Map<String, String> transferRequest) {
 		try {
 			Map<String, String> transferDetails = new HashMap<>();
@@ -129,33 +82,59 @@ public class RedisController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 	}
-	@DeleteMapping("/delete")
-	public ResponseEntity<ApiResponse> deleteValue(@RequestParam("key") String key) {
-		try {
-			boolean isDeleted = redisService.deleteValue(key);
 
-			if (isDeleted) {
-				return ResponseEntity.ok(new ApiResponse(
-					200,
-					"success",
-					"Value deleted successfully!",
-					Map.of("key", key)
-				));
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
-					404,
-					"error",
-					"No value found for the given key!",
-					null // 데이터 없음
-				));
+	@PatchMapping
+	public ResponseEntity<ApiResponse> updateTransferDetails(@RequestBody Map<String, String> transferRequest) {
+		try {
+			Map<String, String> transferDetails = new HashMap<>();
+
+			for (Map.Entry<String, String> entry : transferRequest.entrySet()) {
+				transferDetails.put(entry.getKey(), entry.getValue());
+				redisService.saveValue(entry.getKey(), entry.getValue()); // 수정된 값 Redis에 저장
 			}
+
+			ApiResponse response = new ApiResponse(
+				200,
+				"success",
+				"<Redis> 계좌 이체 필요정보 -> 수정이 정상적으로 수행되었습니다.",
+				transferDetails
+			);
+
+			return ResponseEntity.ok(response);
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(
+			ApiResponse response = new ApiResponse(
 				500,
 				"error",
-				"Failed to delete value: " + e.getMessage(),
-				null // 데이터 없음
-			));
+				"계좌 이체 정보를 수정하는 중 오류가 발생했습니다: " + e.getMessage(),
+				null
+			);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+	}
+
+	@DeleteMapping
+	public ResponseEntity<ApiResponse> deleteTransferDetails(@RequestBody List<String> keys) {
+		try {
+			for (String key : keys) {
+				redisService.deleteValue(key);
+			}
+
+			ApiResponse response = new ApiResponse(
+				200,
+				"success",
+				"<Redis> 계좌 이체 정보 삭제 -> 삭제가 정상적으로 수행되었습니다.",
+				keys
+			);
+
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			ApiResponse response = new ApiResponse(
+				500,
+				"error",
+				"계좌 이체 정보를 삭제하는 중 오류가 발생했습니다: " + e.getMessage(),
+				null
+			);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 	}
 }
