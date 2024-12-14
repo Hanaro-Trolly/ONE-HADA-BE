@@ -155,6 +155,7 @@ jobs:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             # 기존에 실행 중인 Java 프로세스 종료
             pkill -f 'java -jar' || true
 
@@ -217,6 +218,10 @@ jobs:
 =======
             # GitHub Runner에서 /tmp/onehada-be/ 경로에 다운로드된 아티팩트를 EC2로 복사
             scp /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ || exit 1
+=======
+            # SFTP로 빌드된 아티팩트 복사
+            sftp -oStrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/ <<< $'put /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar' || exit 1
+>>>>>>> dd7d37b (chore: ci-cd.yml appleboy/ssh-actions에 맞게 복사 명령어 변경)
 
             # JAR 파일이 정상적으로 복사되었는지 확인
             if [ ! -f /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE/build/libs/onehada-0.0.1-SNAPSHOT.jar ]; then
