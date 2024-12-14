@@ -153,6 +153,7 @@ jobs:
             # EC2 서버로 배포 디렉토리 이동
             cd /home/${{ secrets.EC2_USERNAME }}/ONE-HADA-BE || exit 1
 
+<<<<<<< HEAD
             # 기존에 실행 중인 Java 프로세스 종료
             pkill -f 'java -jar' || true
 
@@ -168,6 +169,8 @@ jobs:
               kill -9 $PID || exit 1
             fi
 =======
+=======
+>>>>>>> 268592b (chore: ci-cd.yml 살인금지)
             # 아티팩트를 EC2로 복사 후 실행
             nohup java -jar /tmp/onehada-be/onehada-0.0.1-SNAPSHOT.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
 >>>>>>> 576617e (chore: ci-cd.yml 파일 복사과정 제거)
