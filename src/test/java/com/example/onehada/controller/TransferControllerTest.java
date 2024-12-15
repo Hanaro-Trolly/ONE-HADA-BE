@@ -252,13 +252,13 @@ public class TransferControllerTest {
 			.limit(5)
 			.build();
 
-		mockMvc.perform(get("/api/transaction/{accountId}", testToAccount.getAccountId())
+		mockMvc.perform(get("/api/transaction/{accountId}", 99999L)
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("시작 날짜가 종료 날짜보다 클 수 없습니다."));
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value("존재하지 않는 계좌 ID입니다."));
 	}
 
 	@AfterAll
