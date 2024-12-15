@@ -219,4 +219,50 @@ public class AdminControllerTest {
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.data").isEmpty());
 	}
+
+	@Test
+	void getConsultationListTest() throws Exception {
+		// 테스트용 상담 데이터 생성
+		Consultation consultation = consultationRepository.save(Consultation.builder()
+			.agent(testAgent)
+			.user(testUser)
+			.consultationTitle("테스트 상담")
+			.consultationContent("테스트 상담 내용")
+			.consultationDate(LocalDateTime.now())
+			.build());
+
+		// 상담 목록 조회 테스트
+		mockMvc.perform(get("/api/admin/consultationList/" + testAgent.getAgentId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("상담사 상담 내역 조회 성공"))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[0].userId").value(testUser.getUserId()))
+			.andExpect(jsonPath("$.data[0].userName").value(testUser.getUserName()))
+			.andExpect(jsonPath("$.data[0].lastConsultationTitle").value("테스트 상담"));
+	}
+
+	@Test
+	void getConsultationListWithInvalidAgentIdTest() throws Exception {
+		Long invalidAgentId = 999999L; // 존재하지 않는 상담사 ID
+
+		mockMvc.perform(get("/api/admin/consultationList/" + invalidAgentId))
+			.andExpect(status().isInternalServerError())
+			.andExpect(jsonPath("$.code").value(500))
+			.andExpect(jsonPath("$.status").value("INTERNAL_SERVER_ERROR"))
+			.andExpect(jsonPath("$.message").value("Agent not found"));
+	}
+
+	@Test
+	void getConsultationListEmptyTest() throws Exception {
+		// 상담 데이터 없이 조회
+		mockMvc.perform(get("/api/admin/consultationList/" + testAgent.getAgentId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("상담사 상담 내역 조회 성공"))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data").isEmpty());
+	}
 }
