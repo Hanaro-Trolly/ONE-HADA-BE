@@ -9,9 +9,12 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.security.Key;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.example.onehada.api.service.RedisService;
 
 @Service
 public class JwtService {
@@ -26,6 +29,12 @@ public class JwtService {
     @Value("${jwt.refresh.token.expiration}")
     private Long refreshTokenExpiration;
 
+    private final RedisService redisService;
+
+    public JwtService(RedisService redisService) {
+        this.redisService = redisService;
+    }
+
     public String generateAccessToken(String userEmail, Long userId) {
         return buildToken(userEmail, userId, accessTokenExpiration);
     }
@@ -37,6 +46,7 @@ public class JwtService {
     private String buildToken(String userEmail, Long userId, Long expiration) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("roles", Collections.singletonList("ROLE_USER"));
 
         return Jwts.builder()
             .setClaims(claims)
@@ -51,17 +61,6 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    // public List<String> extractRoles(String token) {
-    //     Claims claims = extractAllClaims(token);
-    //     Object rolesObject = claims.get("roles");
-    //     List<String> roles = new ArrayList<>();
-    //     if (rolesObject instanceof List) {
-    //         for (Object role : (List<?>) rolesObject) {
-    //             roles.add(role.toString());
-    //         }
-    //     }
-    //     return roles;
-    // }
 
     public Long extractUserId(String token) {
         return extractAllClaims(token).get("userId",Long.class);
@@ -87,10 +86,17 @@ public class JwtService {
 
     public boolean isValidToken(String token) {
         try {
+            // 블랙리스트 체크
+            if (redisService.isBlacklisted(token)) {
+                return false;
+            }
+
+            // JWT 유효성 검증
             Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token.replace("Bearer ", ""));
+
             return true;
         } catch (Exception e) {
             return false;
