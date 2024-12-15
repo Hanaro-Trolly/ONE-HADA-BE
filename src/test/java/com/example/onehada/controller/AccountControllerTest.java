@@ -6,6 +6,7 @@ import com.example.onehada.api.service.AccountService;
 import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.db.repository.ConsultationRepository;
 import com.example.onehada.db.repository.HistoryRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,10 +50,14 @@ public class AccountControllerTest {
 	@Autowired
 	private HistoryRepository historyRepository;
 
+	@Autowired
+	private ConsultationRepository consultationRepository;
+
 	private String accessToken;
 
 	@BeforeEach
 	public void setUp() throws Exception {
+		consultationRepository.deleteAll();
 		historyRepository.deleteAll();
 		accountRepository.deleteAll();
 		userRepository.deleteAll();

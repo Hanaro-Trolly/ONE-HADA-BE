@@ -5,6 +5,7 @@ import com.example.onehada.api.auth.dto.AuthResponseDTO;
 import com.example.onehada.api.service.RedisService;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.db.repository.ConsultationRepository;
 import com.example.onehada.db.repository.HistoryRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,8 +52,12 @@ public class AuthIntegrationTest {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private ConsultationRepository consultationRepository;
+
 	@BeforeEach
 	void setUp() {
+		consultationRepository.deleteAll();
 		historyRepository.deleteAll();
 		accountRepository.deleteAll();
 		userRepository.deleteAll();
