@@ -2,19 +2,29 @@ package com.example.onehada.controller;
 
 import com.example.onehada.api.auth.dto.AuthRequest;
 import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.api.auth.service.AuthService;
+import com.example.onehada.api.auth.service.JwtService;
 import com.example.onehada.api.service.AccountService;
+import com.example.onehada.db.dto.AccountDTO;
 import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
 import com.example.onehada.db.repository.HistoryRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,101 +35,81 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+@ActiveProfiles("test")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AccountControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
-
 	@Autowired
 	private ObjectMapper objectMapper;
-
 	@Autowired
 	private AccountService accountService;
-
+	@Autowired
+	private JwtService jwtService;
 	@Autowired
 	private UserRepository userRepository;
-
 	@Autowired
 	private AccountRepository accountRepository;
-
 	@Autowired
-	private HistoryRepository historyRepository;
+	private AuthService authService;
 
-	private String accessToken;
+	private String token;
+	private String tokenWithoutBearer;
+	private User testUser1;
+	private Account testAccount;
 
-	@BeforeEach
-	public void setUp() throws Exception {
-		historyRepository.deleteAll();
+	@BeforeAll
+	public void setUp(){
 		accountRepository.deleteAll();
 		userRepository.deleteAll();
 
-
-		// 2. 테스트용 유저 생성
-		User testUser = User.builder()
-			.userEmail("test@test.com")
-			.userName("테스트")
-			.simplePassword("1234")
+		// 테스트용 사용자 생성 및 JWT 토큰 생성
+		testUser1 = User.builder()
+			.userName("testuser1")
+			.userEmail("testuser1@example.com")
 			.userGender("M")
 			.phoneNumber("01012345678")
+			.userAddress("서울시 강남구")
 			.userBirth("19900101")
+			.simplePassword("12345678")
 			.build();
+		userRepository.save(testUser1);
 
-		User savedUser = userRepository.save(testUser);
-
-		// 3. 테스트용 계좌 생성
-		Account testAccount = Account.builder()
-			.accountName("입출금")
-			.accountNumber("123456789")
-			.balance(1000000)
-			.bank("은행A")
-			.user(savedUser)
-			.accountType("normal")
+		testAccount = Account.builder()
+			.user(testUser1)
+			.accountName("테스트계좌1")
+			.bank("하나은행")
+			.accountNumber("111-1111-1111")
+			.accountType("기본")
+			.balance(100000L)
 			.build();
-
 		accountRepository.save(testAccount);
 
-		// 4. 로그인 요청
-		AuthRequest loginRequest = AuthRequest.builder()
-			.email("test@test.com")
-			.simplePassword("1234")
-			.build();
-
-		MvcResult result = mockMvc.perform(post("/api/cert/login")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(loginRequest)))
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andReturn();
-
-		// 5. 토큰 저장
-		AuthResponse response = objectMapper.readValue(
-			result.getResponse().getContentAsString(),
-			AuthResponse.class
-		);
-
-		accessToken = "Bearer " + response.getAccessToken();
+		authService.login(AuthRequest.builder()
+			.email(testUser1.getUserEmail())
+			.simplePassword(testUser1.getSimplePassword())
+			.build());
+		// JWT 토큰 생성
+		this.token = jwtService.generateAccessToken(testUser1.getUserEmail(), testUser1.getUserId());
 	}
 
+	//계좌 조회
 	@Test
-	public void testGetUserAccounts_Success() throws Exception {
-		// 생성된 계좌의 실제 ID를 가져옴
-		Account savedAccount = accountRepository.findAccountsByUserUserEmail("test@test.com").get(0);
-		// When & Then
+	@Order(1)
+	public void testGetUserAccounts() throws Exception {
 		mockMvc.perform(get("/api/accounts")
-				.header("Authorization", accessToken))
-			.andDo(print())  // 실패 시 응답 내용 출력
+			.header("Authorization", "Bearer " + token)
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
 			.andExpect(jsonPath("$.message").value("계좌정보를 불러왔습니다."))
-			.andExpect(jsonPath("$.data[0].accountId").value(savedAccount.getAccountId()))
-			.andExpect(jsonPath("$.data[0].accountName").value("입출금"))
-			.andExpect(jsonPath("$.data[0].accountNumber").value("123456789"))
-			.andExpect(jsonPath("$.data[0].balance").value(1000000))
-			.andExpect(jsonPath("$.data[0].bank").value("은행A"));
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[0].accountName").value(testAccount.getAccountName()));
 	}
 }

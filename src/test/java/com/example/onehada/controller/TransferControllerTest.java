@@ -115,7 +115,6 @@ public class TransferControllerTest {
 			.build());
 		// JWT 토큰 생성
 		this.token = jwtService.generateAccessToken(testUser1.getUserEmail(), testUser1.getUserId());
-		System.out.println("token = " + token);
 	}
 
 	// 계좌 이체 테스트
@@ -131,7 +130,7 @@ public class TransferControllerTest {
 			.build();
 
 		mockMvc.perform(post("/api/transaction/transfer")
-				.header("Authorization", "Bearer " + token)
+				.header("Authorization", "Bearer1 " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(transferRequest)))
 			.andExpect(status().isOk())

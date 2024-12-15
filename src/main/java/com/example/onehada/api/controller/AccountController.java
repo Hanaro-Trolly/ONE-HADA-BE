@@ -42,9 +42,10 @@ public class AccountController {
 	@GetMapping
 	public ResponseEntity<?> getUserAccounts(@RequestHeader("Authorization") String token) {
 		try {
+			System.out.println("token = " + token);
 			// 유효한 토큰인지 확인하고 사용자 이메일 추출
-			String accessToken = token.replace("Bearer ", "");
-			String email = accountService.getEmailFromToken(accessToken);
+			String email = accountService.getEmailFromToken(token.replace("Bearer ", ""));
+			System.out.println("email = " + email);
 
 			// 사용자 이메일로 계좌 정보 조회
 			List<AccountDTO.accountsDTO> accounts = accountService.getUserAccounts(email);

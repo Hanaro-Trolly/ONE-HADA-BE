@@ -39,11 +39,8 @@ public class TransactionController {
 	public ResponseEntity<?> transfer(@RequestHeader("Authorization") String token,
 		@RequestBody AccountDTO.accountTransferRequest transferRequest) {
 		try {
-			System.out.println("TransactionController.transfer");
 			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
-			System.out.println("@@@@@@@@@@@email = " + email);
 			Long userId = userService.getUserByEmail(email).getUserId();
-			System.out.println("userId = " + userId);
 
 			//계좌이체
 			AccountDTO.accountTransferResponse response = transactionService.transfer(transferRequest, userId);
