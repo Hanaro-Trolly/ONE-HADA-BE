@@ -14,6 +14,7 @@ import com.example.onehada.api.auth.service.JwtService;
 import com.example.onehada.db.dto.AccountDTO;
 import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.exception.NotFoundException;
 import com.example.onehada.exception.user.UserNotFoundException;
 
 @Service
@@ -51,7 +52,8 @@ public class AccountService {
 			.collect(Collectors.toList());
 	}
 
-	public Optional<AccountDTO.accountDetailDTO> getMyAccountById(Long accountId, Long userId) throws AccountNotFoundException {
+	public Optional<AccountDTO.accountDetailDTO> getMyAccountById(Long accountId, Long userId) throws
+		NotFoundException {
 
 		authService.validateAccountOwnership(accountId, userId);
 

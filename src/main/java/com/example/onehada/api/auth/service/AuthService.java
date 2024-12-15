@@ -14,6 +14,7 @@ import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.example.onehada.api.service.RedisService;
+import com.example.onehada.exception.NotFoundException;
 import com.example.onehada.exception.account.AccountNotFoundException;
 import com.example.onehada.exception.authorization.AccessDeniedException;
 
@@ -92,7 +93,7 @@ public class AuthService {
     //Validation
     public void validateAccountOwnership(Long accountId, Long userId) {
         Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new AccountNotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
+            .orElseThrow(() -> new NotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
 
         if (!account.getUser().getUserId().equals(userId)) {
             throw new AccessDeniedException("User does not have access to this account");

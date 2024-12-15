@@ -112,4 +112,26 @@ public class AccountControllerTest {
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.data[0].accountName").value(testAccount.getAccountName()));
 	}
+	@Test
+	@Order(2)
+	public void testGetAccountById() throws Exception {
+		mockMvc.perform(get("/api/accounts/{accountId}", testAccount.getAccountId())
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("단일 계좌 정보를 성공적으로 가져왔습니다."))
+			.andExpect(jsonPath("$.data.accountName").value(testAccount.getAccountName()));
+	}
+
+	@Test
+	@Order(3)
+	public void testGetAccountByIdNotFound() throws Exception {
+		mockMvc.perform(get("/api/accounts/{accountId}", 999999L)
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value("해당 계좌를 찾을 수 없습니다. ID: 999999"));
+	}
 }

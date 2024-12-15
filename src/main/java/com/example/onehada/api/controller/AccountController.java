@@ -70,9 +70,6 @@ public class AccountController {
 			Optional<AccountDTO.accountDetailDTO> account = accountService.getMyAccountById(accountId, userId);
 
 			return ResponseEntity.ok(new ApiResponse(200, "OK", "단일 계좌 정보를 성공적으로 가져왔습니다.", account));
-		} catch (UserNotFoundException | AccountNotFoundException ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(new ApiResponse(400, "BAD_REQUEST", ex.getMessage(), null));
 		} catch (AccessDeniedException ex) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(new ApiResponse(403, "FORBIDDEN", ex.getMessage(), null));
