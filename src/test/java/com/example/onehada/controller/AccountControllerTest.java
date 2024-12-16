@@ -5,6 +5,8 @@ import com.example.onehada.auth.service.AuthService;
 import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.account.AccountService;
 import com.example.onehada.customer.account.Account;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.user.UserRepository;
@@ -51,6 +53,10 @@ public class AccountControllerTest {
 	private AccountRepository accountRepository;
 	@Autowired
 	private AuthService authService;
+	@Autowired
+	private ConsultationRepository consultationRepository;
+	@Autowired
+	private HistoryRepository historyRepository;
 
 	private String token;
 	private String tokenWithoutBearer;
@@ -59,6 +65,8 @@ public class AccountControllerTest {
 
 	@BeforeAll
 	public void setUp() {
+		consultationRepository.deleteAll();
+		historyRepository.deleteAll();
 		accountRepository.deleteAll();
 		userRepository.deleteAll();
 
