@@ -1,12 +1,11 @@
 package com.example.onehada.api.admin.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
-
 public class ConsultationListDTO {
 	private Long userId;
 	private String userName;
