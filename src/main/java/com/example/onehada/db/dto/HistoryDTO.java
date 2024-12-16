@@ -1,6 +1,7 @@
 package com.example.onehada.db.dto;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,9 +15,10 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class HistoryDTO {
-	private Long historyID;
+	private Long historyId;
 	private Long userId;
 	private String historyName;
 	private String historyUrl;
+	private Map<String, Object> historyElements;
 	private LocalDateTime activityDate;
 }
