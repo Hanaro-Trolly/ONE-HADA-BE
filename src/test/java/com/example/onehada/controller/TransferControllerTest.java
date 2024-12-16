@@ -5,9 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-import org.junit.After;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
@@ -22,16 +20,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.service.AuthService;
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.db.dto.AccountDTO;
-import com.example.onehada.db.dto.TransactionDTO;
-import com.example.onehada.db.entity.Account;
-import com.example.onehada.db.entity.User;
-import com.example.onehada.db.repository.AccountRepository;
-import com.example.onehada.db.repository.TransactionRepository;
-import com.example.onehada.db.repository.UserRepository;
+import com.example.onehada.auth.dto.AuthRequestDTO;
+import com.example.onehada.auth.service.AuthService;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.account.AccountDTO;
+import com.example.onehada.customer.transaction.TransactionDTO;
+import com.example.onehada.customer.account.Account;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -109,7 +107,7 @@ public class TransferControllerTest {
 			.build();
 		accountRepository.save(testToAccount);
 
-		authService.login(AuthRequest.builder()
+		authService.login(AuthRequestDTO.builder()
 			.email(testUser1.getUserEmail())
 			.simplePassword(testUser1.getSimplePassword())
 			.build());

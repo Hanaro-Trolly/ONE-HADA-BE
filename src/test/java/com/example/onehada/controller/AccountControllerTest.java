@@ -1,22 +1,17 @@
 package com.example.onehada.controller;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.dto.AuthResponse;
-import com.example.onehada.api.auth.service.AuthService;
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.api.service.AccountService;
-import com.example.onehada.db.dto.AccountDTO;
-import com.example.onehada.db.entity.Account;
-import com.example.onehada.db.entity.User;
-import com.example.onehada.db.repository.AccountRepository;
-import com.example.onehada.db.repository.ConsultationRepository;
-import com.example.onehada.db.repository.HistoryRepository;
-import com.example.onehada.db.repository.UserRepository;
+import com.example.onehada.auth.dto.AuthRequestDTO;
+import com.example.onehada.auth.service.AuthService;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.account.AccountService;
+import com.example.onehada.customer.account.Account;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -28,16 +23,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -114,7 +105,7 @@ public class AccountControllerTest {
 			.build();
 		accountRepository.save(testAccount2);
 
-		authService.login(AuthRequest.builder()
+		authService.login(AuthRequestDTO.builder()
 			.email(testUser1.getUserEmail())
 			.simplePassword(testUser1.getSimplePassword())
 			.build());

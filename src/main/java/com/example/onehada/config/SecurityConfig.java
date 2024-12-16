@@ -14,8 +14,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.onehada.security.filter.JwtAuthenticationFilter;
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.api.service.RedisService;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.redis.RedisService;
 
 import lombok.RequiredArgsConstructor;
 

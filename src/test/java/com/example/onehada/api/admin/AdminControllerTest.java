@@ -1,8 +1,15 @@
 package com.example.onehada.api.admin;
 
-import com.example.onehada.api.admin.dto.*;
-import com.example.onehada.db.entity.*;
-import com.example.onehada.db.repository.*;
+import com.example.onehada.admin.dto.AdminLoginRequestDTO;
+import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.agent.Agent;
+import com.example.onehada.customer.agent.AgentRepository;
+import com.example.onehada.customer.consultation.Consultation;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

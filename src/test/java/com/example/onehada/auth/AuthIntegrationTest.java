@@ -1,13 +1,13 @@
 package com.example.onehada.auth;
 
-import com.example.onehada.api.auth.dto.AuthRequestDTO;
-import com.example.onehada.api.auth.dto.AuthResponseDTO;
-import com.example.onehada.api.service.RedisService;
-import com.example.onehada.db.entity.User;
-import com.example.onehada.db.repository.AccountRepository;
-import com.example.onehada.db.repository.ConsultationRepository;
-import com.example.onehada.db.repository.HistoryRepository;
-import com.example.onehada.db.repository.UserRepository;
+import com.example.onehada.auth.dto.AuthRequestDTO;
+import com.example.onehada.auth.dto.AuthResponseDTO;
+import com.example.onehada.redis.RedisService;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
