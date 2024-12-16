@@ -27,7 +27,7 @@ public class AccountDTO {
 	@Builder
 	public static class accountExistDTO{
 		private String userName;
-		private String accountNumber;
+		private Long accountId;
 		private String bank;
 	}
 

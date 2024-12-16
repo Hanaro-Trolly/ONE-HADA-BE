@@ -90,7 +90,7 @@ public class AccountService {
 		Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
 
 		return accountOptional.map(account -> AccountDTO.accountExistDTO.builder()
-				.accountNumber(account.getAccountNumber())
+				.accountId(account.getAccountId())
 				.userName(account.getUser().getUserName())
 				.bank(account.getBank())
 				.build())
