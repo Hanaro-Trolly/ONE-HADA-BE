@@ -66,7 +66,6 @@ public class AuthService {
 
     // Access Token과 Refresh Token 발급 및 Redis 저장
     public AuthResponseDTO generateTokens(String email, String name, Long userId) {
-        // 지금은 유저등록 안되어있어서 주석처리 ->
         // 1. 이메일 + 프로바이더 확인하여 회원인지 아닌지 판별
         // 2. 없을 경우 회원가입
         // User user = userRepository.findByUserEmail(email)

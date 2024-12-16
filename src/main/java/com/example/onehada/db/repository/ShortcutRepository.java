@@ -1,15 +1,17 @@
 package com.example.onehada.db.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.onehada.db.entity.Shortcut;
 
 public interface ShortcutRepository extends JpaRepository<Shortcut, Long> {
+	List<Shortcut> findShortcutByUserUserId(Long userId);
 
-	List<Shortcut> findByShortcutId(Long shortcutId);
+	Shortcut findByShortcutId(Long shortcutId);
 
-	List<Shortcut> findShortByUserUserId(Long userId);
+	// @Query("SELECT s FROM Shortcut s WHERE s.user.userId = :userId AND s.isFavorite = true")
+	List<Shortcut> findShortcutByUserUserIdAndIsFavoriteTrue(Long userId);
+
 }

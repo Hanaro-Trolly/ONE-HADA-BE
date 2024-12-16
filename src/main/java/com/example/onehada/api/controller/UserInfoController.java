@@ -33,12 +33,12 @@ public class UserInfoController {
 			return ResponseEntity.ok(new ApiResponse(200, "OK", "사용자 정보 조회 성공", userInfo));
 	}
 
-	@PatchMapping("/{user_id}")
-	public ResponseEntity<?> updateUser(@PathVariable Long user_id, @RequestHeader("Authorization") String token,
+	@PatchMapping("/{userId}")
+	public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestHeader("Authorization") String token,
 		@RequestBody UserUpdateDTO infoUpdate) {
 
-			userInfoService.getUserId(token, user_id);
-			UserUpdateDTO userInfo = userInfoService.updateUser(user_id, infoUpdate);
+			userInfoService.getUserId(token, userId);
+			UserUpdateDTO userInfo = userInfoService.updateUser(userId, infoUpdate);
 			return ResponseEntity.ok(new ApiResponse(200, "OK", "사용자 정보 수정 성공", userInfo));
 	}
 }
