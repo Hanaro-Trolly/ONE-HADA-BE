@@ -10,11 +10,15 @@ import com.example.onehada.auth.dto.RegisterRequestDTO;
 import com.example.onehada.auth.dto.SignInRequestDTO;
 import com.example.onehada.auth.dto.SignInResponseDTO;
 import com.example.onehada.auth.dto.SignInResponseDataDTO;
+import com.example.onehada.auth.dto.VerifyPasswordRequestDTO;
 import com.example.onehada.auth.service.AuthService;
 import com.example.onehada.auth.dto.PasswordRequestDTO;
+import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.user.UserService;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.customer.user.User;
+import com.example.onehada.exception.NotFoundException;
+import com.example.onehada.exception.UnauthorizedException;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final UserService userRepository;
+    private final JwtService jwtService;
 
     @PostMapping("/jwt")
     public ResponseEntity<?> generateJwt(@RequestBody Map<String, Object> payload) {
@@ -147,6 +151,45 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiResponse(400, "BAD_REQUEST", "로그아웃 실패: " + e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<ApiResponse> verifyPassword(
+        @RequestHeader("Authorization") String token,
+        @RequestBody VerifyPasswordRequestDTO request) {
+        try {
+            // Bearer 토큰에서 실제 토큰 추출
+            String accessToken = token.substring(7);
+
+            // JWT에서 사용자 이메일 추출
+            String email = jwtService.extractEmail(accessToken);
+
+            // 비밀번호 검증
+            authService.verifyPassword(email, request.getSimplePassword());
+
+            return ResponseEntity.ok(new ApiResponse(
+                200,
+                "OK",
+                "인증 성공",
+                null
+            ));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(
+                    404,
+                    "NOT_FOUND",
+                    "사용자를 찾을 수 없습니다.",
+                    null
+                ));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse(
+                    401,
+                    "UNAUTHORIZED",
+                    "인증실패: 잘못된 비밀번호 입니다.",
+                    null
+                ));
         }
     }
 }

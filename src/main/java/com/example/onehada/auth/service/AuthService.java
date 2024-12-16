@@ -13,6 +13,7 @@ import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.user.UserRepository;
+import com.example.onehada.exception.UnauthorizedException;
 import com.example.onehada.redis.RedisService;
 import com.example.onehada.exception.ForbiddenException;
 import com.example.onehada.exception.NotFoundException;
@@ -178,4 +179,12 @@ public class AuthService {
         redisService.deleteRefreshToken(email);
     }
 
+    public void verifyPassword(String email, String simplePassword) {
+        User user = userRepository.findByUserEmail(email)
+            .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (!user.getSimplePassword().equals(simplePassword)) {
+            throw new UnauthorizedException("잘못된 비밀번호 입니다.");
+        }
+    }
 }
