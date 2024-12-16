@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 	List<Consultation> findByUser(User user);
+
+	List<Consultation> findByUserUserId(Long userId);
 }
