@@ -1,8 +1,5 @@
 package com.example.onehada.api.service;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.onehada.db.entity.User;
@@ -12,7 +9,6 @@ import com.example.onehada.exception.user.UserNotFoundException;
 @Service
 public class UserService {
 
-	@Autowired
 	private final UserRepository userRepository;
 
 	public UserService(UserRepository userRepository) {

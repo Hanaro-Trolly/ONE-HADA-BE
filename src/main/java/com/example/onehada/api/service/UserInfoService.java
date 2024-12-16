@@ -79,8 +79,8 @@ public class UserInfoService {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
-		String updateUserPhone = userUpdate.getUser_phone();
-		String updateUserAddress = userUpdate.getUser_address();
+		String updateUserPhone = userUpdate.getUserPhone();
+		String updateUserAddress = userUpdate.getUserAddress();
 		if (updateUserPhone.isEmpty() && updateUserAddress.isEmpty()) {
 			throw new BadRequestException("잘못된 형식의 데이터 입니다.");
 		}
