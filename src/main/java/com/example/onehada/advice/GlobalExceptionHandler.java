@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.example.onehada.api.admin.exception.BaseException;
+import com.example.onehada.admin.exception.BaseException;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.ForbiddenException;

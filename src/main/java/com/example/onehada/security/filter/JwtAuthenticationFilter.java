@@ -1,7 +1,7 @@
 package com.example.onehada.security.filter;
 
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.api.service.RedisService;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.redis.RedisService;
 import com.example.onehada.db.dto.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
