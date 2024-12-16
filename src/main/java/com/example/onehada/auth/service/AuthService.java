@@ -78,32 +78,45 @@ public class AuthService {
         }
     }
 
+    // 소셜 로그인으로 사용자 찾기
     public Optional<User> findUserBySocialId(String provider, String email) {
-        switch(provider.toLowerCase()) {
-            case "google":
-                return userRepository.findByUserGoogleId(email);
-            case "kakao":
-                return userRepository.findByUserKakaoId(email);
-            case "naver":
-                return userRepository.findByUserNaverId(email);
-            default:
-                throw new RuntimeException("지원하지 않는 소셜 로그인 제공자입니다.");
-        }
+        // 먼저 해당 소셜 ID로 사용자 찾기 시도
+        Optional<User> user = switch(provider.toLowerCase()) {
+            case "google" -> userRepository.findByUserGoogleId(email);
+            case "kakao" -> userRepository.findByUserKakaoId(email);
+            case "naver" -> userRepository.findByUserNaverId(email);
+            default -> throw new RuntimeException("지원하지 않는 소셜 로그인입니다.");
+        };
+
+        return user;
     }
 
     public ApiResponse register(RegisterRequestDTO request) {
         try {
-            // 소셜 계정 중 하나라도 있는지 확인
+            // 소셜 이메일 확인
             String primaryEmail = Stream.of(request.getGoogle(), request.getKakao(), request.getNaver())
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("소셜 이메일이 필요합니다"));
 
-            Optional<User> existingUser = userRepository.findByUserEmail(primaryEmail);
+            // 생년월일과 전화번호 형식 통일
+            String formattedBirth = request.getBirth().replaceAll("-", "");
+            String formattedPhone = request.getPhone().replaceAll("-", "");
 
+            // 기존 사용자 찾기 (이름, 성별, 생년월일, 전화번호로 매칭)
+            Optional<User> existingUser = userRepository.findAll().stream()
+                .filter(user ->
+                    user.getUserName().equals(request.getName()) &&
+                        user.getUserGender().equals(request.getGender()) &&
+                        user.getUserBirth().equals(formattedBirth) &&
+                        user.getPhoneNumber().replaceAll("-", "").equals(formattedPhone)
+                )
+                .findFirst();
+
+            // 기존 사용자가 있는 경우
             if (existingUser.isPresent()) {
                 User user = existingUser.get();
-                // 소셜 계정 정보 업데이트
+                // 소셜 ID 업데이트
                 if (request.getGoogle() != null) user.setUserGoogleId(request.getGoogle());
                 if (request.getKakao() != null) user.setUserKakaoId(request.getKakao());
                 if (request.getNaver() != null) user.setUserNaverId(request.getNaver());
@@ -112,31 +125,29 @@ public class AuthService {
                 return new ApiResponse(200, "EXIST", "계정연동 성공", null);
             }
 
-            String formattedBirth = request.getBirth().replaceAll("-", "");
-            // 신규 사용자 생성
+            // 새로운 사용자 생성
             User newUser = User.builder()
                 .userName(request.getName())
                 .userGender(request.getGender())
-                .userEmail(request.getGoogle() != null ? request.getGoogle() :
-                    request.getKakao() != null ? request.getKakao() : request.getNaver())
-                .phoneNumber(request.getPhone())
+                .userEmail(primaryEmail)
+                .phoneNumber(formattedPhone)
                 .userAddress(request.getAddress())
                 .userBirth(formattedBirth)
                 .userGoogleId(request.getGoogle())
                 .userKakaoId(request.getKakao())
                 .userNaverId(request.getNaver())
-                .simplePassword("000000")
+                .simplePassword("000000")  // 초기 비밀번호
                 .build();
 
-            User savedUser = userRepository.save(newUser);
-            System.out.println("Saved user: " + savedUser);  // 로그 추가
+            userRepository.save(newUser);
             return new ApiResponse(200, "NEW", "회원가입 성공", null);
 
         } catch (Exception e) {
-            e.printStackTrace();  // 에러 로그 추가
+            e.printStackTrace();
             throw new RuntimeException("회원가입 실패: " + e.getMessage());
         }
     }
+
     public ApiResponse setPassword(PasswordRequestDTO request) {
         User user = userRepository.findByUserEmail(request.getEmail())
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
