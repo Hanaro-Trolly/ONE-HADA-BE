@@ -6,6 +6,7 @@ import com.example.onehada.db.data.repository.ProductNodeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class RecommendService {
 public void addRecommend(String buttonName, String productName) {
     Optional<ProductNode> product = productNodeRepository.findById(productName);
     Optional<ButtonNode> button = buttonNodeRepository.findById(buttonName);
-    buttonNodeRepository.incrementRecommendationWeight(buttonName, productName);
+    buttonNodeRepository.incrementRecommendationWeight(buttonName, productName,LocalDateTime.now());
 
     if (product.isPresent() && button.isPresent()) {
         // 버튼이 상품을 추천

@@ -54,6 +54,7 @@ public class SecurityConfig {
                     "/buttons/**",
                     "/product/**",
                         "/addReco/**",
+                    "/api/button/**",
                     "/ws/**",           // WebSocket 엔드포인트 추가
                     "/ws"              // WebSocket 기본 경로 추가
                 ).permitAll()
