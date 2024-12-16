@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Shortcut (
     shortcut_id bigint auto_increment primary key,
     user_id bigint not null,
     shortcut_name varchar(100) not null,
-    shorcut_elements JSON,
+    shortcut_elements JSON,
     is_favorite boolean not null default false,
     foreign key (user_id) references user(user_id)
 );
