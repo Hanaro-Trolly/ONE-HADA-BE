@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserUpdateDTO {
 
-	private String user_phone;
-	private String user_address;
+	private String userPhone;
+	private String userAddress;
 }
