@@ -77,7 +77,8 @@ public class AccountController {
 	}
 
 	@GetMapping("/exist/{accountNumber}")
-	public ResponseEntity<?> checkAccountExistence(@PathVariable("accountNumber") String accountNumber) {
+	public ResponseEntity<?> checkAccountExistence(@RequestHeader("Authorization") String token,
+		@PathVariable("accountNumber") String accountNumber) {
 		boolean exists = accountService.doesAccountExist(accountNumber);
 		AccountDTO.accountExistDTO account = accountService.getExistAccount(accountNumber);
 		return ResponseEntity.ok(new ApiResponse(200, String.valueOf(exists), "계좌 존재 여부 확인 성공", account));

@@ -97,7 +97,7 @@ public class AuthService {
             .orElseThrow(() -> new NotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
 
         if (!account.getUser().getUserId().equals(userId)) {
-            throw new ForbiddenException("User does not have access to this account");
+			throw new ForbiddenException("User does not have access to this account");
         }
     }
 

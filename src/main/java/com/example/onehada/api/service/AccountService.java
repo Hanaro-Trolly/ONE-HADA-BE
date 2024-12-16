@@ -95,6 +95,6 @@ public class AccountService {
 				.bank(account.getBank())
 				.build())
 			//Todo 리팩토링 toAccountNotFound
-			.orElseThrow(() -> new UserNotFoundException(" AccountNumber: " + accountNumber));
+			.orElseThrow(() -> new NotFoundException(" AccountNumber: " + accountNumber));
 	}
 }

@@ -28,7 +28,7 @@ public class RedisController {
 	@Autowired
 	private RedisService redisService;
 
-	@GetMapping
+	@PostMapping("get")
 	public ResponseEntity<ApiResponse> getValidationValue(@RequestBody List<String> keys) {
 		Map<String, String> result = new HashMap<>();
 
@@ -112,7 +112,7 @@ public class RedisController {
 		}
 	}
 
-	@DeleteMapping
+	@PostMapping("delete")
 	public ResponseEntity<ApiResponse> deleteTransferDetails(@RequestBody List<String> keys) {
 		try {
 			for (String key : keys) {

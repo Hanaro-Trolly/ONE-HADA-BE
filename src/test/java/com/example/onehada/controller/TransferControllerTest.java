@@ -130,7 +130,7 @@ public class TransferControllerTest {
 			.build();
 
 		mockMvc.perform(post("/api/transaction/transfer")
-				.header("Authorization", "Bearer1 " + token)
+				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(transferRequest)))
 			.andExpect(status().isOk())
@@ -263,6 +263,8 @@ public class TransferControllerTest {
 	@AfterAll
 	public void AfterAll() {
 		transactionRepository.deleteAll();
+		accountRepository.deleteAll();
+		userRepository.deleteAll();
 	}
 
 }
