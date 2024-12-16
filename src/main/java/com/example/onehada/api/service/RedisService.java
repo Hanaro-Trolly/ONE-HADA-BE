@@ -33,20 +33,15 @@ public class RedisService {
 		return (String)redisTemplate.opsForValue().get(key);
 	}
 
-	public void deleteValue(String key) {
-		redisTemplate.delete(key);
+	public boolean deleteValue(String key) {
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+			redisTemplate.delete(key);
+			return true;
+		}
+		return false;
 	}
 
-	// 새로운 메소드들 추가
-	public void saveAccessToken(String email, String token, Long expiration) {
-		redisTemplate.opsForValue().set(
-			"access:" + email,
-			token,
-			expiration,
-			TimeUnit.MILLISECONDS
-		);
-	}
-
+	// Refresh Token 관리
 	public void saveRefreshToken(String email, String token, Long expiration) {
 		redisTemplate.opsForValue().set(
 			"refresh:" + email,
@@ -56,15 +51,11 @@ public class RedisService {
 		);
 	}
 
-	public void saveActiveToken(String email, String token, Long expiration) {
-		redisTemplate.opsForValue().set(
-			"active:" + email,
-			token,
-			expiration,
-			TimeUnit.MILLISECONDS
-		);
+	public String getRefreshToken(String email) {
+		return (String) redisTemplate.opsForValue().get("refresh:" + email);
 	}
 
+	// Blacklist 관리
 	public void addToBlacklist(String token, Long expiration) {
 		redisTemplate.opsForValue().set(
 			"blacklist:" + token,
@@ -80,15 +71,7 @@ public class RedisService {
 		);
 	}
 
-	public int getActiveTokenCount(String email) {
-		return (int)redisTemplate.keys("access:" + email + ":*").size();
-	}
-
-	public String getAccessToken(String email) {
-		return (String) redisTemplate.opsForValue().get("access:" + email);
-	}
-
-	public String getRefreshToken(String email) {
-		return (String) redisTemplate.opsForValue().get("refresh:" + email);
+	public void deleteRefreshToken(String email) {
+		redisTemplate.delete("refresh:" + email);
 	}
 }

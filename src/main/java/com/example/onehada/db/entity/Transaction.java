@@ -40,4 +40,10 @@ public class Transaction {
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime transactionDate;
+
+	@Column(nullable = false)
+	private Long postSenderBalance;
+
+	@Column(nullable = false)
+	private Long postReceiverBalance;
 }

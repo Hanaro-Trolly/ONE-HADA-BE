@@ -14,6 +14,8 @@ import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.example.onehada.api.service.RedisService;
+import com.example.onehada.exception.ForbiddenException;
+import com.example.onehada.exception.NotFoundException;
 import com.example.onehada.exception.account.AccountNotFoundException;
 import com.example.onehada.exception.authorization.AccessDeniedException;
 
@@ -47,37 +49,15 @@ public class AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        System.out.println("AuthService.login"+user);
-
-        String accessToken = jwtService.generateAccessToken(user.getUserEmail(), user.getUserId());
-        String refreshToken = jwtService.generateRefreshToken(user.getUserEmail(), user.getUserId());
-
-        // Redis에 토큰 저장 (만료시간 설정)
-        redisService.saveAccessToken(user.getUserEmail(), accessToken, accessTokenExpiration);
-        redisService.saveRefreshToken(user.getUserEmail(), refreshToken, refreshTokenExpiration);
-
-        return AuthResponseDTO.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .email(user.getUserEmail())
-            .userName(user.getUserName())
-            .build();
+        return generateTokens(user.getUserEmail(), user.getUserName(), user.getUserId());
     }
 
-    // Access Token과 Refresh Token 발급 및 Redis 저장
-    public AuthResponseDTO generateTokens(String email, String name, Long userId) {
-        // 지금은 유저등록 안되어있어서 주석처리 ->
-        // 1. 이메일 + 프로바이더 확인하여 회원인지 아닌지 판별
-        // 2. 없을 경우 회원가입
-        // User user = userRepository.findByUserEmail(email)
-        //     .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Access Token과 Refresh Token 생성
+    public AuthResponseDTO generateTokens(String email, String name, Long userId) {
         String accessToken = jwtService.generateAccessToken(email, userId);
         String refreshToken = jwtService.generateRefreshToken(email, userId);
 
-        // Redis에 Refresh Token 저장
-        redisService.saveAccessToken(email, accessToken, accessTokenExpiration);
+        // Redis에는 Refresh Token만 저장
         redisService.saveRefreshToken(email, refreshToken, refreshTokenExpiration);
 
         return AuthResponseDTO.builder()
@@ -92,10 +72,10 @@ public class AuthService {
     //Validation
     public void validateAccountOwnership(Long accountId, Long userId) {
         Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new AccountNotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
+            .orElseThrow(() -> new NotFoundException("해당 계좌를 찾을 수 없습니다. ID: " + accountId));
 
         if (!account.getUser().getUserId().equals(userId)) {
-            throw new AccessDeniedException("User does not have access to this account");
+			throw new ForbiddenException("User does not have access to this account");
         }
     }
 
@@ -185,26 +165,19 @@ public class AuthService {
         User user = userRepository.findByUserEmail(email)
             .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        // 새로운 토큰 발급
         return generateTokens(email, user.getUserName(), userId);
     }
 
     public void logout(String token) {
-        // Bearer 토큰에서 실제 토큰 값 추출
         String accessToken = token.startsWith("Bearer ") ? token.substring(7) : token;
         String email = jwtService.extractEmail(accessToken);
 
-        // Redis에서 토큰 조회
-        String storedAccessToken = redisService.getAccessToken(email);
-        if (storedAccessToken == null) {
-            throw new RuntimeException("이미 로그아웃되었거나 유효하지 않은 세션입니다.");
-        }
-
-        // 토큰을 블랙리스트에 추가하고 Redis에서 제거
+        // Access Token을 블랙리스트에 추가
         Long expiration = jwtService.getExpirationFromToken(accessToken);
         redisService.addToBlacklist(accessToken, expiration);
-        redisService.deleteValue("access:" + email);
-        redisService.deleteValue("refresh:" + email);
+
+        // Refresh Token 삭제
+        redisService.deleteRefreshToken(email);
     }
 
 }

@@ -27,7 +27,10 @@ import com.example.onehada.exception.account.InsufficientBalanceException;
 import com.example.onehada.exception.authorization.AccessDeniedException;
 import com.example.onehada.exception.user.UserNotFoundException;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/accounts")
 public class AccountController {
 
@@ -36,21 +39,13 @@ public class AccountController {
 	private final UserService userService;
 	private final TransactionService transactionService;
 
-	@Autowired
-	public AccountController(AccountService accountService, JwtService jwtService, UserService userService,
-		TransactionService transactionService) {
-		this.accountService = accountService;
-		this.jwtService = jwtService;
-		this.userService = userService;
-		this.transactionService = transactionService;
-	}
-
 	@GetMapping
 	public ResponseEntity<?> getUserAccounts(@RequestHeader("Authorization") String token) {
 		try {
+			System.out.println("token = " + token);
 			// 유효한 토큰인지 확인하고 사용자 이메일 추출
-			String accessToken = token.replace("Bearer ", "");
-			String email = accountService.getEmailFromToken(accessToken);
+			String email = accountService.getEmailFromToken(token.replace("Bearer ", ""));
+			System.out.println("email = " + email);
 
 			// 사용자 이메일로 계좌 정보 조회
 			List<AccountDTO.accountsDTO> accounts = accountService.getUserAccounts(email);
@@ -64,92 +59,28 @@ public class AccountController {
 		}
 	}
 
-	@GetMapping("/{account_id}")
+	@GetMapping("/{accountId}")
 	public ResponseEntity<?> getAccountById(@RequestHeader("Authorization") String token,
-		@PathVariable("account_id") Long accountId) {
+		@PathVariable("accountId") Long accountId) {
 		try {
 			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
 			Long userId = userService.getUserByEmail(email).getUserId();
 			System.out.println("userId = " + userId);
 
-			Optional<AccountDTO.accountDetailDTO> account = accountService.getAccountById(accountId, userId);
+			Optional<AccountDTO.accountDetailDTO> account = accountService.getMyAccountById(accountId, userId);
 
 			return ResponseEntity.ok(new ApiResponse(200, "OK", "단일 계좌 정보를 성공적으로 가져왔습니다.", account));
-		} catch (UserNotFoundException | AccountNotFoundException ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(new ApiResponse(400, "BAD_REQUEST", ex.getMessage(), null));
 		} catch (AccessDeniedException ex) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(new ApiResponse(403, "FORBIDDEN", ex.getMessage(), null));
 		}
 	}
 
-	@GetMapping("/exist/{account_id}")
-	public ResponseEntity<?> checkAccountExistence(@PathVariable("account_id") Long accountId) {
-		boolean exists = accountService.doesAccountExist(accountId);
-		return ResponseEntity.ok(new ApiResponse(200, "OK", "계좌 존재 여부 확인 성공", exists));
+	@GetMapping("/exist/{accountNumber}")
+	public ResponseEntity<?> checkAccountExistence(@RequestHeader("Authorization") String token,
+		@PathVariable("accountNumber") String accountNumber) {
+		boolean exists = accountService.doesAccountExist(accountNumber);
+		AccountDTO.accountExistDTO account = accountService.getExistAccount(accountNumber);
+		return ResponseEntity.ok(new ApiResponse(200, String.valueOf(exists), "계좌 존재 여부 확인 성공", account));
 	}
-
-	@PostMapping("/transfer")
-	public ResponseEntity<?> transfer(@RequestHeader("Authorization") String token,
-		@RequestBody AccountDTO.accountTransferRequest transferRequest) {
-		try {
-			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
-			Long userId = userService.getUserByEmail(email).getUserId();
-			System.out.println("userId = " + userId);
-			System.out.println("accountService = " + transferRequest.getFromAccountId());
-			// 계좌 이체 처리
-			AccountDTO.accountDetailDTO fromAccount = accountService.getAccountById(transferRequest.getFromAccountId(),
-					userId)
-				.orElseThrow(() -> new AccountNotFoundException("보내는 계좌를 찾을 수 없습니다."));
-
-			System.out.println("fromAccount = " + fromAccount);
-
-			AccountDTO.accountDetailDTO toAccount = accountService.getReceiverAccountById(transferRequest.getToAccountId())
-				.orElseThrow(() -> new AccountNotFoundException("받는 계좌를 찾을 수 없습니다."));
-
-			System.out.println("toAccount = " + toAccount);
-
-			//DTO 생성
-			AccountDTO.accountTransferDTO fromAccountDTO = AccountDTO.accountTransferDTO.builder()
-				.userId(fromAccount.getUserId())
-				.accountId(fromAccount.getAccountId())
-				.accountNumber(fromAccount.getAccountNumber())
-				.accountName(fromAccount.getAccountName())
-				.accountType(fromAccount.getAccountType())
-				.balance(fromAccount.getBalance())
-				.bank(fromAccount.getBank())
-				.build();
-
-			AccountDTO.accountTransferDTO toAccountDTO = AccountDTO.accountTransferDTO.builder()
-				.userId(toAccount.getUserId())
-				.accountId(toAccount.getAccountId())
-				.accountNumber(toAccount.getAccountNumber())
-				.accountName(toAccount.getAccountName())
-				.accountType(toAccount.getAccountType())
-				.balance(toAccount.getBalance())
-				.bank(toAccount.getBank())
-				.build();
-
-			System.out.println("fromAccountDTO = " + fromAccountDTO.getAccountNumber());
-			System.out.println("toAccountDTO = " + toAccountDTO.getAccountNumber());
-
-			//계좌이체
-			AccountDTO.accountTransferResponse response = transactionService.transfer(fromAccountDTO, toAccountDTO,
-				transferRequest.getAmount());
-
-			// 성공 응답
-			return ResponseEntity.ok(new ApiResponse(200, "OK", "계좌 이체 성공", response));
-		} catch (InsufficientBalanceException ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(new ApiResponse(400, "BAD_REQUEST", "잔액 부족", null));
-		} catch (AccountNotFoundException ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(new ApiResponse(400, "BAD_REQUEST", "계좌를 찾을 수 없습니다.", null));
-		} catch (Exception ex) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(500, "INTERNAL_SERVER_ERROR", "서버 오류", null));
-		}
-	}
-
 }

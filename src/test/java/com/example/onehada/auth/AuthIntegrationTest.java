@@ -5,6 +5,7 @@ import com.example.onehada.api.auth.dto.AuthResponseDTO;
 import com.example.onehada.api.service.RedisService;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.db.repository.ConsultationRepository;
 import com.example.onehada.db.repository.HistoryRepository;
 import com.example.onehada.db.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,8 +52,12 @@ public class AuthIntegrationTest {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private ConsultationRepository consultationRepository;
+
 	@BeforeEach
 	void setUp() {
+		consultationRepository.deleteAll();
 		historyRepository.deleteAll();
 		accountRepository.deleteAll();
 		userRepository.deleteAll();
@@ -89,7 +94,7 @@ public class AuthIntegrationTest {
 	}
 
 	@Test
-	public void testLoginAndTokenStorage() throws Exception {
+	public void LoginAndTokenStorage() throws Exception {
 		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
@@ -112,16 +117,14 @@ public class AuthIntegrationTest {
 		assertNotNull(response.getRefreshToken());
 		assertEquals("test@test.com", response.getEmail());
 
-		String storedAccessToken = redisService.getAccessToken("test@test.com");
+		// Redis에는 Refresh Token만 저장되어 있어야 함
 		String storedRefreshToken = redisService.getRefreshToken("test@test.com");
-
-		assertNotNull(storedAccessToken);
 		assertNotNull(storedRefreshToken);
-		assertEquals(response.getAccessToken(), storedAccessToken);
+		assertEquals(response.getRefreshToken(), storedRefreshToken);
 	}
 
 	@Test
-	public void testLogoutAndBlacklist() throws Exception {
+	public void LogoutAndBlacklist() throws Exception {
 		// Given - 로그인
 		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
@@ -144,17 +147,21 @@ public class AuthIntegrationTest {
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isOk());
 
-		// Then - 토큰이 블랙리스트에 있는지 확인
+		// Then
+		// 1. Access Token이 블랙리스트에 있는지 확인
 		assertTrue(redisService.isBlacklisted(response.getAccessToken()));
 
-		// 로그아웃된 토큰으로 접근 시도
+		// 2. Refresh Token이 삭제되었는지 확인
+		assertNull(redisService.getRefreshToken("test@test.com"));
+
+		// 3. 로그아웃된 토큰으로 접근 시도
 		mockMvc.perform(get("/api/cert/test")
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isUnauthorized());
 	}
 
 	@Test
-	public void testProtectedEndpointWithValidToken() throws Exception {
+	public void ProtectedEndpointWithValidToken() throws Exception {
 		// Given - 로그인
 		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
@@ -179,7 +186,7 @@ public class AuthIntegrationTest {
 	}
 
 	@Test
-	public void testLoginWithInvalidCredentials() throws Exception {
+	public void LoginWithInvalidCredentials() throws Exception {
 		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("wrong@email.com")
 			.simplePassword("wrongpass")

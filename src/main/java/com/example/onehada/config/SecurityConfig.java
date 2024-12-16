@@ -48,6 +48,7 @@ public class SecurityConfig {
                     "/api/admin/**",
                     "/api/redis-test/**",
                     "/api/redis/**",
+                    "/api/accounts/**",
                     "/api/mongo-test/**",
                     "/users/**",
                     "/ws/**",           // WebSocket 엔드포인트 추가

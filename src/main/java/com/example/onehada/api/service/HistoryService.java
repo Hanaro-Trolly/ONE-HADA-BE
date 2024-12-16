@@ -34,6 +34,8 @@ public class HistoryService {
 		}
 		return histories.stream().map(history-> new HistoryDTO(history.getHistoryId(),
 			history.getUser().getUserId(),
-			history.getHistoryName(), history.getActivityDate())).collect(Collectors.toList());
+			history.getHistoryName(),
+			history.getHistoryUrl(),
+			history.getActivityDate())).collect(Collectors.toList());
 	}
 }
