@@ -2,6 +2,7 @@ package com.example.onehada.customer.user;
 
 import org.springframework.stereotype.Service;
 
+import com.example.onehada.exception.NotFoundException;
 import com.example.onehada.exception.user.UserNotFoundException;
 
 @Service
@@ -15,6 +16,6 @@ public class UserService {
 
 	public User getUserByEmail(String email) {
 		return userRepository.findByUserEmail(email)
-			.orElseThrow(() -> new UserNotFoundException("해당 email로 유저를 찾을 수 없습니다. Email: " + email));
+			.orElseThrow(() -> new NotFoundException("해당 email로 유저를 찾을 수 없습니다. Email: " + email));
 	}
 }
