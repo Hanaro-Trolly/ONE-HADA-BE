@@ -16,30 +16,25 @@ public class AccountDTO {
 	@AllArgsConstructor
 	public static class accountsDTO {
 		private Long accountId;
-		private String accountName;
-		private String accountNumber;
-		private Long balance;
-		private String bank;
-	}
-
-	@Data
-	@AllArgsConstructor
-	@Builder
-	public static class accountDetailDTO{
-		private Long userId;
-		private Long accountId;
-		private String accountName;
-		private String accountNumber;
 		private String accountType;
+		private String accountName;
+		private String accountNumber;
 		private Long balance;
 		private String bank;
 	}
 
-	//정보 은닉성으로 Getter만 사용
+	@Getter
+	@Builder
+	public static class accountExistDTO{
+		private String userName;
+		private Long accountId;
+		private String bank;
+	}
+
 	@Getter
 	@AllArgsConstructor
 	@Builder
-	public static class accountTransferDTO{
+	public static class accountDetailDTO{
 		private Long userId;
 		private Long accountId;
 		private String accountName;
@@ -64,7 +59,6 @@ public class AccountDTO {
 				.build();
 		}
 	}
-
 	@Getter
 	@Builder
 	public static class accountTransferRequest {

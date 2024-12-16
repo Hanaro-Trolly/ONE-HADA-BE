@@ -14,6 +14,8 @@ import com.example.onehada.api.auth.service.JwtService;
 import com.example.onehada.db.dto.AccountDTO;
 import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.repository.AccountRepository;
+import com.example.onehada.exception.NotFoundException;
+import com.example.onehada.exception.user.UserNotFoundException;
 
 @Service
 public class AccountService {
@@ -42,6 +44,7 @@ public class AccountService {
 		return accounts.stream()
 			.map(account -> new AccountDTO.accountsDTO(
 				account.getAccountId(),
+				account.getAccountType(),
 				account.getAccountName(),
 				account.getAccountNumber(),
 				account.getBalance(),
@@ -49,7 +52,8 @@ public class AccountService {
 			.collect(Collectors.toList());
 	}
 
-	public Optional<AccountDTO.accountDetailDTO> getAccountById(Long accountId, Long userId) throws AccountNotFoundException {
+	public Optional<AccountDTO.accountDetailDTO> getMyAccountById(Long accountId, Long userId) throws
+		NotFoundException {
 
 		authService.validateAccountOwnership(accountId, userId);
 
@@ -78,7 +82,19 @@ public class AccountService {
 				.build());
 	}
 
-	public boolean doesAccountExist(Long accountId) {
-		return accountRepository.existsById(accountId);
+	public boolean doesAccountExist(String accountNumber) {
+		return accountRepository.existsByAccountNumber(accountNumber);
+	}
+
+	public AccountDTO.accountExistDTO getExistAccount(String accountNumber) {
+		Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
+
+		return accountOptional.map(account -> AccountDTO.accountExistDTO.builder()
+				.accountId(account.getAccountId())
+				.userName(account.getUser().getUserName())
+				.bank(account.getBank())
+				.build())
+			//Todo 리팩토링 toAccountNotFound
+			.orElseThrow(() -> new NotFoundException(" AccountNumber: " + accountNumber));
 	}
 }
