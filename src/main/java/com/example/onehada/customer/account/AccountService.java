@@ -65,7 +65,7 @@ public class AccountService {
 				.bank(account.getBank())
 				.build());
 	}
-	public Optional<AccountDTO.accountDetailDTO> getReceiverAccountById(Long accountId) throws AccountNotFoundException{
+	public Optional<AccountDTO.accountDetailDTO> getReceiverAccountById(Long accountId) throws NotFoundException{
 		return accountRepository.findByAccountId(accountId)
 			.map(account -> AccountDTO.accountDetailDTO.builder()
 				.userId(account.getUser().getUserId())
