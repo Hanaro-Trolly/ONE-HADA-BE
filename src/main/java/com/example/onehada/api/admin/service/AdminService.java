@@ -24,8 +24,8 @@ public class AdminService {
 
 	public AdminLoginResponseDTO login(AdminLoginRequestDTO request) throws InvalidCredentialsException {
 		Agent agent = agentRepository.findByAgentEmailAndAgentPw(
-				request.getAgent_email(),
-				request.getAgent_pw()
+				request.getAgentEmail(),
+				request.getAgentPw()
 			)
 			.orElseThrow(InvalidCredentialsException::new);
 
@@ -78,17 +78,17 @@ public class AdminService {
 	@Transactional
 	public ConsultationCreateResponseDTO createConsultation(ConsultationCreateRequestDTO request) throws
 		UserNotFoundException, AgentNotFoundException {
-		User user = userRepository.findById(request.getUser_id())
+		User user = userRepository.findById(request.getUserId())
 			.orElseThrow(UserNotFoundException::new);
 
-		Agent agent = agentRepository.findById(request.getAgent_id())
+		Agent agent = agentRepository.findById(request.getAgentId())
 			.orElseThrow(AgentNotFoundException::new);
 
 		Consultation consultation = Consultation.builder()
 			.user(user)
 			.agent(agent)
-			.consultationTitle(request.getConsultation_title())
-			.consultationContent(request.getConsultation_content())
+			.consultationTitle(request.getConsultationTitle())
+			.consultationContent(request.getConsultationContent())
 			.build();
 
 		consultation = consultationRepository.save(consultation);
@@ -124,5 +124,27 @@ public class AdminService {
 			user.getPhoneNumber(),
 			user.getUserGender()
 		);
+	}
+
+	public List<UserResponseDTO> searchUsers(String userName, String userBirth) {
+		List<User> users;
+
+		if (userName != null && userBirth != null) {
+			users = userRepository.findByUserNameContainingAndUserBirth(userName, userBirth);
+		} else if (userName != null) {
+			users = userRepository.findByUserNameContaining(userName);
+		} else {
+			users = userRepository.findByUserBirth(userBirth);
+		}
+
+		return users.stream()
+			.map(user -> new UserResponseDTO(
+				String.valueOf(user.getUserId()),
+				user.getUserName(),
+				user.getUserBirth(),
+				user.getPhoneNumber(),
+				user.getUserGender()
+			))
+			.collect(Collectors.toList());
 	}
 }

@@ -44,8 +44,8 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/",
                     "/auth/login",
-                    "/api/auth/**",
-                    "/api/admin/login",
+                    "/api/cert/**",
+                    "/api/admin/**",
                     "/api/redis-test/**",
                     "/api/redis/**",
                     "/api/mongo-test/**",

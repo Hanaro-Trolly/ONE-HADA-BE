@@ -1,7 +1,7 @@
 package com.example.onehada.controller;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.api.auth.dto.AuthRequestDTO;
+import com.example.onehada.api.auth.dto.AuthResponseDTO;
 import com.example.onehada.api.service.AccountService;
 import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
@@ -83,12 +83,12 @@ public class AccountControllerTest {
 		accountRepository.save(testAccount);
 
 		// 4. 로그인 요청
-		AuthRequest loginRequest = AuthRequest.builder()
+		AuthRequestDTO loginRequest = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
 			.build();
 
-		MvcResult result = mockMvc.perform(post("/api/auth/login")
+		MvcResult result = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
 			.andDo(print())
@@ -96,9 +96,9 @@ public class AccountControllerTest {
 			.andReturn();
 
 		// 5. 토큰 저장
-		AuthResponse response = objectMapper.readValue(
+		AuthResponseDTO response = objectMapper.readValue(
 			result.getResponse().getContentAsString(),
-			AuthResponse.class
+			AuthResponseDTO.class
 		);
 
 		accessToken = "Bearer " + response.getAccessToken();

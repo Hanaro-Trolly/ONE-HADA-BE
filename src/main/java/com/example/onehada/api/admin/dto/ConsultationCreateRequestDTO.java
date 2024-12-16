@@ -7,9 +7,9 @@ import lombok.*;
 @Setter
 @Data
 public class ConsultationCreateRequestDTO {
-	private Long agent_id;
-	private Long user_id;
-	private String consultation_title;
-	private String consultation_content;
-	private LocalDateTime consultation_date;
+	private Long agentId;
+	private Long userId;
+	private String consultationTitle;
+	private String consultationContent;
+	private LocalDateTime consultationDate;
 }

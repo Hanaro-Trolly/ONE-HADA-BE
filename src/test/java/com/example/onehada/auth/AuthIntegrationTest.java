@@ -1,9 +1,8 @@
 package com.example.onehada.auth;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.dto.AuthResponse;
+import com.example.onehada.api.auth.dto.AuthRequestDTO;
+import com.example.onehada.api.auth.dto.AuthResponseDTO;
 import com.example.onehada.api.service.RedisService;
-import com.example.onehada.db.entity.Account;
 import com.example.onehada.db.entity.User;
 import com.example.onehada.db.repository.AccountRepository;
 import com.example.onehada.db.repository.HistoryRepository;
@@ -91,22 +90,22 @@ public class AuthIntegrationTest {
 
 	@Test
 	public void testLoginAndTokenStorage() throws Exception {
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
 			.build();
 
 		// When
-		MvcResult result = mockMvc.perform(post("/api/auth/login")
+		MvcResult result = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andReturn();
 
 		// Then
-		AuthResponse response = objectMapper.readValue(
+		AuthResponseDTO response = objectMapper.readValue(
 			result.getResponse().getContentAsString(),
-			AuthResponse.class
+			AuthResponseDTO.class
 		);
 
 		assertNotNull(response.getAccessToken());
@@ -124,24 +123,24 @@ public class AuthIntegrationTest {
 	@Test
 	public void testLogoutAndBlacklist() throws Exception {
 		// Given - 로그인
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
 			.build();
 
-		MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andReturn();
 
-		AuthResponse response = objectMapper.readValue(
+		AuthResponseDTO response = objectMapper.readValue(
 			loginResult.getResponse().getContentAsString(),
-			AuthResponse.class
+			AuthResponseDTO.class
 		);
 
 		// When - 로그아웃
-		mockMvc.perform(post("/api/auth/logout")
+		mockMvc.perform(post("/api/cert/logout")
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isOk());
 
@@ -149,7 +148,7 @@ public class AuthIntegrationTest {
 		assertTrue(redisService.isBlacklisted(response.getAccessToken()));
 
 		// 로그아웃된 토큰으로 접근 시도
-		mockMvc.perform(get("/api/auth/test")
+		mockMvc.perform(get("/api/cert/test")
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isUnauthorized());
 	}
@@ -157,36 +156,36 @@ public class AuthIntegrationTest {
 	@Test
 	public void testProtectedEndpointWithValidToken() throws Exception {
 		// Given - 로그인
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("test@test.com")
 			.simplePassword("1234")
 			.build();
 
-		MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andReturn();
 
-		AuthResponse response = objectMapper.readValue(
+		AuthResponseDTO response = objectMapper.readValue(
 			loginResult.getResponse().getContentAsString(),
-			AuthResponse.class
+			AuthResponseDTO.class
 		);
 
 		// When & Then - 보호된 엔드포인트 접근
-		mockMvc.perform(get("/api/auth/test")
+		mockMvc.perform(get("/api/cert/test")
 				.header("Authorization", "Bearer " + response.getAccessToken()))
 			.andExpect(status().isOk());
 	}
 
 	@Test
 	public void testLoginWithInvalidCredentials() throws Exception {
-		AuthRequest request = AuthRequest.builder()
+		AuthRequestDTO request = AuthRequestDTO.builder()
 			.email("wrong@email.com")
 			.simplePassword("wrongpass")
 			.build();
 
-		mockMvc.perform(post("/api/auth/login")
+		mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isUnauthorized());
