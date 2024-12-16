@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -145,6 +147,29 @@ public class AdminService {
 				user.getPhoneNumber(),
 				user.getUserGender()
 			))
+			.collect(Collectors.toList());
+	}
+
+	public List<ConsultationListDTO> getConsultationList(Long agentId) {
+		Agent agent = agentRepository.findById(agentId)
+			.orElseThrow(() -> new RuntimeException("Agent not found"));
+
+		return consultationRepository.findByAgent(agent).stream()
+			.collect(Collectors.groupingBy(
+				consultation -> consultation.getUser(),
+				Collectors.maxBy(Comparator.comparing(Consultation::getConsultationDate))
+			))
+			.values()
+			.stream()
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.map(consultation -> new ConsultationListDTO(
+				consultation.getUser().getUserId(),
+				consultation.getUser().getUserName(),
+				consultation.getConsultationDate(),
+				consultation.getConsultationTitle()
+			))
+			.sorted(Comparator.comparing(ConsultationListDTO::getLastConsultationDate).reversed())
 			.collect(Collectors.toList());
 	}
 }

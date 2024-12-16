@@ -26,16 +26,13 @@ public class RedisIntegrationTest {
 	public void testTokenOperations() {
 		// Given
 		String email = "test@test.com";
-		String accessToken = "test-access-token";
 		String refreshToken = "test-refresh-token";
 		long expiration = 3600000; // 1시간
 
 		// When
-		redisService.saveAccessToken(email, accessToken, expiration);
 		redisService.saveRefreshToken(email, refreshToken, expiration);
 
 		// Then
-		assertEquals(accessToken, redisService.getAccessToken(email));
 		assertEquals(refreshToken, redisService.getRefreshToken(email));
 	}
 
@@ -53,35 +50,17 @@ public class RedisIntegrationTest {
 	}
 
 	@Test
-	public void testTokenDeletion() {
+	public void testRefreshTokenDeletion() {
 		// Given
 		String email = "test@test.com";
-		String accessToken = "test-access-token";
+		String refreshToken = "test-refresh-token";
 		long expiration = 3600000;
 
 		// When
-		redisService.saveAccessToken(email, accessToken, expiration);
-		redisService.deleteValue("access:" + email);
+		redisService.saveRefreshToken(email, refreshToken, expiration);
+		redisService.deleteRefreshToken(email);
 
 		// Then
-		assertNull(redisService.getAccessToken(email));
+		assertNull(redisService.getRefreshToken(email));
 	}
-
-/*
-	@Test
-	public void testActiveTokenCount() {
-		// Given
-		String email = "test@test.com";
-		String accessToken = "test-access-token";
-		Long expiration = 3600000;
-
-		// When
-		redisService.saveActiveToken(email, accessToken, expiration);
-
-		// Then
-		Long activeTokens = redisService.getActiveTokenCount(email);
-		System.out.println("activeTokens = " + activeTokens);
-		assertTrue(activeTokens >= 1);
-	}
-*/
 }

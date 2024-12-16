@@ -82,4 +82,13 @@ public class AdminController {
 			adminService.searchUsers(userName, userBirth)
 		));
 	}
+
+	@GetMapping("/consultationList/{agentId}")
+	public ResponseEntity<?> getConsultationList(@PathVariable Long agentId) {
+		return ResponseEntity.ok(new ApiResponse(
+			200, "OK", "상담사 상담 내역 조회 성공",
+			adminService.getConsultationList(agentId)
+		));
+	}
+
 }

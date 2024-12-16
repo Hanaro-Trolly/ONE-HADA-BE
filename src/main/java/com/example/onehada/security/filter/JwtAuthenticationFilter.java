@@ -12,11 +12,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -44,9 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 토큰이 블랙리스트에 있는지 확인
             if (redisService.isBlacklisted(jwt)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                // response.getWriter().write("Token is blacklisted");
-                // return;
                 ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Token is blacklisted", null);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
@@ -56,13 +56,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 // Redis에서 저장된 액세스 토큰 확인
-                String storedToken = redisService.getAccessToken(userEmail);
+                if (jwtService.isValidToken(jwt)) {
 
-                if (storedToken != null && storedToken.equals(jwt) && jwtService.isTokenValid(jwt, userEmail)) {
+                    List<SimpleGrantedAuthority> authorities =
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+
+
+
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userEmail,
                         null,
-                        null // 필요한 경우 여기에 권한 정보 추가
+                        authorities
                     );
 
                     authToken.setDetails(
@@ -71,9 +75,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    // 토큰이 유효하지 않거나 Redis에 저장된 토큰과 다른 경우
-                    // response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    // response.getWriter().write("Invalid token");
                     ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Invalid token", null);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");

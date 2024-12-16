@@ -1,10 +1,10 @@
 package com.example.onehada.api.admin.dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@Data
 public class AdminLoginRequestDTO {
 	private String agentEmail;
 	private String agentPw;
