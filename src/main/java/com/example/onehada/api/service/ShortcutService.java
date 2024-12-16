@@ -69,12 +69,9 @@ public class ShortcutService {
 			newShortcut.setShortcutElements(elements);
 			System.out.println("elements = " + elements);
 			shortcutRepository.save(newShortcut);
-
 		} catch (JsonProcessingException e) {
 			throw new BadRequestException( "잘못된 요청입니다." + e.getMessage());
 		}
-		// shortcutRepository.save(newShortcut);
-
 		return ShortcutDTO.builder().shortcutId(newShortcut.getShortcutId()).build();
 	}
 

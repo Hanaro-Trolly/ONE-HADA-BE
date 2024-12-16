@@ -19,7 +19,6 @@ public class ShortcutDTO {
 	private Long userId;
 	private String shortcutName;
 	private String shortcutUrl;
-	// private ShortcutElementDTO shortcutElements;
 	private Map<String, Object> shortcutElements;
 	private boolean isFavorite;
 }
