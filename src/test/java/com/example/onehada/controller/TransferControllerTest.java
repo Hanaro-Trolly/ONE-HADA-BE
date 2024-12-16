@@ -155,7 +155,7 @@ public class TransferControllerTest {
 				.content(new ObjectMapper().writeValueAsString(transferRequest)))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("잔액 부족"));
+			.andExpect(jsonPath("$.message").value("잔액이 부족합니다."));
 	}
 	// 계좌 정보가 존재하지 않는 경우 테스트
 	@Test
@@ -174,9 +174,9 @@ public class TransferControllerTest {
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(transferRequest)))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("계좌를 찾을 수 없습니다."));
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value("받는 계좌를 찾을 수 없습니다."));
 	}
 
 	// 거래 내역 조회 테스트

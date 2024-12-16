@@ -3,11 +3,11 @@ package com.example.onehada.admin.controller;
 import com.example.onehada.admin.dto.AdminLoginRequestDTO;
 import com.example.onehada.admin.dto.AdminLoginResponseDTO;
 import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
-import com.example.onehada.admin.exception.AgentNotFoundException;
-import com.example.onehada.admin.exception.InvalidCredentialsException;
-import com.example.onehada.admin.exception.UserNotFoundException;
 import com.example.onehada.admin.service.AdminService;
 import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.exception.BadRequestException;
+import com.example.onehada.exception.NotFoundException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class AdminController {
 	private final AdminService adminService;
 
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody AdminLoginRequestDTO request) throws InvalidCredentialsException {
+	public ResponseEntity<?> login(@RequestBody AdminLoginRequestDTO request) throws BadRequestException {
 		AdminLoginResponseDTO response = adminService.login(request);
 		return ResponseEntity.ok(new ApiResponse(200, "OK", "로그인 성공", response));
 	}
@@ -36,7 +36,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/activityLogs/{userId}")
-	public ResponseEntity<?> getActivityLogs(@PathVariable Long userId) throws UserNotFoundException {
+	public ResponseEntity<?> getActivityLogs(@PathVariable Long userId) throws NotFoundException {
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "활동 로그 조회 성공",
 			adminService.getActivityLogs(userId)
@@ -45,8 +45,7 @@ public class AdminController {
 
 	@PostMapping("/consultation")
 	public ResponseEntity<?> createConsultation(@RequestBody ConsultationCreateRequestDTO request) throws
-		UserNotFoundException,
-		AgentNotFoundException {
+		NotFoundException {
 		return ResponseEntity.ok(new ApiResponse(
 			201, "CREATED", "상담 데이터 추가 성공",
 			adminService.createConsultation(request)

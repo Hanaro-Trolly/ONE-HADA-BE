@@ -3,7 +3,6 @@ package com.example.onehada.customer.user;
 import org.springframework.stereotype.Service;
 
 import com.example.onehada.exception.NotFoundException;
-import com.example.onehada.exception.user.UserNotFoundException;
 
 @Service
 public class UserService {

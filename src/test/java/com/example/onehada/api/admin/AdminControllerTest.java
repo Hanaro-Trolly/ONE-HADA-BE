@@ -155,7 +155,7 @@ public class AdminControllerTest {
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(400))
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("이메일 또는 비밀번호가 잘못되었습니다."));
+			.andExpect(jsonPath("$.message").value("아이디 혹은 비밀번호가 잘못 되었습니다."));
 	}
 
 	@Test
@@ -170,10 +170,10 @@ public class AdminControllerTest {
 		mockMvc.perform(post("/api/admin/consultation")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value(400))
-			.andExpect(jsonPath("$.status").value("USER_NOT_FOUND"))
-			.andExpect(jsonPath("$.message").value("상담 데이터 추가 실패"));
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.code").value(404))
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value("상담데이터 추가 중 유저를 찾을 수 없습니다."));
 	}
 	@Test
 	void searchUsersByNameTest() throws Exception {

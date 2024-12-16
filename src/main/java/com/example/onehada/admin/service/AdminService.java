@@ -11,9 +11,6 @@ import com.example.onehada.admin.dto.ConsultationDetailDTO;
 import com.example.onehada.admin.dto.ConsultationListDTO;
 import com.example.onehada.admin.dto.ConsultationResponseDTO;
 import com.example.onehada.admin.dto.UserResponseDTO;
-import com.example.onehada.admin.exception.AgentNotFoundException;
-import com.example.onehada.admin.exception.InvalidCredentialsException;
-import com.example.onehada.admin.exception.UserNotFoundException;
 import com.example.onehada.customer.agent.Agent;
 import com.example.onehada.customer.agent.AgentRepository;
 import com.example.onehada.customer.consultation.Consultation;
@@ -22,6 +19,8 @@ import com.example.onehada.customer.history.History;
 import com.example.onehada.customer.history.HistoryRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
+import com.example.onehada.exception.BadRequestException;
+import com.example.onehada.exception.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,12 +40,12 @@ public class AdminService {
 	private final HistoryRepository historyRepository;
 	private final ConsultationRepository consultationRepository;
 
-	public AdminLoginResponseDTO login(AdminLoginRequestDTO request) throws InvalidCredentialsException {
+	public AdminLoginResponseDTO login(AdminLoginRequestDTO request) throws BadRequestException {
 		Agent agent = agentRepository.findByAgentEmailAndAgentPw(
 				request.getAgentEmail(),
 				request.getAgentPw()
 			)
-			.orElseThrow(InvalidCredentialsException::new);
+			.orElseThrow(() -> new BadRequestException("아이디 혹은 비밀번호가 잘못 되었습니다."));
 
 		return new AdminLoginResponseDTO(
 			agent.getAgentId(),
@@ -75,9 +74,9 @@ public class AdminService {
 			.collect(Collectors.toList());
 	}
 
-	public ActivityLogResponseDTO getActivityLogs(Long userId) throws UserNotFoundException {
+	public ActivityLogResponseDTO getActivityLogs(Long userId) throws NotFoundException {
 		User user = userRepository.findById(userId)
-			.orElseThrow(UserNotFoundException::new);
+			.orElseThrow(() -> new NotFoundException("활동로그 조회 중 유저를 찾을 수 없습니다."));
 
 		List<History> histories = historyRepository.findByUser(user);
 		List<ActivityLogDetailDTO> logs = histories.stream()
@@ -96,12 +95,12 @@ public class AdminService {
 
 	@Transactional
 	public ConsultationCreateResponseDTO createConsultation(ConsultationCreateRequestDTO request) throws
-		UserNotFoundException, AgentNotFoundException {
+		NotFoundException {
 		User user = userRepository.findById(request.getUserId())
-			.orElseThrow(UserNotFoundException::new);
+			.orElseThrow(() -> new NotFoundException("상담데이터 추가 중 유저를 찾을 수 없습니다."));
 
 		Agent agent = agentRepository.findById(request.getAgentId())
-			.orElseThrow(AgentNotFoundException::new);
+			.orElseThrow(() -> new NotFoundException("상담데이터 추가 중 상담사를 찾을 수 없습니다."));
 
 		Consultation consultation = Consultation.builder()
 			.user(user)

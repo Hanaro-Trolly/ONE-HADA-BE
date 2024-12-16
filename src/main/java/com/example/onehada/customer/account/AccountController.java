@@ -15,7 +15,6 @@ import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.transaction.TransactionService;
 import com.example.onehada.customer.user.UserService;
 import com.example.onehada.db.dto.ApiResponse;
-import com.example.onehada.exception.authorization.AccessDeniedException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,18 +51,13 @@ public class AccountController {
 	@GetMapping("/{accountId}")
 	public ResponseEntity<?> getAccountById(@RequestHeader("Authorization") String token,
 		@PathVariable("accountId") Long accountId) {
-		try {
-			String email = jwtService.extractEmail(token.replace("Bearer ", ""));
-			Long userId = userService.getUserByEmail(email).getUserId();
-			System.out.println("userId = " + userId);
+		String email = jwtService.extractEmail(token.replace("Bearer ", ""));
+		Long userId = userService.getUserByEmail(email).getUserId();
+		System.out.println("userId = " + userId);
 
-			Optional<AccountDTO.accountDetailDTO> account = accountService.getMyAccountById(accountId, userId);
+		Optional<AccountDTO.accountDetailDTO> account = accountService.getMyAccountById(accountId, userId);
 
-			return ResponseEntity.ok(new ApiResponse(200, "OK", "단일 계좌 정보를 성공적으로 가져왔습니다.", account));
-		} catch (AccessDeniedException ex) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN)
-				.body(new ApiResponse(403, "FORBIDDEN", ex.getMessage(), null));
-		}
+		return ResponseEntity.ok(new ApiResponse(200, "OK", "단일 계좌 정보를 성공적으로 가져왔습니다.", account));
 	}
 
 	@GetMapping("/exist/{accountNumber}")
