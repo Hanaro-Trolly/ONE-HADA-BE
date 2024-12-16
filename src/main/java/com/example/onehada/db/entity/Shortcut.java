@@ -19,13 +19,12 @@ public class Shortcut {
 	@Column(length = 100, nullable = false)
 	private String shortcutName;
 
-	@Lob
 	@Column(name = "shortcut_elements", columnDefinition = "JSON")
 	private String shortcutElements;
 
 	@Column (name = "shortcut_url")
 	private String shortcutUrl;
 
-	@Column(nullable = false)
+	@Column(name = "is_favorite", nullable = false)
 	private boolean isFavorite = false;
 }
