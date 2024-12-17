@@ -28,7 +28,7 @@ public class ShortcutController {
 
 	@GetMapping("")
 	public ResponseEntity<ApiResponse> getShortcuts(@RequestHeader("Authorization") String token) {
-		List<ShortcutDTO> shortcuts = shortcutService.getShortcut(token);
+		List<ShortcutDTO> shortcuts = shortcutService.getShortcuts(token);
 		return ResponseEntity.ok(new ApiResponse(200, "OK", "바로가기 목록 조회 성공", Map.of("shortcuts", shortcuts)));
 	}
 

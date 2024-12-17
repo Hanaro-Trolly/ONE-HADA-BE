@@ -8,6 +8,7 @@ import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.consultation.ConsultationRepository;
 import com.example.onehada.customer.history.HistoryRepository;
 import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.user.UserRepository;
@@ -59,6 +60,8 @@ public class AccountControllerTest {
 	@Autowired
 	private AccountRepository accountRepository;
 	@Autowired
+	private TransactionRepository transactionRepository;
+	@Autowired
 	private AuthService authService;
 
 	private String token;
@@ -68,6 +71,7 @@ public class AccountControllerTest {
 
 	@BeforeAll
 	public void setUp() {
+		transactionRepository.deleteAll();
 		accountRepository.deleteAll();
 		consultationRepository.deleteAll();
 		shortcutRepository.deleteAll();

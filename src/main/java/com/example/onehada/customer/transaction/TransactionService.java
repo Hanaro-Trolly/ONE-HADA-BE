@@ -2,6 +2,7 @@ package com.example.onehada.customer.transaction;
 
 import static java.time.LocalDateTime.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,10 +80,11 @@ public class TransactionService {
 	}
 
 	public List<TransactionDTO.transactionDTO> getTransactions(Long accountId,
-		TransactionDTO.transactionRequest request) throws NotFoundException,BadRequestException{
+		TransactionDTO.transactionRequest request) throws NotFoundException,BadRequestException {
 		Account account = accountRepository.findById(accountId)
 			.orElseThrow(() -> new NotFoundException("존재하지 않는 계좌 ID입니다."));
 
+		request.initDateRange();
 		if (request.getStartDate().isAfter(request.getEndDate())) {
 			throw new BadRequestException("시작 날짜가 종료 날짜보다 클 수 없습니다.");
 		}
@@ -96,8 +98,13 @@ public class TransactionService {
 		);
 
 		// DTO 변환
-		return transactions.stream()
-			.map(transaction -> TransactionDTO.transactionDTO.fromEntity(transaction, account))
-			.collect(Collectors.toList());
+		List<TransactionDTO.transactionDTO> transactionDTOs = new ArrayList<>();
+		for (Transaction transaction : transactions) {
+			TransactionDTO.transactionDTO addList = TransactionDTO.transactionDTO.fromEntity(transaction, account);
+			if (addList.getTransactionType().equals(request.getTransactionType()) || request.getTransactionType().equals("전체")) {
+				transactionDTOs.add(addList);
+			}
+		}
+		return transactionDTOs;
 	}
 }

@@ -28,5 +28,5 @@ public class Shortcut {
 	private String shortcutUrl;
 
 	@Column(name = "is_favorite", nullable = false)
-	private boolean isFavorite = false;
+	private boolean favorite = false;
 }

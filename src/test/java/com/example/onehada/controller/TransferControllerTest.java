@@ -24,14 +24,14 @@ import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.service.AuthService;
 import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.account.AccountDTO;
-import com.example.onehada.customer.consultation.ConsultationRepository;
-import com.example.onehada.customer.history.HistoryRepository;
-import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.transaction.TransactionDTO;
 import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.transaction.TransactionRepository;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -70,6 +70,7 @@ public class TransferControllerTest {
 
 	@BeforeAll
 	public void setUp() {
+		transactionRepository.deleteAll();
 		accountRepository.deleteAll();
 		consultationRepository.deleteAll();
 		shortcutRepository.deleteAll();
@@ -202,10 +203,8 @@ public class TransferControllerTest {
 		TransactionDTO.transactionRequest request = TransactionDTO.transactionRequest.builder()
 			.startDate(startDate)
 			.endDate(now())
-			.transactionType("출금")
+			.transactionType("전체")
 			.keyword("")
-			.page(1)
-			.limit(5)
 			.build();
 		// 거래 내역 조회 요청
 		mockMvc.perform(get("/api/transaction/{accountId}", testToAccount.getAccountId())  // accountId는 테스트용 계좌의 ID
@@ -231,8 +230,6 @@ public class TransferControllerTest {
 			.endDate(now())
 			.transactionType("출금")
 			.keyword("")
-			.page(1)
-			.limit(5)
 			.build();
 
 		mockMvc.perform(get("/api/transaction/{accountId}", testToAccount.getAccountId())
@@ -255,10 +252,8 @@ public class TransferControllerTest {
 		TransactionDTO.transactionRequest request = TransactionDTO.transactionRequest.builder()
 			.startDate(startDate)
 			.endDate(now())
-			.transactionType("출금")
+			.transactionType("전체")
 			.keyword("")
-			.page(1)
-			.limit(5)
 			.build();
 
 		mockMvc.perform(get("/api/transaction/{accountId}", 99999L)

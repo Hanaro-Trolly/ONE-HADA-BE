@@ -1,6 +1,7 @@
 package com.example.onehada.customer.shortcut;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import com.example.onehada.customer.user.UserRepository;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
@@ -34,19 +36,35 @@ public class ShortcutService {
 		return jwtService.extractUserId(accessToken);
 	}
 
-	public List<ShortcutDTO> getShortcut(String token){
+	public List<ShortcutDTO> getShortcuts(String token){
 		Long userId = getUserIdFromToken(token);
-		List<Shortcut> shortcuts = shortcutRepository.findShortcutByUserUserId(userId);
-		if (shortcuts.isEmpty()) {
-			throw new NotFoundException("바로가기가 존재하지 않습니다.");
-		}
+		List<Shortcut> shortcuts = shortcutRepository.findShortcutByUserUserIdOrderByShortcutIdDesc(userId);
+
 		return shortcuts.stream()
-			.map(shortcut -> ShortcutDTO.builder()
-			.shortcutId(shortcut.getShortcutId())
-			.shortcutName(shortcut.getShortcutName())
-			.shortcutUrl(shortcut.getShortcutUrl())
-			.isFavorite(shortcut.isFavorite())
-			.build()).collect(Collectors.toList());
+			.map(shortcut -> {
+				Map<String, Object> shortcutElements = getShortcutElements(shortcut);
+
+				return ShortcutDTO.builder()
+					.shortcutId(shortcut.getShortcutId())
+					.shortcutName(shortcut.getShortcutName())
+					.shortcutElements(shortcutElements)
+					.favorite(shortcut.isFavorite())
+					.build();
+			}).collect(Collectors.toList());
+	}
+
+	private Map<String , Object > getShortcutElements(Shortcut shortcut) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map<String, Object> shortcutElements;
+		try {
+			shortcutElements = objectMapper.readValue(
+				shortcut.getShortcutElements(), new TypeReference<>() {
+				}
+			);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("JSON 파싱 에러: " + e.getMessage(), e);
+		}
+		return shortcutElements;
 	}
 
 	public ShortcutDTO createShortcut(ShortcutDTO shortcut, String token) {
@@ -57,7 +75,6 @@ public class ShortcutService {
 		Shortcut newShortcut = new Shortcut();
 		newShortcut.setUser(user);
 		newShortcut.setShortcutName(shortcut.getShortcutName());
-		newShortcut.setShortcutUrl(shortcut.getShortcutUrl());
 		newShortcut.setFavorite(false);
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -70,7 +87,6 @@ public class ShortcutService {
 		} catch (JsonProcessingException e) {
 			throw new BadRequestException( "잘못된 요청입니다." + e.getMessage());
 		}
-		// shortcutRepository.save(newShortcut);
 
 		return ShortcutDTO.builder().shortcutId(newShortcut.getShortcutId()).build();
 	}
@@ -97,17 +113,13 @@ public class ShortcutService {
 	@Transactional
 	public List<ShortcutDTO> getFavoriteShortcuts(String token) {
 		Long userId = getUserIdFromToken(token);
-		List<Shortcut> favoriteShortcuts = shortcutRepository.findShortcutByUserUserIdAndIsFavoriteTrue(userId);
-
-		if (favoriteShortcuts.isEmpty()) {
-			throw new NotFoundException("즐겨찾기 된 바로가기가 없습니다.");
-		}
+		List<Shortcut> favoriteShortcuts =
+			shortcutRepository.findShortcutByUserUserIdAndFavoriteTrueOrderByShortcutIdDesc(userId);
 
 		return favoriteShortcuts.stream().map(shortcut -> ShortcutDTO.builder()
 			.shortcutId(shortcut.getShortcutId())
 			.shortcutName(shortcut.getShortcutName())
-			.shortcutUrl(shortcut.getShortcutUrl())
-			.isFavorite(shortcut.isFavorite())
+			.favorite(shortcut.isFavorite())
 			.build()).collect(Collectors.toList());
 	}
 }
