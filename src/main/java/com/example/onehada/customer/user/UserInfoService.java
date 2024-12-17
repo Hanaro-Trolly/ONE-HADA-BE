@@ -53,20 +53,14 @@ public class UserInfoService {
 		User user = userRepository.findByUserEmail(email)
 			.orElseThrow(() -> new RuntimeException("User not found"));
 		System.out.println("User: " + user);
-		return convertToUserInfoDTO(user);
-	}
-
-	private UserInfoDTO convertToUserInfoDTO(User user) {
-		return new UserInfoDTO(
-			user.getUserId(),
-			user.getUserName(),
-			user.getUserEmail(),
-			user.getPhoneNumber(),
-			user.getUserAddress(),
-			user.getUserBirth(),
-			user.getUserRegisteredDate(),
-			user.getUserGender()
-		);
+		return UserInfoDTO.builder()
+			.userName(user.getUserName())
+			.userEmail(user.getUserEmail())
+			.userPhone(user.getPhoneNumber())
+			.userAddress(user.getUserAddress())
+			.userBirth(user.getUserBirth())
+			.userGender(user.getUserGender())
+			.build();
 	}
 
 	@Transactional

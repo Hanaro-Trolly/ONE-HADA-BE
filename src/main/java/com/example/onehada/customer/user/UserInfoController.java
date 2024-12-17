@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.onehada.db.dto.ApiResponse;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class UserInfoController {
 	private final UserInfoService userInfoService;
 
