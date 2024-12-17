@@ -1,4 +1,4 @@
-package com.example.onehada.api.service;
+package com.example.onehada.customer.history;
 
 import java.util.List;
 import java.util.Map;
@@ -6,12 +6,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.db.dto.HistoryDTO;
-import com.example.onehada.db.entity.History;
-import com.example.onehada.db.entity.User;
-import com.example.onehada.db.repository.HistoryRepository;
-import com.example.onehada.db.repository.UserRepository;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.user.UserRepository;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
