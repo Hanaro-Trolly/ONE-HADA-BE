@@ -34,34 +34,51 @@ public class HistoryService {
 
 	public List<HistoryDTO> getUserHistories(String token) {
 		Long userId = getUserIdFromToken(token);
-		List<History> histories = historyRepository.findHistoryByUserUserId(userId);
-		if (histories.isEmpty()) {
-			throw new NotFoundException("활동 내역이 존재하지 않습니다.");
-		}
-
-		ObjectMapper objectMapper = new ObjectMapper();
+		List<History> histories = historyRepository.findHistoryByUserUserIdOrderByHistoryIdDesc(userId);
 
 		return histories.stream()
 			.map(history -> {
-				Map<String, Object> historyElements;
-				try {
-					historyElements = objectMapper.readValue(
-						history.getHistoryElements(),
-						new TypeReference<>() {}
-					);
-				} catch (Exception e) {
-					throw new RuntimeException("JSON 파싱 에러: " + e.getMessage(), e);
-				}
+				Map<String, Object> historyElements = getHistoryElements(history);
 
 				return new HistoryDTO(
 					history.getHistoryId(),
 					history.getUser().getUserId(),
 					history.getHistoryName(),
-					history.getHistoryUrl(),
 					historyElements,
 					history.getActivityDate()
 				);
 			}).collect(Collectors.toList());
+	}
+
+	public HistoryDTO getUserHistory(Long historyId, String token) {
+		Long userId = getUserIdFromToken(token);
+		History history = historyRepository.findHistoryByHistoryIdAndUserUserId(historyId, userId);
+		if (history == null) {
+			throw new NotFoundException("해당 활동 내역을 찾을 수 없습니다.");
+		}
+		Map<String, Object> historyElements = getHistoryElements(history);
+
+		return HistoryDTO.builder()
+			.historyId(history.getHistoryId())
+			.userId(history.getUser().getUserId())
+			.historyName(history.getHistoryName())
+			.historyElements(historyElements)
+			.build();
+	}
+
+	private static Map<String, Object> getHistoryElements(History history) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map<String, Object> historyElements;
+		try {
+			historyElements = objectMapper.readValue(
+				history.getHistoryElements(),
+				new TypeReference<>() {
+				}
+			);
+		} catch (Exception e) {
+			throw new RuntimeException("JSON 파싱 에러: " + e.getMessage(), e);
+		}
+		return historyElements;
 	}
 
 	public HistoryDTO createHistory(HistoryDTO history, String token) {
@@ -71,7 +88,6 @@ public class HistoryService {
 		History newHistory = new History();
 		newHistory.setUser(user);
 		newHistory.setHistoryName(history.getHistoryName());
-		newHistory.setHistoryUrl(history.getHistoryUrl());
 		newHistory.setActivityDate(history.getActivityDate());
 
 		ObjectMapper objectMapper = new ObjectMapper();

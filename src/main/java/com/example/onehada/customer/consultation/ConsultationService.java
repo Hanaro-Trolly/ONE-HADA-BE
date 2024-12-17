@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.example.onehada.auth.service.JwtService;
-import com.example.onehada.exception.NotFoundException;
 
 @Service
 public class ConsultationService {
@@ -26,9 +25,6 @@ public class ConsultationService {
 	public List<ConsultationDTO> getConsultations(String token) {
 		Long userId = getUserIdFromToken(token);
 		List<Consultation> consultations = consultationRepository.findByUserUserId(userId);
-		if (consultations.isEmpty()) {
-			throw new NotFoundException("상담내역이 존재하지 않습니다.");
-		}
 
 		return consultations.stream().map(consultation -> ConsultationDTO.builder()
 			.userId(consultation.getUser().getUserId())
