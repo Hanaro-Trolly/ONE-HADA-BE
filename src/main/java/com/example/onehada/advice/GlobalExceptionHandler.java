@@ -5,9 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.example.onehada.api.admin.exception.BaseException;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.exception.BadRequestException;
+import com.example.onehada.exception.BaseException;
 import com.example.onehada.exception.ForbiddenException;
 import com.example.onehada.exception.NotFoundException;
 import com.example.onehada.exception.UnauthorizedException;
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(BaseException.class)
 	public ResponseEntity<ApiResponse> handleBaseException(BaseException e) {
 		return ResponseEntity.badRequest()
-			.body(new ApiResponse(400, e.getCode(), e.getMessage(), null));
+			.body(new ApiResponse(400, "BASE_EXCEPTION_ERROR", e.getMessage(), null));
 	}
 
 	@ExceptionHandler(Exception.class)

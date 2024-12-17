@@ -1,8 +1,16 @@
 package com.example.onehada.api.admin;
 
-import com.example.onehada.api.admin.dto.*;
-import com.example.onehada.db.entity.*;
-import com.example.onehada.db.repository.*;
+import com.example.onehada.admin.dto.AdminLoginRequestDTO;
+import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.agent.Agent;
+import com.example.onehada.customer.agent.AgentRepository;
+import com.example.onehada.customer.consultation.Consultation;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +53,9 @@ public class AdminControllerTest {
 	@Autowired
 	private HistoryRepository historyRepository;
 
+	@Autowired
+	private ShortcutRepository shortcutRepository;
+
 	private Agent testAgent;
 	private User testUser;
 
@@ -52,6 +63,7 @@ public class AdminControllerTest {
 	void setUp() {
 		// 기존 데이터 정리
 		accountRepository.deleteAll();
+		shortcutRepository.deleteAll();
 		historyRepository.deleteAll();
 		consultationRepository.deleteAll();
 		agentRepository.deleteAll();
@@ -148,7 +160,7 @@ public class AdminControllerTest {
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(400))
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("이메일 또는 비밀번호가 잘못되었습니다."));
+			.andExpect(jsonPath("$.message").value("아이디 혹은 비밀번호가 잘못 되었습니다."));
 	}
 
 	@Test
@@ -163,10 +175,10 @@ public class AdminControllerTest {
 		mockMvc.perform(post("/api/admin/consultation")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value(400))
-			.andExpect(jsonPath("$.status").value("USER_NOT_FOUND"))
-			.andExpect(jsonPath("$.message").value("상담 데이터 추가 실패"));
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.code").value(404))
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value("상담데이터 추가 중 유저를 찾을 수 없습니다."));
 	}
 	@Test
 	void searchUsersByNameTest() throws Exception {
@@ -216,6 +228,52 @@ public class AdminControllerTest {
 				.param("userName", "존재하지않는사용자"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data").isEmpty());
+	}
+
+	@Test
+	void getConsultationListTest() throws Exception {
+		// 테스트용 상담 데이터 생성
+		Consultation consultation = consultationRepository.save(Consultation.builder()
+			.agent(testAgent)
+			.user(testUser)
+			.consultationTitle("테스트 상담")
+			.consultationContent("테스트 상담 내용")
+			.consultationDate(LocalDateTime.now())
+			.build());
+
+		// 상담 목록 조회 테스트
+		mockMvc.perform(get("/api/admin/consultationList/" + testAgent.getAgentId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("상담사 상담 내역 조회 성공"))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[0].userId").value(testUser.getUserId()))
+			.andExpect(jsonPath("$.data[0].userName").value(testUser.getUserName()))
+			.andExpect(jsonPath("$.data[0].lastConsultationTitle").value("테스트 상담"));
+	}
+
+	@Test
+	void getConsultationListWithInvalidAgentIdTest() throws Exception {
+		Long invalidAgentId = 999999L; // 존재하지 않는 상담사 ID
+
+		mockMvc.perform(get("/api/admin/consultationList/" + invalidAgentId))
+			.andExpect(status().isInternalServerError())
+			.andExpect(jsonPath("$.code").value(500))
+			.andExpect(jsonPath("$.status").value("INTERNAL_SERVER_ERROR"))
+			.andExpect(jsonPath("$.message").value("Agent not found"));
+	}
+
+	@Test
+	void getConsultationListEmptyTest() throws Exception {
+		// 상담 데이터 없이 조회
+		mockMvc.perform(get("/api/admin/consultationList/" + testAgent.getAgentId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("상담사 상담 내역 조회 성공"))
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.data").isEmpty());
 	}
