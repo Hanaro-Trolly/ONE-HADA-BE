@@ -36,7 +36,7 @@ public class ShortcutController {
 	public ResponseEntity<?> addShortcut(@RequestHeader("Authorization") String token,
 		@RequestBody ShortcutDTO shortcut) {
 		ShortcutDTO shortcutDTO = shortcutService.createShortcut(shortcut, token);
-		return ResponseEntity.ok(new ApiResponse(200, "OK", "바로가기 등록 성공", Map.of("shortcut",
+		return ResponseEntity.ok(new ApiResponse(200, "OK", "바로가기 등록 성공", Map.of("shortcutId",
 			shortcutDTO.getShortcutId())));
 	}
 

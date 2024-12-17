@@ -42,7 +42,7 @@ public class HistoryController {
 	@PostMapping("")
 	public ResponseEntity<ApiResponse> createHistory(@RequestHeader("Authorization") String token, @RequestBody HistoryDTO history) {
 		HistoryDTO historyDTO = historyService.createHistory(history, token);
-		return ResponseEntity.ok(new ApiResponse(200, "OK", "활동내역 등록 성공", Map.of("historyDTO",
+		return ResponseEntity.ok(new ApiResponse(200, "OK", "활동내역 등록 성공", Map.of("historyId",
 			historyDTO.getHistoryId())));
 	}
 }

@@ -10,4 +10,6 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
 	List<History> findHistoryByUserUserIdOrderByHistoryIdDesc(Long userId);
 
 	History findHistoryByHistoryIdAndUserUserId(Long historyId, Long user_userId);
+
+	void deleteAllByUser(User user);
 }
