@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Comparator;
 import java.util.List;
@@ -147,12 +148,18 @@ public class AdminService {
 	public List<UserResponseDTO> searchUsers(String userName, String userBirth) {
 		List<User> users;
 
+		// 빈 문자열을 null로 변환
+		userName = (userName != null && userName.trim().isEmpty()) ? null : userName;
+		userBirth = (userBirth != null && userBirth.trim().isEmpty()) ? null : userBirth;
+
 		if (userName != null && userBirth != null) {
 			users = userRepository.findByUserNameContainingAndUserBirth(userName, userBirth);
 		} else if (userName != null) {
 			users = userRepository.findByUserNameContaining(userName);
-		} else {
+		} else if (userBirth != null) {
 			users = userRepository.findByUserBirth(userBirth);
+		} else {
+			return new ArrayList<>(); // 모든 조건이 null인 경우 빈 리스트 반환
 		}
 
 		return users.stream()

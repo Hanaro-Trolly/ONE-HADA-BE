@@ -3,6 +3,7 @@ package com.example.onehada.admin.controller;
 import com.example.onehada.admin.dto.AdminLoginRequestDTO;
 import com.example.onehada.admin.dto.AdminLoginResponseDTO;
 import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
+import com.example.onehada.admin.dto.UserSearchRequestDTO;
 import com.example.onehada.admin.service.AdminService;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.exception.BadRequestException;
@@ -68,19 +69,16 @@ public class AdminController {
 		));
 	}
 
-	@GetMapping("/user/search")
-	public ResponseEntity<?> searchUsers(
-		@RequestParam(required = false) String userName,
-		@RequestParam(required = false) String userBirth
-	) {
-		if (userName == null && userBirth == null) {
+	@PostMapping("/user/search")
+	public ResponseEntity<?> searchUsers(@RequestBody UserSearchRequestDTO request) {
+		if (request.getUserName() == null && request.getUserBirth() == null) {
 			return ResponseEntity.badRequest()
 				.body(new ApiResponse(400, "BAD_REQUEST", "검색 조건을 입력해주세요.", null));
 		}
 
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "사용자 검색 성공",
-			adminService.searchUsers(userName, userBirth)
+			adminService.searchUsers(request.getUserName(), request.getUserBirth())
 		));
 	}
 
