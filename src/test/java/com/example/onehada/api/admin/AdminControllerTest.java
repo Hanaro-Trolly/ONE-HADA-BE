@@ -1,8 +1,16 @@
 package com.example.onehada.api.admin;
 
-import com.example.onehada.api.admin.dto.*;
-import com.example.onehada.db.entity.*;
-import com.example.onehada.db.repository.*;
+import com.example.onehada.admin.dto.AdminLoginRequestDTO;
+import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.agent.Agent;
+import com.example.onehada.customer.agent.AgentRepository;
+import com.example.onehada.customer.consultation.Consultation;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@WithMockUser(username = "admin", roles = "ADMIN") // jwt 적용 전
+//@WithMockUser(username = "admin", roles = "ADMIN") // jwt 적용 전
 public class AdminControllerTest {
 
 	@Autowired
@@ -44,6 +51,9 @@ public class AdminControllerTest {
 	private ConsultationRepository consultationRepository;
 
 	@Autowired
+	private ShortcutRepository shortcutRepository;
+
+	@Autowired
 	private HistoryRepository historyRepository;
 
 	private Agent testAgent;
@@ -53,6 +63,7 @@ public class AdminControllerTest {
 	void setUp() {
 		// 기존 데이터 정리
 		accountRepository.deleteAll();
+		shortcutRepository.deleteAll();
 		historyRepository.deleteAll();
 		consultationRepository.deleteAll();
 		agentRepository.deleteAll();
@@ -79,8 +90,8 @@ public class AdminControllerTest {
 	@Test
 	void loginTest() throws Exception {
 		AdminLoginRequestDTO request = new AdminLoginRequestDTO();
-		request.setAgent_email("test@admin.com");
-		request.setAgent_pw("password123");
+		request.setAgentEmail("test@admin.com");
+		request.setAgentPw("password123");
 
 		mockMvc.perform(post("/api/admin/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +99,7 @@ public class AdminControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
-			.andExpect(jsonPath("$.data.agent_email").value("test@admin.com"));
+			.andExpect(jsonPath("$.data.agentEmail").value("test@admin.com"));
 	}
 
 	@Test
@@ -98,17 +109,17 @@ public class AdminControllerTest {
 				.param("email", "test@admin.com"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data[0].agent_email").value("test@admin.com"));
+			.andExpect(jsonPath("$.data[0].agentEmail").value("test@admin.com"));
 	}
 
 	@Test
 	void createAndGetConsultationTest() throws Exception {
 		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
-		request.setAgent_id(testAgent.getAgentId());
-		request.setUser_id(testUser.getUserId());
-		request.setConsultation_title("테스트 상담");
-		request.setConsultation_content("테스트 상담 내용");
-		request.setConsultation_date(LocalDateTime.now());
+		request.setAgentId(testAgent.getAgentId());
+		request.setUserId(testUser.getUserId());
+		request.setConsultationTitle("테스트 상담");
+		request.setConsultationContent("테스트 상담 내용");
+		request.setConsultationDate(LocalDateTime.now());
 
 		// 상담 생성
 		mockMvc.perform(post("/api/admin/consultation")
@@ -121,7 +132,7 @@ public class AdminControllerTest {
 		mockMvc.perform(get("/api/admin/consultation/" + testUser.getUserId()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data.consultations[0].consultation_title")
+			.andExpect(jsonPath("$.data.consultations[0].consultationTitle")
 				.value("테스트 상담"));
 	}
 
@@ -130,18 +141,18 @@ public class AdminControllerTest {
 		mockMvc.perform(get("/api/admin/user/" + testUser.getUserId()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data.user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data.user_gender").value("M"))
-			.andExpect(jsonPath("$.data.user_phone").value("01012345678"))
-			.andExpect(jsonPath("$.data.user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data.userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data.userGender").value("M"))
+			.andExpect(jsonPath("$.data.userPhone").value("01012345678"))
+			.andExpect(jsonPath("$.data.userBirth").value("19900101"));
 	}
 
 
 	@Test
 	void loginFailTest() throws Exception {
 		AdminLoginRequestDTO request = new AdminLoginRequestDTO();
-		request.setAgent_email("wrong@admin.com");
-		request.setAgent_pw("wrongpassword");
+		request.setAgentEmail("wrong@admin.com");
+		request.setAgentPw("wrongpassword");
 
 		mockMvc.perform(post("/api/admin/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -149,57 +160,57 @@ public class AdminControllerTest {
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(400))
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("이메일 또는 비밀번호가 잘못되었습니다."));
+			.andExpect(jsonPath("$.message").value("아이디 혹은 비밀번호가 잘못 되었습니다."));
 	}
 
 	@Test
 	void createConsultationInvalidUserTest() throws Exception {
 		ConsultationCreateRequestDTO request = new ConsultationCreateRequestDTO();
-		request.setAgent_id(testAgent.getAgentId());
-		request.setUser_id(999999L); // 존재하지 않는 사용자 ID
-		request.setConsultation_title("테스트 상담");
-		request.setConsultation_content("테스트 상담 내용");
-		request.setConsultation_date(LocalDateTime.now());
+		request.setAgentId(testAgent.getAgentId());
+		request.setUserId(999999L); // 존재하지 않는 사용자 ID
+		request.setConsultationTitle("테스트 상담");
+		request.setConsultationContent("테스트 상담 내용");
+		request.setConsultationDate(LocalDateTime.now());
 
 		mockMvc.perform(post("/api/admin/consultation")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value(400))
-			.andExpect(jsonPath("$.status").value("USER_NOT_FOUND"))
-			.andExpect(jsonPath("$.message").value("상담 데이터 추가 실패"));
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.code").value(404))
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value("상담데이터 추가 중 유저를 찾을 수 없습니다."));
 	}
 	@Test
 	void searchUsersByNameTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_name", "테스트"))
+				.param("userName", "테스트"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
 			.andExpect(jsonPath("$.message").value("사용자 검색 성공"))
-			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"));
 	}
 
 	@Test
 	void searchUsersByBirthTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_birth", "19900101"))
+				.param("userBirth", "19900101"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"));
 	}
 
 	@Test
 	void searchUsersByNameAndBirthTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_name", "테스트")
-				.param("user_birth", "19900101"))
+				.param("userName", "테스트")
+				.param("userBirth", "19900101"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data[0].user_name").value("테스트 사용자"))
-			.andExpect(jsonPath("$.data[0].user_birth").value("19900101"));
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"));
 	}
 
 	@Test
@@ -214,9 +225,55 @@ public class AdminControllerTest {
 	@Test
 	void searchUsersNoResultTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
-				.param("user_name", "존재하지않는사용자"))
+				.param("userName", "존재하지않는사용자"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data").isEmpty());
+	}
+
+	@Test
+	void getConsultationListTest() throws Exception {
+		// 테스트용 상담 데이터 생성
+		Consultation consultation = consultationRepository.save(Consultation.builder()
+			.agent(testAgent)
+			.user(testUser)
+			.consultationTitle("테스트 상담")
+			.consultationContent("테스트 상담 내용")
+			.consultationDate(LocalDateTime.now())
+			.build());
+
+		// 상담 목록 조회 테스트
+		mockMvc.perform(get("/api/admin/consultationList/" + testAgent.getAgentId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("상담사 상담 내역 조회 성공"))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data[0].userId").value(testUser.getUserId()))
+			.andExpect(jsonPath("$.data[0].userName").value(testUser.getUserName()))
+			.andExpect(jsonPath("$.data[0].lastConsultationTitle").value("테스트 상담"));
+	}
+
+	@Test
+	void getConsultationListWithInvalidAgentIdTest() throws Exception {
+		Long invalidAgentId = 999999L; // 존재하지 않는 상담사 ID
+
+		mockMvc.perform(get("/api/admin/consultationList/" + invalidAgentId))
+			.andExpect(status().isInternalServerError())
+			.andExpect(jsonPath("$.code").value(500))
+			.andExpect(jsonPath("$.status").value("INTERNAL_SERVER_ERROR"))
+			.andExpect(jsonPath("$.message").value("Agent not found"));
+	}
+
+	@Test
+	void getConsultationListEmptyTest() throws Exception {
+		// 상담 데이터 없이 조회
+		mockMvc.perform(get("/api/admin/consultationList/" + testAgent.getAgentId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("OK"))
+			.andExpect(jsonPath("$.message").value("상담사 상담 내역 조회 성공"))
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.data").isEmpty());
 	}
