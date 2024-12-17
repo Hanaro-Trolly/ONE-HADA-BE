@@ -1,6 +1,7 @@
 package com.example.onehada.customer.shortcut;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import com.example.onehada.customer.user.UserRepository;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
@@ -39,11 +41,30 @@ public class ShortcutService {
 		List<Shortcut> shortcuts = shortcutRepository.findShortcutByUserUserIdOrderByShortcutIdDesc(userId);
 
 		return shortcuts.stream()
-			.map(shortcut -> ShortcutDTO.builder()
-			.shortcutId(shortcut.getShortcutId())
-			.shortcutName(shortcut.getShortcutName())
-			.favorite(shortcut.isFavorite())
-			.build()).collect(Collectors.toList());
+			.map(shortcut -> {
+				Map<String, Object> shortcutElements = getShortcutElements(shortcut);
+
+				return ShortcutDTO.builder()
+					.shortcutId(shortcut.getShortcutId())
+					.shortcutName(shortcut.getShortcutName())
+					.shortcutElements(shortcutElements)
+					.favorite(shortcut.isFavorite())
+					.build();
+			}).collect(Collectors.toList());
+	}
+
+	private Map<String , Object > getShortcutElements(Shortcut shortcut) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map<String, Object> shortcutElements;
+		try {
+			shortcutElements = objectMapper.readValue(
+				shortcut.getShortcutElements(), new TypeReference<>() {
+				}
+			);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("JSON 파싱 에러: " + e.getMessage(), e);
+		}
+		return shortcutElements;
 	}
 
 	public ShortcutDTO createShortcut(ShortcutDTO shortcut, String token) {
