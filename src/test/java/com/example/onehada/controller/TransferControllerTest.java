@@ -26,6 +26,7 @@ import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.account.AccountDTO;
 import com.example.onehada.customer.consultation.ConsultationRepository;
 import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.transaction.TransactionDTO;
 import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.user.User;
@@ -47,6 +48,12 @@ public class TransferControllerTest {
 	@Autowired
 	ObjectMapper objectMapper;
 	@Autowired
+	private HistoryRepository historyRepository;
+	@Autowired
+	private ShortcutRepository shortcutRepository;
+	@Autowired
+	private ConsultationRepository consultationRepository;
+	@Autowired
 	UserRepository userRepository;
 	@Autowired
 	AccountRepository accountRepository;
@@ -56,10 +63,6 @@ public class TransferControllerTest {
 	private JwtService jwtService;
 	@Autowired
 	private AuthService authService;
-	@Autowired
-	private ConsultationRepository consultationRepository;
-	@Autowired
-	private HistoryRepository historyRepository;
 
 	private String token;
 	User testUser1, testUser2;
@@ -67,9 +70,10 @@ public class TransferControllerTest {
 
 	@BeforeAll
 	public void setUp() {
-		consultationRepository.deleteAll();
-		historyRepository.deleteAll();
 		accountRepository.deleteAll();
+		consultationRepository.deleteAll();
+		shortcutRepository.deleteAll();
+		historyRepository.deleteAll();
 		userRepository.deleteAll();
 
 		// 테스트용 사용자 생성 및 JWT 토큰 생성

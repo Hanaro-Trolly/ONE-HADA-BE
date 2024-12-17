@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,5 +28,12 @@ public class HistoryController {
 		List<HistoryDTO> histories = historyService.getUserHistories(token);
 
 		return ResponseEntity.ok(new ApiResponse(200, "OK", "활동내역 조회 성공", Map.of("histories", histories)));
+	}
+
+	@PostMapping("")
+	public ResponseEntity<ApiResponse> createHistory(@RequestHeader("Authorization") String token, @RequestBody HistoryDTO history) {
+		HistoryDTO historyDTO = historyService.createHistory(history, token);
+		return ResponseEntity.ok(new ApiResponse(200, "OK", "활동내역 등록 성공", Map.of("historyDTO",
+			historyDTO.getHistoryId())));
 	}
 }
