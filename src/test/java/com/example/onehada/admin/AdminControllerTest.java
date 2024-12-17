@@ -1,4 +1,4 @@
-package com.example.onehada.api.admin;
+package com.example.onehada.admin;
 
 import com.example.onehada.admin.dto.AdminLoginRequestDTO;
 import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;

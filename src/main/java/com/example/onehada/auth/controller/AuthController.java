@@ -35,6 +35,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
+    //토큰 생성 테스트용
     @PostMapping("/jwt")
     public ResponseEntity<?> generateJwt(@RequestBody Map<String, Object> payload) {
         try {
@@ -51,7 +52,7 @@ public class AuthController {
         }
     }
 
-
+    // (비상용) 일반 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO request) {
         try {
