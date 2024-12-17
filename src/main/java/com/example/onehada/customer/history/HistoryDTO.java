@@ -3,6 +3,8 @@ package com.example.onehada.customer.history;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +15,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class HistoryDTO {
 	private Long historyId;
 	private Long userId;
 	private String historyName;
-	private String historyUrl;
 	private Map<String, Object> historyElements;
 	private LocalDateTime activityDate;
 }
