@@ -3,6 +3,7 @@ package com.example.onehada.customer.shortcut;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,5 +20,6 @@ public class ShortcutDTO {
 	private Long userId;
 	private String shortcutName;
 	private Map<String, Object> shortcutElements;
-	private boolean favorite;
+	@JsonProperty("isFavorite")
+	private boolean isFavorite;
 }

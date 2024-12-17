@@ -48,7 +48,7 @@ public class ShortcutService {
 					.shortcutId(shortcut.getShortcutId())
 					.shortcutName(shortcut.getShortcutName())
 					.shortcutElements(shortcutElements)
-					.favorite(shortcut.isFavorite())
+					.isFavorite(shortcut.isFavorite())
 					.build();
 			}).collect(Collectors.toList());
 	}
@@ -119,7 +119,8 @@ public class ShortcutService {
 		return favoriteShortcuts.stream().map(shortcut -> ShortcutDTO.builder()
 			.shortcutId(shortcut.getShortcutId())
 			.shortcutName(shortcut.getShortcutName())
-			.favorite(shortcut.isFavorite())
+			.shortcutElements(getShortcutElements(shortcut))
+			.isFavorite(shortcut.isFavorite())
 			.build()).collect(Collectors.toList());
 	}
 }
