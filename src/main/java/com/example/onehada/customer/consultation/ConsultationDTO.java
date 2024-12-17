@@ -1,4 +1,4 @@
-package com.example.onehada.db.dto;
+package com.example.onehada.customer.consultation;
 
 import java.time.LocalDateTime;
 

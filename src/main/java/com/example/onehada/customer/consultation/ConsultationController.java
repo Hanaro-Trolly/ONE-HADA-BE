@@ -1,4 +1,4 @@
-package com.example.onehada.api.controller;
+package com.example.onehada.customer.consultation;
 
 import java.util.List;
 
@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.onehada.api.service.ConsultationService;
 import com.example.onehada.db.dto.ApiResponse;
-import com.example.onehada.db.dto.ConsultationDTO;
 
 @RestController
 @RequestMapping("/api/consultations")
