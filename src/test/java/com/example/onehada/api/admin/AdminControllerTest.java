@@ -8,7 +8,6 @@ import com.example.onehada.customer.agent.AgentRepository;
 import com.example.onehada.customer.consultation.Consultation;
 import com.example.onehada.customer.consultation.ConsultationRepository;
 import com.example.onehada.customer.history.HistoryRepository;
-import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,9 +52,6 @@ public class AdminControllerTest {
 	@Autowired
 	private HistoryRepository historyRepository;
 
-	@Autowired
-	private ShortcutRepository shortcutRepository;
-
 	private Agent testAgent;
 	private User testUser;
 
@@ -63,7 +59,6 @@ public class AdminControllerTest {
 	void setUp() {
 		// 기존 데이터 정리
 		accountRepository.deleteAll();
-		shortcutRepository.deleteAll();
 		historyRepository.deleteAll();
 		consultationRepository.deleteAll();
 		agentRepository.deleteAll();
