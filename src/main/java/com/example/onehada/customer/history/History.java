@@ -11,6 +11,7 @@ import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,7 +27,6 @@ public class History {
 	@Column(length = 100 , nullable = false)
 	private String historyName;
 
-	@Lob
 	@Column(name = "history_elements", columnDefinition = "JSON")
 	private String historyElements;
 
