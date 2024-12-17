@@ -1,14 +1,11 @@
-package com.example.onehada.api.service;
+package com.example.onehada.customer.consultation;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.db.dto.ConsultationDTO;
-import com.example.onehada.db.entity.Consultation;
-import com.example.onehada.db.repository.ConsultationRepository;
+import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.exception.NotFoundException;
 
 @Service
