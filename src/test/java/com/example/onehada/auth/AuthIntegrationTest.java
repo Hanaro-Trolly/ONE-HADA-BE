@@ -3,6 +3,7 @@ package com.example.onehada.auth;
 import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.dto.AuthResponseDTO;
 import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.redis.RedisService;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
@@ -52,6 +53,8 @@ public class AuthIntegrationTest {
 
 	@Autowired
 	private ShortcutRepository shortcutRepository;
+	@Autowired
+	private TransactionRepository transactionRepository;
 
 	@Autowired
 	private ConsultationRepository consultationRepository;
@@ -61,6 +64,7 @@ public class AuthIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		transactionRepository.deleteAll();
 		consultationRepository.deleteAll();
 		shortcutRepository.deleteAll();
 		historyRepository.deleteAll();
