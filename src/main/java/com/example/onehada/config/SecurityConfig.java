@@ -14,8 +14,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.onehada.security.filter.JwtAuthenticationFilter;
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.api.service.RedisService;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.redis.RedisService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,10 +45,11 @@ public class SecurityConfig {
                     "/",
                     "/auth/login",
                     "/api/cert/**",
-                    "/api/admin/login",
+                    "/api/admin/**",
                     "/api/redis-test/**",
                     "/api/redis/**",
                     "/api/product/**",
+                    "/api/accounts/**",
                     "/api/mongo-test/**",
                     "/api/transfer/**",
                     "/buttons/**",
@@ -69,7 +70,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // "*" 대신 구체적인 출처 지정
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1"));
+        configuration.setAllowedOrigins(List.of("https://onehada.site","https://onehada.site:3000", "http://127.0.0.1","http://localhost:3000"));
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);  // credentials 활성화
