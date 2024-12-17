@@ -37,9 +37,7 @@ public class ShortcutService {
 	public List<ShortcutDTO> getShortcuts(String token){
 		Long userId = getUserIdFromToken(token);
 		List<Shortcut> shortcuts = shortcutRepository.findShortcutByUserUserIdOrderByShortcutIdDesc(userId);
-		if (shortcuts.isEmpty()) {
-			throw new NotFoundException("바로가기가 존재하지 않습니다.");
-		}
+
 		return shortcuts.stream()
 			.map(shortcut -> ShortcutDTO.builder()
 			.shortcutId(shortcut.getShortcutId())
@@ -96,10 +94,6 @@ public class ShortcutService {
 		Long userId = getUserIdFromToken(token);
 		List<Shortcut> favoriteShortcuts =
 			shortcutRepository.findShortcutByUserUserIdAndFavoriteTrueOrderByShortcutIdDesc(userId);
-
-		if (favoriteShortcuts.isEmpty()) {
-			throw new NotFoundException("즐겨찾기 된 바로가기가 없습니다.");
-		}
 
 		return favoriteShortcuts.stream().map(shortcut -> ShortcutDTO.builder()
 			.shortcutId(shortcut.getShortcutId())

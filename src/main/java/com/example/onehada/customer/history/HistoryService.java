@@ -35,9 +35,6 @@ public class HistoryService {
 	public List<HistoryDTO> getUserHistories(String token) {
 		Long userId = getUserIdFromToken(token);
 		List<History> histories = historyRepository.findHistoryByUserUserIdOrderByHistoryIdDesc(userId);
-		if (histories.isEmpty()) {
-			throw new NotFoundException("활동 내역이 존재하지 않습니다.");
-		}
 
 		return histories.stream()
 			.map(history -> {
