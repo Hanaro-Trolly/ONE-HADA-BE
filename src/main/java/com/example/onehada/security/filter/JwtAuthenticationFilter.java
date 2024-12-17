@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 토큰이 블랙리스트에 있는지 확인
             if (redisService.isBlacklisted(jwt)) {
-                ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Token is blacklisted", null);
+                ApiResponse apiResponse = new ApiResponse(403, "FORBIDDEN", "Token is blacklisted", null);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
@@ -55,7 +55,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Redis에서 저장된 액세스 토큰 확인
                 if (jwtService.isValidToken(jwt)) {
 
                     List<SimpleGrantedAuthority> authorities =
@@ -75,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Invalid token", null);
+                    ApiResponse apiResponse = new ApiResponse(400, "BAD_REQUEST", "Invalid token", null);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
                     response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
@@ -89,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
             return;
         } catch (Exception e) {
-            ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Token validation failed", null);
+            ApiResponse apiResponse = new ApiResponse(500, "INTERNAL_SERVER_ERROR", "Token validation failed", null);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));

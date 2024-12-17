@@ -1,6 +1,8 @@
 package com.example.onehada.customer.transaction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.transaction.Transaction;
@@ -15,32 +17,39 @@ public class TransactionDTO {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class transactionDTO{
+	public static class transactionDTO {
 		private Long transactionId;
-		private Long amount;
-		private Long postSenderBalance;
-		private Long postReceiverBalance;
 		private String transactionType;
+		private Long amount;
+		private Long balance;
 		private LocalDateTime transactionDateTime;
-		private String senderView;
-		private String receiverView;
+		private String view;
+
 		// DTO 변환 메서드
 		public static transactionDTO fromEntity(Transaction transaction, Account account) {
-			// 거래 유형 계산
-			String transactionType = transaction.getSenderAccount().equals(account) ? "출금" : "입금";
 
+			// 출금 처리
+			if (transaction.getSenderAccount().equals(account)) {
+				return transactionDTO.builder()
+					.transactionId(transaction.getTransactionId())
+					.amount(transaction.getAmount())
+					.balance(transaction.getPostSenderBalance())
+					.transactionType("출금")
+					.view(transaction.getSenderName())
+					.transactionDateTime(transaction.getTransactionDate())
+					.build();
+			}
 			return transactionDTO.builder()
 				.transactionId(transaction.getTransactionId())
 				.amount(transaction.getAmount())
-				.postSenderBalance(transaction.getPostSenderBalance())
-				.postReceiverBalance(transaction.getPostReceiverBalance())
-				.transactionType(transactionType)
-				.senderView(transaction.getSenderName())
-				.receiverView(transaction.getReceiverName())
+				.balance(transaction.getPostReceiverBalance())
+				.transactionType("입금")
+				.view(transaction.getReceiverName())
 				.transactionDateTime(transaction.getTransactionDate())
 				.build();
 		}
 	}
+
 	@Getter
 	@Builder
 	@NoArgsConstructor
@@ -50,7 +59,14 @@ public class TransactionDTO {
 		private LocalDateTime endDate;
 		private String transactionType;
 		private String keyword;
-		private int page;
-		private int limit;
+
+		public void initDateRange() {
+			if (this.startDate == null) {
+				this.startDate = LocalDateTime.MIN;
+			}
+			if (this.endDate == null) {
+				this.endDate = LocalDateTime.now();
+			}
+		}
 	}
 }
