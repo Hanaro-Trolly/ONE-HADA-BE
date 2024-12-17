@@ -9,9 +9,11 @@ import com.example.onehada.customer.consultation.Consultation;
 import com.example.onehada.customer.consultation.ConsultationRepository;
 import com.example.onehada.customer.history.HistoryRepository;
 import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +57,15 @@ public class AdminControllerTest {
 
 	@Autowired
 	private HistoryRepository historyRepository;
+	@Autowired
+	private TransactionRepository transactionRepository;
 
 	private Agent testAgent;
 	private User testUser;
 
 	@BeforeEach
 	void setUp() {
-		// 기존 데이터 정리
+		transactionRepository.deleteAll();
 		accountRepository.deleteAll();
 		shortcutRepository.deleteAll();
 		historyRepository.deleteAll();
@@ -147,7 +151,6 @@ public class AdminControllerTest {
 			.andExpect(jsonPath("$.data.userBirth").value("19900101"));
 	}
 
-
 	@Test
 	void loginFailTest() throws Exception {
 		AdminLoginRequestDTO request = new AdminLoginRequestDTO();
@@ -180,6 +183,7 @@ public class AdminControllerTest {
 			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
 			.andExpect(jsonPath("$.message").value("상담데이터 추가 중 유저를 찾을 수 없습니다."));
 	}
+
 	@Test
 	void searchUsersByNameTest() throws Exception {
 		mockMvc.perform(get("/api/admin/user/search")
