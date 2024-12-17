@@ -20,4 +20,5 @@ public class RegisterRequestDTO {
 	private String google;
 	private String kakao;
 	private String naver;
+	private String simplePassword;
 }

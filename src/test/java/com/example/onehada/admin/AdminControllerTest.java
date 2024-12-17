@@ -2,6 +2,7 @@ package com.example.onehada.admin;
 
 import com.example.onehada.admin.dto.AdminLoginRequestDTO;
 import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
+import com.example.onehada.admin.dto.UserSearchRequestDTO;
 import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.agent.Agent;
 import com.example.onehada.customer.agent.AgentRepository;
@@ -186,8 +187,12 @@ public class AdminControllerTest {
 
 	@Test
 	void searchUsersByNameTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userName", "테스트"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
@@ -198,8 +203,12 @@ public class AdminControllerTest {
 
 	@Test
 	void searchUsersByBirthTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userBirth", "19900101"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserBirth("19900101");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
@@ -208,9 +217,13 @@ public class AdminControllerTest {
 
 	@Test
 	void searchUsersByNameAndBirthTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userName", "테스트")
-				.param("userBirth", "19900101"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+		request.setUserBirth("19900101");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
@@ -219,23 +232,31 @@ public class AdminControllerTest {
 
 	@Test
 	void searchUsersWithNoParamsTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.code").value(400))
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
 			.andExpect(jsonPath("$.message").value("검색 조건을 입력해주세요."));
 	}
 
+
 	@Test
 	void searchUsersNoResultTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userName", "존재하지않는사용자"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("존재하지않는사용자");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.data").isEmpty());
 	}
-
 	@Test
 	void getConsultationListTest() throws Exception {
 		// 테스트용 상담 데이터 생성

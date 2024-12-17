@@ -12,9 +12,7 @@ import com.example.onehada.auth.dto.SignInResponseDTO;
 import com.example.onehada.auth.dto.SignInResponseDataDTO;
 import com.example.onehada.auth.dto.VerifyPasswordRequestDTO;
 import com.example.onehada.auth.service.AuthService;
-import com.example.onehada.auth.dto.PasswordRequestDTO;
 import com.example.onehada.auth.service.JwtService;
-import com.example.onehada.customer.user.UserService;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.exception.NotFoundException;
@@ -114,22 +112,17 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequestDTO request) {
         try {
+            // Validate simple password
+            if (request.getSimplePassword() == null || request.getSimplePassword().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    new ApiResponse(400, "BAD_REQUEST", "간편 비밀번호를 입력해주세요.", null));
+            }
+
             ApiResponse response = authService.register(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                new ApiResponse(400, "BAD_REQUEST", "필수 정보를 입력해주세요.", null));
-        }
-    }
-
-    @PostMapping("/password")
-    public ResponseEntity<ApiResponse> setPassword(@RequestBody PasswordRequestDTO request) {
-        try {
-            ApiResponse response = authService.setPassword(request);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                new ApiResponse(400, "BAD_REQUEST", "비밀번호를 등록할 수 없습니다.", null));
+                new ApiResponse(400, "BAD_REQUEST", "회원가입에 실패했습니다: " + e.getMessage(), null));
         }
     }
 
