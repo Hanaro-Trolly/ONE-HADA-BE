@@ -8,4 +8,5 @@ import lombok.Setter;
 public class UserSearchRequestDTO {
 	private String userName;
 	private String userBirth;
+	private String userPhone;
 }
