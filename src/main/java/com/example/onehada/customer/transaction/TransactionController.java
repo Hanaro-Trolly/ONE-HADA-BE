@@ -40,7 +40,7 @@ public class TransactionController {
 		// 성공 응답
 		return ResponseEntity.ok(new ApiResponse(200, "OK", "계좌 이체 성공", response));
 	}
-	@GetMapping("/{accountId}")
+	@PostMapping("/{accountId}")
 	public ResponseEntity<?> getTransactions(@PathVariable("accountId") Long accountId,
 		@RequestBody TransactionDTO.transactionRequest request) {
 		List<TransactionDTO.transactionDTO> transactions = transactionService.getTransactions(accountId, request);
