@@ -34,6 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.transaction.Transactional;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -177,28 +179,29 @@ public class AccountControllerTest {
 			.andExpect(jsonPath("$.message").value("User does not have access to this account"));
 	}
 
-	// @Test
-	// @Order(5)
-	// public void testCheckAccountExistence() throws Exception {
-	// 	mockMvc.perform(get("/api/accounts/exist/{accountNumber}", testAccount1.getAccountNumber())
-	// 			.contentType(MediaType.APPLICATION_JSON))
-	// 		.andExpect(status().isOk())
-	// 		.andExpect(jsonPath("$.status").value("200"))
-	// 		.andExpect(jsonPath("$.message").value("계좌 존재 여부 확인 성공"))
-	// 		.andExpect(jsonPath("$.data.accountNumber").value(testAccount1.getAccountNumber()));
-	// }
-	//
-	// @Test
-	// @Order(6)
-	// public void testCheckAccountExistenceNotFound() throws Exception {
-	// 	mockMvc.perform(get("/api/accounts/exist/{accountNumber}", "999-9999-9999")
-	// 			.header("Authorization", "Bearer " + token)
-	// 			.contentType(MediaType.APPLICATION_JSON))
-	// 		.andExpect(status().isOk())
-	// 		.andExpect(jsonPath("$.status").value("200"))
-	// 		.andExpect(jsonPath("$.message").value("계좌 존재 여부 확인 성공"))
-	// 		.andExpect(jsonPath("$.data").doesNotExist());
-	// }
+	@Test
+	@Order(5)
+	public void testCheckAccountExistence() throws Exception {
+		mockMvc.perform(get("/api/accounts/exist/{accountNumber}", testAccount1.getAccountNumber())
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("true"))
+			.andExpect(jsonPath("$.message").value("계좌 존재 여부 확인 성공"))
+			.andExpect(jsonPath("$.data.accountId").value(testAccount1.getAccountId()));
+	}
+
+	@Test
+	@Order(6)
+	public void testCheckAccountExistenceNotFound() throws Exception {
+		mockMvc.perform(get("/api/accounts/exist/{accountNumber}", "999-9999-9999")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value(" AccountNumber: 999-9999-9999"))
+			.andExpect(jsonPath("$.data").doesNotExist());
+	}
 
 	@AfterAll
 	public void AfterAll() {

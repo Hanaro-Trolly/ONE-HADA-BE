@@ -44,7 +44,7 @@ public class ShortcutController {
 	@DeleteMapping("/{shortcutId}")
 	public ResponseEntity<?> deleteShortcut(@PathVariable Long shortcutId) {
 		shortcutService.deleteShortcut(shortcutId);
-		return ResponseEntity.ok(new ApiResponse(200, "OK", "바로가기 삭제 성공", null));
+		return ResponseEntity.ok(new ApiResponse(200, "OK", "바로가기가 삭제되었습니다.", null));
 	}
 
 	@PatchMapping("/{shortcutId}/favorite")

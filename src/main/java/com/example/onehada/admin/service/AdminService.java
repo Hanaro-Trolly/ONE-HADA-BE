@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Comparator;
 import java.util.List;
@@ -144,15 +145,30 @@ public class AdminService {
 		);
 	}
 
-	public List<UserResponseDTO> searchUsers(String userName, String userBirth) {
+	public List<UserResponseDTO> searchUsers(String userName, String userBirth, String userPhone) {
 		List<User> users;
 
-		if (userName != null && userBirth != null) {
+		// 빈 문자열을 null로 변환
+		userName = (userName != null && userName.trim().isEmpty()) ? null : userName;
+		userBirth = (userBirth != null && userBirth.trim().isEmpty()) ? null : userBirth;
+		userPhone = (userPhone != null && userPhone.trim().isEmpty()) ? null : userPhone;
+
+		if (userName != null && userBirth != null && userPhone != null) {
+			users = userRepository.findByUserNameContainingAndUserBirthAndPhoneNumber(userName, userBirth, userPhone);
+		} else if (userName != null && userBirth != null) {
 			users = userRepository.findByUserNameContainingAndUserBirth(userName, userBirth);
+		} else if (userName != null && userPhone != null) {
+			users = userRepository.findByUserNameContainingAndPhoneNumber(userName, userPhone);
+		} else if (userBirth != null && userPhone != null) {
+			users = userRepository.findByUserBirthAndPhoneNumber(userBirth, userPhone);
 		} else if (userName != null) {
 			users = userRepository.findByUserNameContaining(userName);
-		} else {
+		} else if (userBirth != null) {
 			users = userRepository.findByUserBirth(userBirth);
+		} else if (userPhone != null) {
+			users = userRepository.findByPhoneNumber(userPhone);
+		} else {
+			return new ArrayList<>();
 		}
 
 		return users.stream()

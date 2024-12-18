@@ -42,15 +42,26 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**"
+                ).permitAll()
+                .requestMatchers(
                     "/",
                     "/auth/login",
                     "/api/cert/**",
                     "/api/admin/**",
                     "/api/redis-test/**",
                     "/api/redis/**",
+                    "/api/product/**",
                     "/api/accounts/**",
                     "/api/mongo-test/**",
-                    "/users/**",
+                    "/api/transfer/**",
+                    "/buttons/**",
+                    "/product/**",
+                        "/addReco/**",
+                    "/api/button/**",
                     "/ws/**",           // WebSocket 엔드포인트 추가
                     "/ws"              // WebSocket 기본 경로 추가
                 ).permitAll()
