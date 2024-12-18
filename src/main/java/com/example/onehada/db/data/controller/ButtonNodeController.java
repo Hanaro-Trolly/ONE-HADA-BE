@@ -34,7 +34,7 @@ public class ButtonNodeController {
         buttonService.saveButtonLog(userId, buttonId);
         Button button = buttonService.getButtonById(buttonId);
 
-        if ("product".equals(button.getType())) {
+        if (button != null && "product".equals(button.getType())) {
             buttonService.processUserClickHistory(userId);
         }
 
