@@ -25,21 +25,21 @@ public class RecommendService {
         this.productNodeRepository = productNodeRepository;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "neo4jTransactionManager",readOnly = true)
     public List<ProductNode> getTop3RecommendedProducts(String buttonName) {
         return productNodeRepository.findTop3RecommendedProductsByButton(buttonName);
     }
     // @Transactional을 통해 트랜잭션 관리
-    @Transactional
+    @Transactional("transactionManager = \"neo4jTransactionManager\"")
     public ProductNode createProduct(String name) {
         return productNodeRepository.save(new ProductNode(name));
     }
-    @Transactional
+    @Transactional("transactionManager = \"neo4jTransactionManager\"")
     public ButtonNode createButton(String name) {
         return buttonNodeRepository.save(new ButtonNode(name));
     }
 
-@Transactional
+@Transactional("transactionManager = \"neo4jTransactionManager\"")
 public void addRecommend(String buttonName, String productName) {
     Optional<ProductNode> product = productNodeRepository.findById(productName);
     Optional<ButtonNode> button = buttonNodeRepository.findById(buttonName);
@@ -58,11 +58,11 @@ public void addRecommend(String buttonName, String productName) {
         }
     }
 }
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "neo4jTransactionManager",readOnly = true)
     public List<ProductNode> findAllProducts() {
         return productNodeRepository.findAll();
     }
-    @Transactional(readOnly = true)
+    @Transactional(transactionManager = "neo4jTransactionManager",readOnly = true)
     public Set<ProductNode> findRecommends(String productName) {
         return productNodeRepository.findById(productName).map(ProductNode::getRecommendproduct).orElse(Collections.emptySet());
     }

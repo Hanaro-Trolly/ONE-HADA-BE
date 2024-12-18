@@ -31,7 +31,7 @@ public class DataTransferService {
         this.buttonNeo4jRepository = buttonNeo4jRepository;
     }
 
-    @Transactional
+        @Transactional(transactionManager = "neo4jTransactionManager")
     public void transferDataToNeo4j() {
         // Product 데이터 전송
         List<Product> mongoProducts = productMongoRepository.findAll();

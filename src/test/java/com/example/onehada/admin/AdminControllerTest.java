@@ -20,17 +20,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+
 //@WithMockUser(username = "admin", roles = "ADMIN") // jwt 적용 전
 public class AdminControllerTest {
 
@@ -90,6 +95,26 @@ public class AdminControllerTest {
 			.simplePassword("1234")
 			.build());
 	}
+	@Test
+	void testAgentAndUserSavedInDB() {
+		// 상담원이 DB에 저장되었는지 확인
+		assertNotNull(testAgent.getAgentId(), "Agent ID should not be null after saving");
+		assertEquals("test@admin.com", testAgent.getAgentEmail(), "Agent email should match the expected value");
+		assertEquals("테스트 상담원", testAgent.getAgentName(), "Agent name should match the expected value");
+
+		// 사용자 정보가 DB에 저장되었는지 확인
+		assertNotNull(testUser.getUserId(), "User ID should not be null after saving");
+		assertEquals("user@test.com", testUser.getUserEmail(), "User email should match the expected value");
+		assertEquals("테스트 사용자", testUser.getUserName(), "User name should match the expected value");
+	}
+	@Transactional
+	@Test
+	void testAgentAndUserSavedInDB2() {
+		testAgent = agentRepository.save(testAgent);
+		agentRepository.flush();
+		assertNotNull(testAgent.getAgentId(), "Agent ID should not be null after saving");
+	}
+
 
 	@Test
 	void loginTest() throws Exception {
@@ -110,11 +135,15 @@ public class AdminControllerTest {
 	void getAgentsTest() throws Exception {
 		// 상담원 목록 조회
 		mockMvc.perform(get("/api/admin/agent")
-				.param("email", "test@admin.com"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.data[0].agentEmail").value("test@admin.com"));
+						.param("email", "test@admin.com"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.code").value(200))
+				.andExpect(jsonPath("$.data").isArray()) // 데이터가 배열인지 확인
+				.andExpect(jsonPath("$.data.length()").value(1)) // 배열의 길이가 1인지 확인
+				.andExpect(jsonPath("$.data[0].agentEmail").value("test@admin.com"));
 	}
+
 
 	@Test
 	void createAndGetConsultationTest() throws Exception {
