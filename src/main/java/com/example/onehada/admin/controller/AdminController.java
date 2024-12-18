@@ -5,6 +5,8 @@ import com.example.onehada.admin.dto.AdminLoginResponseDTO;
 import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
 import com.example.onehada.admin.dto.UserSearchRequestDTO;
 import com.example.onehada.admin.service.AdminService;
+import com.example.onehada.customer.agent.AgentRepository;
+import com.example.onehada.customer.user.UserRepository;
 import com.example.onehada.db.dto.ApiResponse;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;

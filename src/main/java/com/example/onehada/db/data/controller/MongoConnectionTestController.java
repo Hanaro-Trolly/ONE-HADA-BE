@@ -1,4 +1,4 @@
-package com.example.onehada.db.mongodb.controller;
+package com.example.onehada.db.data.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
