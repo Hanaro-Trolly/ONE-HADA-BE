@@ -73,14 +73,14 @@ public class AdminController {
 
 	@PostMapping("/user/search")
 	public ResponseEntity<?> searchUsers(@RequestBody UserSearchRequestDTO request) {
-		if (request.getUserName() == null && request.getUserBirth() == null) {
+		if (request.getUserName() == null && request.getUserBirth() == null && request.getUserPhone() == null) {
 			return ResponseEntity.badRequest()
 				.body(new ApiResponse(400, "BAD_REQUEST", "검색 조건을 입력해주세요.", null));
 		}
 
 		return ResponseEntity.ok(new ApiResponse(
 			200, "OK", "사용자 검색 성공",
-			adminService.searchUsers(request.getUserName(), request.getUserBirth())
+			adminService.searchUsers(request.getUserName(), request.getUserBirth(), request.getUserPhone())
 		));
 	}
 
