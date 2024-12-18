@@ -2,6 +2,10 @@ package com.example.onehada.db.data.controller;
 
 import com.example.onehada.db.data.ProductNode;
 import com.example.onehada.db.data.service.RecommendService;
+import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.auth.service.JwtService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +16,11 @@ import java.util.Set;
 public class ProductNodeController {
 
     private final RecommendService recommendService;
+    private final JwtService jwtService;
 
-    public ProductNodeController(RecommendService recommendService) {
+    public ProductNodeController(RecommendService recommendService, JwtService jwtService) {
         this.recommendService = recommendService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping//모든 상품
@@ -38,8 +44,12 @@ public class ProductNodeController {
     public Set<ProductNode> getRecommend(@PathVariable String name) {
         return recommendService.findRecommends(name);
     }
-    @GetMapping("/recommend/{buttonName}")//버튼에서 상품추천 상위 3개
-    public List<ProductNode> getRecommendedProducts(@PathVariable String buttonName) {
-        return recommendService.getTop3RecommendedProducts(buttonName);
+
+    @GetMapping("/recommend")
+    public ResponseEntity<ApiResponse> getRecommendedProducts(@RequestHeader("Authorization") String token) {
+        String accessToken = token.replace("Bearer ", "");
+        String userId = jwtService.extractUserId(accessToken).toString();
+        return ResponseEntity.ok(new ApiResponse(200, "OK", "추천 상품 조회 성공", recommendService.getRecommendProducts(userId)));
     }
 }
+

@@ -2,6 +2,7 @@ package com.example.onehada.db.data.service;
 import com.example.onehada.db.data.ButtonNode;
 import com.example.onehada.db.data.ProductNode;
 import com.example.onehada.db.data.repository.ButtonNodeRepository;
+import com.example.onehada.db.data.repository.ButtonRepository;
 import com.example.onehada.db.data.repository.ProductNodeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,17 +19,26 @@ public class RecommendService {
     private final ButtonNodeRepository buttonNodeRepository;
 
     private final ProductNodeRepository productNodeRepository;
+    private final ButtonRepository buttonRepository;
 
     // 생성자 주입
-    public RecommendService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository) {
+    public RecommendService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository, ButtonRepository buttonRepository) {
         this.buttonNodeRepository = buttonNodeRepository;
         this.productNodeRepository = productNodeRepository;
+        this.buttonRepository = buttonRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<ProductNode> getTop3RecommendedProducts(String buttonName) {
-        return productNodeRepository.findTop3RecommendedProductsByButton(buttonName);
+    public List<ProductNode> getRecommendProducts(String userId) {
+        String buttonId = buttonRepository.findMostClickedButtonByUserId(userId);   
+        return productNodeRepository.findTop3RecommendedProductsByButton(buttonId);
     }
+
+    @Transactional(readOnly = true)
+    public String getMostClickedButton(String userId) {
+        return buttonRepository.findMostClickedButtonByUserId(userId);
+    }
+
     // @Transactional을 통해 트랜잭션 관리
     @Transactional
     public ProductNode createProduct(String name) {
