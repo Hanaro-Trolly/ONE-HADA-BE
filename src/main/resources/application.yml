@@ -14,9 +14,9 @@ spring:
     #    password: Hanaro0526!
     #    driver-class-name: com.mysql.cj.jdbc.Driver
     # local testDB
-    url: jdbc:mysql://127.0.0.1:3308/ONEHADA_localDB
-    username: root
-    password: TestRoot
+    url: jdbc:mysql://localhost:3306/ONEHADA_localDB
+    username: Trolli
+    password: Trolli1!
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -43,7 +43,7 @@ spring:
     mongodb:
       #      uri: "mongodb://localhost:27017/User"
 
-      uri: "mongodb+srv://rkdgml3577:rkdgml1234@onehada.vxoq0.mongodb.net/User?retryWrites=true&w=majority"
+      uri: 'mongodb+srv://rkdgml3577:rkdgml1234@onehada.vxoq0.mongodb.net/User?retryWrites=true&w=majority'
 
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 # 최소 256비트 (32바이트) 이상

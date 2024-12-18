@@ -3,6 +3,7 @@ package com.example.onehada.db.data.service;
 import com.example.onehada.db.data.ButtonNode;
 import com.example.onehada.db.data.ProductNode;
 import com.example.onehada.db.data.repository.ButtonNodeRepository;
+import com.example.onehada.db.data.repository.ButtonRepository;
 import com.example.onehada.db.data.repository.ProductNodeRepository;
 
 import org.springframework.stereotype.Service;
@@ -19,12 +20,20 @@ public class RecommendService {
 
 	private final ButtonNodeRepository buttonNodeRepository;
 
-	private final ProductNodeRepository productNodeRepository;
+    private final ProductNodeRepository productNodeRepository;
+    private final ButtonRepository buttonRepository;
 
 	// 생성자 주입
-	public RecommendService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository) {
+	public RecommendService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository, ButtonRepository buttonRepository) {
 		this.buttonNodeRepository = buttonNodeRepository;
 		this.productNodeRepository = productNodeRepository;
+        this.buttonRepository = buttonRepository;
+    }
+
+    @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
+    public List<ProductNode> getRecommendProducts(String userId) {
+        String buttonId = buttonRepository.findMostClickedButtonByUserId(userId);   
+        return productNodeRepository.findTop3RecommendedProductsByButton(buttonId);
 	}
 
 	@Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
@@ -42,6 +51,12 @@ public class RecommendService {
 	public ButtonNode createButton(String name) {
 		return buttonNodeRepository.save(new ButtonNode(name));
 	}
+    @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
+    public String getMostClickedButton(String userId) {
+        return buttonRepository.findMostClickedButtonByUserId(userId);
+    }
+
+
 
 	@Transactional(transactionManager = "neo4jTransactionManager")
 	public void addRecommend(String buttonName, String productName) {
