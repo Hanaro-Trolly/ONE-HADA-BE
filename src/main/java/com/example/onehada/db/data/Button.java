@@ -1,4 +1,5 @@
 package com.example.onehada.db.data;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,9 +12,9 @@ public class Button {
     private String name; // button name
     private String type;
 
-
-    // 기본 생성자
-
+    public Button(String name, String type){
+        this.name = name;
+        this.type = type;
+    }
 
 }
-//

@@ -49,7 +49,7 @@ public class ProductNodeController {
     public ResponseEntity<ApiResponse> getRecommendedProducts(@RequestHeader("Authorization") String token) {
         String accessToken = token.replace("Bearer ", "");
         String userId = jwtService.extractUserId(accessToken).toString();
+        System.out.println("userID: " + userId);
         return ResponseEntity.ok(new ApiResponse(200, "OK", "추천 상품 조회 성공", recommendService.getRecommendProducts(userId)));
     }
 }
-

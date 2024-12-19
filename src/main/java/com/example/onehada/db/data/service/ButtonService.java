@@ -3,6 +3,8 @@ package com.example.onehada.db.data.service;
 import com.example.onehada.db.data.Button;
 import com.example.onehada.db.data.ButtonLog;
 import com.example.onehada.db.data.ButtonSession;
+import com.example.onehada.db.data.repository.ButtonRepository;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,15 +22,17 @@ public class ButtonService {
     private final MongoTemplate mongoTemplate;
 
     private final RecommendService recommendService;  // RecommendService 주입
+    private final ButtonRepository buttonRepository;
 
-    public ButtonService(MongoTemplate mongoTemplate, RecommendService recommendService) {
+    public ButtonService(MongoTemplate mongoTemplate, RecommendService recommendService, ButtonRepository buttonRepository) {
         this.mongoTemplate = mongoTemplate;
         this.recommendService = recommendService;
+        this.buttonRepository = buttonRepository;
     }
 
     public void saveButtonLog(String userId, String buttonId) {
         // 버튼 정보 조회
-        Button button = getButtonById(buttonId);
+        Button button = getButtonByName(buttonId);
 
         // 버튼 로그 생성
         ButtonLog buttonLog = ButtonLog.builder()
@@ -47,6 +51,15 @@ public class ButtonService {
         // buttonId로 버튼 정보 조회
         return mongoTemplate.findById(buttonId, Button.class);
     }
+
+    public Button getButtonByName(String buttonName) {
+        return buttonRepository.findByName(buttonName);
+    }
+
+    public Button saveButton(Button button) {
+        return buttonRepository.save(button);
+    }
+
     public ButtonSession processUserClickHistory(String userId) {
         ButtonLog lastProductClick = mongoTemplate.findOne(
             Query.query(Criteria.where("userId").is(userId)
@@ -55,6 +68,7 @@ public class ButtonService {
                 .limit(1),
             ButtonLog.class
         );
+        // System.out.println("product: "+lastProductClick.getButtonId());
     
         if (lastProductClick == null) return null;
     
@@ -67,7 +81,8 @@ public class ButtonService {
                 .limit(1),
             ButtonLog.class
         );
-    
+        // System.out.println("start: "+startButton.getButtonId());
+
         if (startButton == null) return null;
     
         // 3. 세션 생성 및 추천 관계 추가

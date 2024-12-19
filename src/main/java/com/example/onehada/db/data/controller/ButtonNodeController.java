@@ -4,6 +4,7 @@ import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.db.data.Button;
 import com.example.onehada.db.data.ButtonSession;
 import com.example.onehada.db.data.service.ButtonService;
+import com.example.onehada.db.data.service.RecommendService;
 import com.example.onehada.db.dto.ApiResponse;
 
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,12 @@ public class ButtonNodeController {
     
     private final ButtonService buttonService;
     private final JwtService jwtService;
+    private final RecommendService recommendService;
 
-    public ButtonNodeController(ButtonService buttonService, JwtService jwtService) {
+    public ButtonNodeController(ButtonService buttonService, JwtService jwtService, RecommendService recommendService) {
         this.buttonService = buttonService;
         this.jwtService = jwtService;
+        this.recommendService = recommendService;
     }
 
     @GetMapping("/sessions/{userId}")
@@ -31,10 +34,17 @@ public class ButtonNodeController {
     public ResponseEntity<ApiResponse> logButtonClick(@RequestHeader("Authorization") String token,@PathVariable String buttonId) {
         String accessToken = token.replace("Bearer ", "");
         String userId = jwtService.extractUserId(accessToken).toString();
-        buttonService.saveButtonLog(userId, buttonId);
-        Button button = buttonService.getButtonById(buttonId);
+        Button button = buttonService.getButtonByName(buttonId);
+        System.out.println("Button: " + button);
+        if(button == null) {
+            button = new Button(buttonId, "normal");
 
-        if (button != null && "product".equals(button.getType())) {
+            buttonService.saveButton(button);
+        }
+        buttonService.saveButtonLog(userId, buttonId);
+        // Button button = buttonService.getButtonById(buttonId);
+
+        if ("product".equals(button.getType())) {
             buttonService.processUserClickHistory(userId);
         }
 

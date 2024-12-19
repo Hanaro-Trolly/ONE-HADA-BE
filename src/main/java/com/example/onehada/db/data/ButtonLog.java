@@ -18,6 +18,4 @@ public class ButtonLog {
     private String buttonId;
     private String buttonType;
     private String buttonName;
-
-    // 생성자, getter, setter 등
 }
