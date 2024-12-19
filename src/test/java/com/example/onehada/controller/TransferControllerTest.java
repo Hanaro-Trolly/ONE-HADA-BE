@@ -207,7 +207,7 @@ public class TransferControllerTest {
 			.keyword("")
 			.build();
 		// 거래 내역 조회 요청
-		mockMvc.perform(get("/api/transaction/{accountId}", testToAccount.getAccountId())  // accountId는 테스트용 계좌의 ID
+		mockMvc.perform(post("/api/transaction/{accountId}", testToAccount.getAccountId())  // accountId는 테스트용 계좌의 ID
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
@@ -232,7 +232,7 @@ public class TransferControllerTest {
 			.keyword("")
 			.build();
 
-		mockMvc.perform(get("/api/transaction/{accountId}", testToAccount.getAccountId())
+		mockMvc.perform(post("/api/transaction/{accountId}", testToAccount.getAccountId())
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
@@ -256,7 +256,7 @@ public class TransferControllerTest {
 			.keyword("")
 			.build();
 
-		mockMvc.perform(get("/api/transaction/{accountId}", 99999L)
+		mockMvc.perform(post("/api/transaction/{accountId}", 99999L)
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))

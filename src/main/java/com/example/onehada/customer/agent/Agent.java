@@ -11,7 +11,6 @@ import lombok.*;
 public class Agent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "agent_id")
 	private Long agentId;
 
 	@Column(length = 127, nullable = false)

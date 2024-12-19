@@ -12,14 +12,17 @@ import com.example.onehada.auth.dto.SignInResponseDTO;
 import com.example.onehada.auth.dto.SignInResponseDataDTO;
 import com.example.onehada.auth.dto.VerifyPasswordRequestDTO;
 import com.example.onehada.auth.service.AuthService;
-import com.example.onehada.auth.dto.PasswordRequestDTO;
 import com.example.onehada.auth.service.JwtService;
-import com.example.onehada.customer.user.UserService;
-import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.db.dto.ApiResult;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.exception.NotFoundException;
 import com.example.onehada.exception.UnauthorizedException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/cert")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "인증 관련 API")
+@RequestMapping("/api/cert")
 public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
@@ -75,11 +79,14 @@ public class AuthController {
         return ResponseEntity.ok("Auth test successful!");
     }
 
+    @Operation(summary = "소셜 로그인", description = "소셜 로그인을 처리합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "로그인 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    })
     @PostMapping("/signin")
     public ResponseEntity<SignInResponseDTO> signIn(@RequestBody SignInRequestDTO request) {
         try {
-            // provider와 이메일로 기존 사용자 확인
-            // AuthService를 통해 사용자 조회
             Optional<User> existingUser = authService.findUserBySocialId(request.getProvider(), request.getEmail());
             if (existingUser.isPresent()) {
                 User user = existingUser.get();
@@ -111,52 +118,71 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "회원가입 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    })
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<ApiResult> register(@RequestBody RegisterRequestDTO request) {
         try {
-            ApiResponse response = authService.register(request);
+            // Validate simple password
+            if (request.getSimplePassword() == null || request.getSimplePassword().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    new ApiResult(400, "BAD_REQUEST", "간편 비밀번호를 입력해주세요.", null));
+            }
+
+            ApiResult response = authService.register(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                new ApiResponse(400, "BAD_REQUEST", "필수 정보를 입력해주세요.", null));
+                new ApiResult(400, "BAD_REQUEST", "회원가입에 실패했습니다: " + e.getMessage(), null));
         }
     }
 
-    @PostMapping("/password")
-    public ResponseEntity<ApiResponse> setPassword(@RequestBody PasswordRequestDTO request) {
-        try {
-            ApiResponse response = authService.setPassword(request);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                new ApiResponse(400, "BAD_REQUEST", "비밀번호를 등록할 수 없습니다.", null));
-        }
-    }
-
+    @Operation(summary = "토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "토큰 갱신 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequestDTO request) {
         try {
             AuthResponseDTO newTokens = authService.refreshToken(request.getRefreshToken());
-            return ResponseEntity.ok(new ApiResponse(200, "OK", "토큰 갱신 성공", newTokens));
+            return ResponseEntity.ok(new ApiResult(200, "OK", "토큰 갱신 성공", newTokens));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ApiResponse(401, "UNAUTHORIZED", "토큰 갱신 실패: " + e.getMessage(), null));
+                .body(new ApiResult(401, "UNAUTHORIZED", "토큰 갱신 실패: " + e.getMessage(), null));
         }
     }
 
+    @Operation(summary = "로그아웃", description = "현재 사용자의 토큰을 무효화합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
         try {
             authService.logout(token);  // 전체 토큰 문자열을 전달
-            return ResponseEntity.ok(new ApiResponse(200, "OK", "로그아웃 성공", null));
+            return ResponseEntity.ok(new ApiResult(200, "OK", "로그아웃 성공", null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(400, "BAD_REQUEST", "로그아웃 실패: " + e.getMessage(), null));
+                .body(new ApiResult(400, "BAD_REQUEST", "로그아웃 실패: " + e.getMessage(), null));
         }
     }
 
+    @Operation(summary = "비밀번호 확인", description = "사용자의 간편 비밀번호를 확인합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "비밀번호 확인 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 실패"),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/verify")
-    public ResponseEntity<ApiResponse> verifyPassword(
+    public ResponseEntity<ApiResult> verifyPassword(
         @RequestHeader("Authorization") String token,
         @RequestBody VerifyPasswordRequestDTO request) {
         try {
@@ -169,7 +195,7 @@ public class AuthController {
             // 비밀번호 검증
             authService.verifyPassword(email, request.getSimplePassword());
 
-            return ResponseEntity.ok(new ApiResponse(
+            return ResponseEntity.ok(new ApiResult(
                 200,
                 "OK",
                 "인증 성공",
@@ -177,7 +203,7 @@ public class AuthController {
             ));
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ApiResponse(
+                .body(new ApiResult(
                     404,
                     "NOT_FOUND",
                     "사용자를 찾을 수 없습니다.",
@@ -185,7 +211,7 @@ public class AuthController {
                 ));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ApiResponse(
+                .body(new ApiResult(
                     401,
                     "UNAUTHORIZED",
                     "인증실패: 잘못된 비밀번호 입니다.",

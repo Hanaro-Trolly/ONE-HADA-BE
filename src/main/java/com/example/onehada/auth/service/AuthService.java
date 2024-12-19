@@ -6,9 +6,8 @@ import java.util.stream.Stream;
 
 import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.dto.AuthResponseDTO;
-import com.example.onehada.auth.dto.PasswordRequestDTO;
 import com.example.onehada.auth.dto.RegisterRequestDTO;
-import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.db.dto.ApiResult;
 import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
@@ -91,8 +90,13 @@ public class AuthService {
         return user;
     }
 
-    public ApiResponse register(RegisterRequestDTO request) {
+    public ApiResult register(RegisterRequestDTO request) {
         try {
+            // Validate simple password
+            if (request.getSimplePassword() == null || request.getSimplePassword().length() < 6) {
+                throw new RuntimeException("간편 비밀번호는 6자리 이상이어야 합니다.");
+            }
+
             // 소셜 이메일 확인
             String primaryEmail = Stream.of(request.getGoogle(), request.getKakao(), request.getNaver())
                 .filter(Objects::nonNull)
@@ -116,13 +120,14 @@ public class AuthService {
             // 기존 사용자가 있는 경우
             if (existingUser.isPresent()) {
                 User user = existingUser.get();
-                // 소셜 ID 업데이트
+                // 소셜 ID와 simple password 업데이트
                 if (request.getGoogle() != null) user.setUserGoogleId(request.getGoogle());
                 if (request.getKakao() != null) user.setUserKakaoId(request.getKakao());
                 if (request.getNaver() != null) user.setUserNaverId(request.getNaver());
+                user.setSimplePassword(request.getSimplePassword());  // Update simple password
 
                 userRepository.save(user);
-                return new ApiResponse(200, "EXIST", "계정연동 성공", null);
+                return new ApiResult(200, "EXIST", "계정연동 성공", null);
             }
 
             // 새로운 사용자 생성
@@ -136,11 +141,11 @@ public class AuthService {
                 .userGoogleId(request.getGoogle())
                 .userKakaoId(request.getKakao())
                 .userNaverId(request.getNaver())
-                .simplePassword("000000")  // 초기 비밀번호
+                .simplePassword(request.getSimplePassword())
                 .build();
 
             userRepository.save(newUser);
-            return new ApiResponse(200, "NEW", "회원가입 성공", null);
+            return new ApiResult(200, "NEW", "회원가입 성공", null);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -148,15 +153,6 @@ public class AuthService {
         }
     }
 
-    public ApiResponse setPassword(PasswordRequestDTO request) {
-        User user = userRepository.findByUserEmail(request.getEmail())
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
-
-        user.setSimplePassword(request.getPassword());
-        userRepository.save(user);
-
-        return new ApiResponse(200, "OK", "간편비밀번호 등록 성공", null);
-    }
 
     public AuthResponseDTO refreshToken(String refreshToken) {
         if (!jwtService.isValidToken(refreshToken)) {

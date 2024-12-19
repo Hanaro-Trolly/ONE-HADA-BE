@@ -14,14 +14,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 public class TransactionConfig {
-    @Primary
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
-        return new JpaTransactionManager(entityManagerFactory);
-    }
-    @Qualifier("neo4jTransactionManager")
-    @Bean
-    public PlatformTransactionManager neo4jtransactionManager(Driver driver) {
-        return new Neo4jTransactionManager(driver);
-    }
+	@Primary
+	@Bean
+	public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+		return new JpaTransactionManager(entityManagerFactory);
+	}
+	@Qualifier("neo4jTransactionManager")
+	@Bean
+	public PlatformTransactionManager neo4jtransactionManager(Driver driver) {
+		return new Neo4jTransactionManager(driver);
+	}
 }

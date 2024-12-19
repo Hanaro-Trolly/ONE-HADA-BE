@@ -9,13 +9,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.onehada.customer.account.Account;
-import com.example.onehada.customer.transaction.Transaction;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 	@Query("SELECT t FROM Transaction t WHERE " +
-		"(t.senderAccount = :account AND LOWER(t.senderName) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-		"OR (t.receiverAccount = :account AND LOWER(t.receiverName) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+		"((t.senderAccount = :account AND LOWER(t.receiverName) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+		"OR (t.receiverAccount = :account AND LOWER(t.senderName) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
 		"AND t.transactionDate BETWEEN :startDate AND :endDate")
 	List<Transaction> findByAccountDateRangeAndKeyword(
 		@Param("account") Account account,

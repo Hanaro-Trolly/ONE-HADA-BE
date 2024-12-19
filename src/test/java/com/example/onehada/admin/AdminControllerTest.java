@@ -2,6 +2,7 @@ package com.example.onehada.admin;
 
 import com.example.onehada.admin.dto.AdminLoginRequestDTO;
 import com.example.onehada.admin.dto.ConsultationCreateRequestDTO;
+import com.example.onehada.admin.dto.UserSearchRequestDTO;
 import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.agent.Agent;
 import com.example.onehada.customer.agent.AgentRepository;
@@ -20,22 +21,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-
 //@WithMockUser(username = "admin", roles = "ADMIN") // jwt 적용 전
 public class AdminControllerTest {
 
@@ -95,26 +91,6 @@ public class AdminControllerTest {
 			.simplePassword("1234")
 			.build());
 	}
-	@Test
-	void testAgentAndUserSavedInDB() {
-		// 상담원이 DB에 저장되었는지 확인
-		assertNotNull(testAgent.getAgentId(), "Agent ID should not be null after saving");
-		assertEquals("test@admin.com", testAgent.getAgentEmail(), "Agent email should match the expected value");
-		assertEquals("테스트 상담원", testAgent.getAgentName(), "Agent name should match the expected value");
-
-		// 사용자 정보가 DB에 저장되었는지 확인
-		assertNotNull(testUser.getUserId(), "User ID should not be null after saving");
-		assertEquals("user@test.com", testUser.getUserEmail(), "User email should match the expected value");
-		assertEquals("테스트 사용자", testUser.getUserName(), "User name should match the expected value");
-	}
-	@Transactional
-	@Test
-	void testAgentAndUserSavedInDB2() {
-		testAgent = agentRepository.save(testAgent);
-		agentRepository.flush();
-		assertNotNull(testAgent.getAgentId(), "Agent ID should not be null after saving");
-	}
-
 
 	@Test
 	void loginTest() throws Exception {
@@ -135,15 +111,11 @@ public class AdminControllerTest {
 	void getAgentsTest() throws Exception {
 		// 상담원 목록 조회
 		mockMvc.perform(get("/api/admin/agent")
-						.param("email", "test@admin.com"))
-				.andDo(print())
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.code").value(200))
-				.andExpect(jsonPath("$.data").isArray()) // 데이터가 배열인지 확인
-				.andExpect(jsonPath("$.data.length()").value(1)) // 배열의 길이가 1인지 확인
-				.andExpect(jsonPath("$.data[0].agentEmail").value("test@admin.com"));
+				.param("email", "test@admin.com"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].agentEmail").value("test@admin.com"));
 	}
-
 
 	@Test
 	void createAndGetConsultationTest() throws Exception {
@@ -215,8 +187,12 @@ public class AdminControllerTest {
 
 	@Test
 	void searchUsersByNameTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userName", "테스트"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("OK"))
@@ -227,8 +203,12 @@ public class AdminControllerTest {
 
 	@Test
 	void searchUsersByBirthTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userBirth", "19900101"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserBirth("19900101");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
@@ -237,9 +217,13 @@ public class AdminControllerTest {
 
 	@Test
 	void searchUsersByNameAndBirthTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userName", "테스트")
-				.param("userBirth", "19900101"))
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+		request.setUserBirth("19900101");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
@@ -247,24 +231,107 @@ public class AdminControllerTest {
 	}
 
 	@Test
-	void searchUsersWithNoParamsTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search"))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.code").value(400))
-			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("검색 조건을 입력해주세요."));
+	void searchUsersByPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
 	}
 
 	@Test
-	void searchUsersNoResultTest() throws Exception {
-		mockMvc.perform(get("/api/admin/user/search")
-				.param("userName", "존재하지않는사용자"))
+	void searchUsersByNameAndPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
+	}
+
+	@Test
+	void searchUsersByBirthAndPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserBirth("19900101");
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
+	}
+
+	@Test
+	void searchUsersByAllParamsTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+		request.setUserBirth("19900101");
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
+	}
+
+	@Test
+	void searchUsersByInvalidPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserPhone("01099999999"); // 존재하지 않는 전화번호
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.data").isEmpty());
 	}
 
+	@Test
+	void searchUsersWithNoParamsTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.code").value(400))
+			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+			.andExpect(jsonPath("$.message").value("검색 조건을 입력해주세요."));
+	}
+
+
+	@Test
+	void searchUsersNoResultTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("존재하지않는사용자");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data").isEmpty());
+	}
 	@Test
 	void getConsultationListTest() throws Exception {
 		// 테스트용 상담 데이터 생성

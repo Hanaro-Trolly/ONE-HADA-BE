@@ -1,5 +1,6 @@
 package com.example.onehada.customer.transaction;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class TransactionDTO {
 					.amount(transaction.getAmount())
 					.balance(transaction.getPostSenderBalance())
 					.transactionType("출금")
-					.view(transaction.getSenderName())
+					.view(transaction.getReceiverName())
 					.transactionDateTime(transaction.getTransactionDate())
 					.build();
 			}
@@ -44,7 +45,7 @@ public class TransactionDTO {
 				.amount(transaction.getAmount())
 				.balance(transaction.getPostReceiverBalance())
 				.transactionType("입금")
-				.view(transaction.getReceiverName())
+				.view(transaction.getSenderName())
 				.transactionDateTime(transaction.getTransactionDate())
 				.build();
 		}
@@ -67,6 +68,8 @@ public class TransactionDTO {
 			if (this.endDate == null) {
 				this.endDate = LocalDateTime.now();
 			}
+			this.startDate = this.startDate.toLocalDate().atStartOfDay();
+			this.endDate = this.endDate.toLocalDate().atTime(23, 59, 59, 999999999);
 		}
 	}
 }
