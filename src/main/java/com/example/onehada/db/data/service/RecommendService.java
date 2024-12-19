@@ -50,6 +50,17 @@ public class RecommendService {
 			Aggregation.project().and("$_id").as("buttonId").andExclude("_id")
 		);
 		AggregationResults<ButtonIdDTO> results = mongoTemplate.aggregate(aggregation, "button_logs", ButtonIdDTO.class);
+		if(results.getMappedResults().isEmpty()){
+			aggregation = Aggregation.newAggregation(
+				Aggregation.match(Criteria.where("buttonType").is("start")),
+				Aggregation.group("buttonId").count().as("count"),
+				Aggregation.sort(Sort.by(Sort.Order.desc("count"))),
+				Aggregation.limit(1),
+				Aggregation.project().and("$_id").as("buttonId").andExclude("_id")
+				);
+			results = mongoTemplate.aggregate(aggregation, "button_logs", ButtonIdDTO.class);
+			
+		}
 
         return productNodeRepository.findTop3RecommendedProductsByButton(results.getUniqueMappedResult().getButtonId());
 	}
