@@ -24,7 +24,7 @@ public class ConsultationService {
 
 	public List<ConsultationDTO> getConsultations(String token) {
 		Long userId = getUserIdFromToken(token);
-		List<Consultation> consultations = consultationRepository.findByUserUserId(userId);
+		List<Consultation> consultations = consultationRepository.findByUserUserIdOrderByConsultationIdDesc(userId);
 
 		return consultations.stream().map(consultation -> ConsultationDTO.builder()
 			.userId(consultation.getUser().getUserId())
