@@ -46,10 +46,10 @@ spring:
       uri: 'mongodb+srv://rkdgml3577:rkdgml1234@onehada.vxoq0.mongodb.net/User?retryWrites=true&w=majority'
 
 jwt:
-  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 # 최소 256비트 (32바이트) 이상
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   access:
     token:
-      expiration: 3600000 # 1시간
+      expiration: 36000000 # 10시간 개발 후 15분으로 수정 필요함
   refresh:
     token:
       expiration: 604800000 # 7일

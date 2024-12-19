@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.dto.AuthResponseDTO;
 import com.example.onehada.auth.dto.RegisterRequestDTO;
-import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.db.dto.ApiResult;
 import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
@@ -90,7 +90,7 @@ public class AuthService {
         return user;
     }
 
-    public ApiResponse register(RegisterRequestDTO request) {
+    public ApiResult register(RegisterRequestDTO request) {
         try {
             // Validate simple password
             if (request.getSimplePassword() == null || request.getSimplePassword().length() < 6) {
@@ -127,7 +127,7 @@ public class AuthService {
                 user.setSimplePassword(request.getSimplePassword());  // Update simple password
 
                 userRepository.save(user);
-                return new ApiResponse(200, "EXIST", "계정연동 성공", null);
+                return new ApiResult(200, "EXIST", "계정연동 성공", null);
             }
 
             // 새로운 사용자 생성
@@ -145,7 +145,7 @@ public class AuthService {
                 .build();
 
             userRepository.save(newUser);
-            return new ApiResponse(200, "NEW", "회원가입 성공", null);
+            return new ApiResult(200, "NEW", "회원가입 성공", null);
 
         } catch (Exception e) {
             e.printStackTrace();

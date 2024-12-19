@@ -2,8 +2,14 @@ package com.example.onehada.auth;
 
 import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.dto.AuthResponseDTO;
+import com.example.onehada.auth.dto.RefreshTokenRequestDTO;
+import com.example.onehada.auth.dto.RegisterRequestDTO;
+import com.example.onehada.auth.dto.SignInRequestDTO;
+import com.example.onehada.auth.dto.SignInResponseDTO;
+import com.example.onehada.auth.dto.VerifyPasswordRequestDTO;
 import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.transaction.TransactionRepository;
+import com.example.onehada.db.dto.ApiResult;
 import com.example.onehada.redis.RedisService;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.account.AccountRepository;
@@ -28,6 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Map;
 import java.util.Optional;
 
 @SpringBootTest
@@ -204,6 +211,232 @@ public class AuthIntegrationTest {
 		mockMvc.perform(post("/api/cert/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void RefreshTokenSuccess() throws Exception {
+		// Given - 먼저 로그인
+		AuthRequestDTO request = AuthRequestDTO.builder()
+			.email("test@test.com")
+			.simplePassword("1234")
+			.build();
+
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		AuthResponseDTO response = objectMapper.readValue(
+			loginResult.getResponse().getContentAsString(),
+			AuthResponseDTO.class
+		);
+
+		// When - Refresh Token으로 새 토큰 요청
+		RefreshTokenRequestDTO refreshRequest = RefreshTokenRequestDTO.builder()
+			.refreshToken(response.getRefreshToken())
+			.build();
+
+		MvcResult refreshResult = mockMvc.perform(post("/api/cert/refresh")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(refreshRequest)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		// Then
+		ApiResult apiResult = objectMapper.readValue(
+			refreshResult.getResponse().getContentAsString(),
+			ApiResult.class
+		);
+
+		assertEquals(200, apiResult.getCode());
+		assertNotNull(((Map<String, String>)apiResult.getData()).get("accessToken"));
+		assertNotNull(((Map<String, String>)apiResult.getData()).get("refreshToken"));
+	}
+
+	@Test
+	public void RefreshTokenWithInvalidToken() throws Exception {
+		// Given - 잘못된 Refresh Token
+		RefreshTokenRequestDTO refreshRequest = RefreshTokenRequestDTO.builder()
+			.refreshToken("invalid.refresh.token")
+			.build();
+
+		// When & Then
+		mockMvc.perform(post("/api/cert/refresh")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(refreshRequest)))
+			.andExpect(status().isUnauthorized());
+	}
+
+	// 회원가입 관련 테스트
+	@Test
+	public void RegisterNewUser() throws Exception {
+		// Given
+		RegisterRequestDTO request = RegisterRequestDTO.builder()
+			.name("신규유저")
+			.gender("F")
+			.birth("1995-01-01")
+			.phone("010-9999-8888")
+			.address("서울시 강남구")
+			.google("newuser@gmail.com")
+			.simplePassword("123456")
+			.build();
+
+		// When
+		MvcResult result = mockMvc.perform(post("/api/cert/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		// Then
+		ApiResult response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			ApiResult.class
+		);
+
+		assertEquals(200, response.getCode());
+		assertEquals("NEW", response.getStatus());
+
+		// DB 확인
+		Optional<User> savedUser = userRepository.findByUserGoogleId("newuser@gmail.com");
+		assertTrue(savedUser.isPresent());
+		assertEquals("신규유저", savedUser.get().getUserName());
+	}
+
+	@Test
+	public void RegisterWithInvalidPassword() throws Exception {
+		// Given - 5자리 비밀번호 (최소 6자리 필요)
+		RegisterRequestDTO request = RegisterRequestDTO.builder()
+			.name("신규유저")
+			.gender("F")
+			.birth("1995-01-01")
+			.phone("010-9999-8888")
+			.google("newuser@gmail.com")
+			.simplePassword("12345")  // 5자리 비밀번호
+			.build();
+
+		// When & Then
+		mockMvc.perform(post("/api/cert/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isBadRequest());
+	}
+
+	// 소셜 로그인 관련 테스트
+	@Test
+	public void SignInWithGoogleNewUser() throws Exception {
+		// Given
+		SignInRequestDTO request = SignInRequestDTO.builder()
+			.provider("google")
+			.email("newgoogle@gmail.com")
+			.build();
+
+		// When
+		MvcResult result = mockMvc.perform(post("/api/cert/signin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		// Then
+		SignInResponseDTO response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			SignInResponseDTO.class
+		);
+
+		assertEquals(200, response.getCode());
+		assertEquals("NEW", response.getStatus());
+	}
+
+	@Test
+	public void SignInWithInvalidProvider() throws Exception {
+		// Given
+		SignInRequestDTO request = SignInRequestDTO.builder()
+			.provider("invalid")
+			.email("test@test.com")
+			.build();
+
+		// When & Then
+		MvcResult result = mockMvc.perform(post("/api/cert/signin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isBadRequest())
+			.andReturn();
+
+		SignInResponseDTO response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			SignInResponseDTO.class
+		);
+
+		assertEquals(400, response.getCode());
+		assertEquals("BAD_REQUEST", response.getStatus());
+	}
+
+	// 비밀번호 검증 관련 테스트
+	@Test
+	public void VerifyCorrectPassword() throws Exception {
+		// Given - 먼저 로그인하여 토큰 얻기
+		AuthRequestDTO loginRequest = AuthRequestDTO.builder()
+			.email("test@test.com")
+			.simplePassword("1234")
+			.build();
+
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(loginRequest)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		AuthResponseDTO loginResponse = objectMapper.readValue(
+			loginResult.getResponse().getContentAsString(),
+			AuthResponseDTO.class
+		);
+
+		// When - 비밀번호 검증 요청
+		VerifyPasswordRequestDTO verifyRequest = VerifyPasswordRequestDTO.builder()
+			.simplePassword("1234")
+			.build();
+
+		// Then
+		mockMvc.perform(post("/api/cert/verify")
+				.header("Authorization", "Bearer " + loginResponse.getAccessToken())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(verifyRequest)))
+			.andExpect(status().isOk());
+	}
+
+	@Test
+	public void VerifyIncorrectPassword() throws Exception {
+		// Given - 먼저 로그인하여 토큰 얻기
+		AuthRequestDTO loginRequest = AuthRequestDTO.builder()
+			.email("test@test.com")
+			.simplePassword("1234")
+			.build();
+
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(loginRequest)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		AuthResponseDTO loginResponse = objectMapper.readValue(
+			loginResult.getResponse().getContentAsString(),
+			AuthResponseDTO.class
+		);
+
+		// When - 잘못된 비밀번호로 검증 요청
+		VerifyPasswordRequestDTO verifyRequest = VerifyPasswordRequestDTO.builder()
+			.simplePassword("wrong")
+			.build();
+
+		// Then
+		mockMvc.perform(post("/api/cert/verify")
+				.header("Authorization", "Bearer " + loginResponse.getAccessToken())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(verifyRequest)))
 			.andExpect(status().isUnauthorized());
 	}
 }
