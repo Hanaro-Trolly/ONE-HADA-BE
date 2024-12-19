@@ -1,5 +1,6 @@
 package com.example.onehada.customer.transaction;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,8 @@ public class TransactionDTO {
 			if (this.endDate == null) {
 				this.endDate = LocalDateTime.now();
 			}
+			this.startDate = this.startDate.toLocalDate().atStartOfDay();
+			this.endDate = this.endDate.toLocalDate().atTime(23, 59, 59, 999999999);
 		}
 	}
 }
