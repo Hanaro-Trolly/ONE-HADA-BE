@@ -3,6 +3,8 @@ package com.example.onehada.customer.consultation;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.example.onehada.customer.agent.Agent;
 import com.example.onehada.customer.user.User;
@@ -22,6 +24,7 @@ public class Consultation {
 
 	@ManyToOne
 	@JoinColumn(name="user_id", nullable = false)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
 	@ManyToOne
