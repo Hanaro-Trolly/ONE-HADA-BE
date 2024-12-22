@@ -39,7 +39,7 @@ public class RedisControllerTest {
 	public void testSaveTransferDetails_Success() throws Exception {
 		// 준비: 테스트 데이터를 설정
 		Map<String, String> transferRequest = new HashMap<>();
-		transferRequest.put("key1", "value1");
+		transferRequest.put("key1", "value11");
 		transferRequest.put("key2", "value2");
 
 		// 요청을 보내고 응답 검증
@@ -50,7 +50,7 @@ public class RedisControllerTest {
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("success"))
 			.andExpect(jsonPath("$.message").value("<Redis> 정보저장 -> 정상적으로 수행했습니다."))
-			.andExpect(jsonPath("$.data.key1").value("value1"))
+			.andExpect(jsonPath("$.data.key1").value("value11"))
 			.andExpect(jsonPath("$.data.key2").value("value2"));
 	}
 }
