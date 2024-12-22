@@ -42,10 +42,10 @@ public class TransactionService {
 		if (fromAccountDto.getBalance() < amount) {
 			throw new BadRequestException("잔액이 부족합니다.");
 		}
-		Long postReceiverBalance = toAccountDto.getBalance();
-		Long postSenderBalance = fromAccountDto.getBalance();
 		fromAccountDto.updateBalance(-amount);
 		toAccountDto.updateBalance(amount);
+		Long postReceiverBalance = toAccountDto.getBalance();
+		Long postSenderBalance = fromAccountDto.getBalance();
 
 		User fromUser = userRepository.findById(fromAccountDto.getUserId())
 			.orElseThrow(() -> new NotFoundException("보내는 계좌의 사용자를 찾을 수 없습니다."));
