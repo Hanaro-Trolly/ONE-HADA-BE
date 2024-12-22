@@ -34,6 +34,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -438,5 +440,110 @@ public class AuthIntegrationTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(verifyRequest)))
 			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void loginWithInvalidPassword() throws Exception {
+		// Given
+		AuthRequestDTO request = AuthRequestDTO.builder()
+			.email("test@test.com")
+			.simplePassword("wrongpassword")
+			.build();
+
+		// When & Then
+		mockMvc.perform(post("/api/cert/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isUnauthorized())
+			.andExpect(result -> {
+				String content = result.getResponse().getContentAsString();
+				assertTrue(content.contains("Invalid password"));
+			});
+	}
+
+	@Test
+	public void signInWithKakaoAndNaver() throws Exception {
+		// Test Kakao signin
+		SignInRequestDTO kakaoRequest = SignInRequestDTO.builder()
+			.provider("kakao")
+			.email("kakao@test.com")
+			.build();
+
+		mockMvc.perform(post("/api/cert/signin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(kakaoRequest)))
+			.andExpect(status().isOk());
+
+		// Test Naver signin
+		SignInRequestDTO naverRequest = SignInRequestDTO.builder()
+			.provider("naver")
+			.email("naver@test.com")
+			.build();
+
+		mockMvc.perform(post("/api/cert/signin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(naverRequest)))
+			.andExpect(status().isOk());
+	}
+
+
+	@Test
+	public void testTokenBlacklistAndValidity() throws Exception {
+		// Given
+		String token = "test.token.string";
+		redisService.addToBlacklist(token, 3600L);
+
+		// When & Then
+		assertTrue(redisService.isBlacklisted(token));
+	}
+
+	@Test
+	public void logoutWithInvalidToken() throws Exception {
+		// When & Then
+		mockMvc.perform(post("/api/cert/logout")
+				.header("Authorization", "Bearer invalid.token"))
+			.andExpect(status().isUnauthorized())
+			.andExpect(result -> {
+				ApiResult response = objectMapper.readValue(
+					result.getResponse().getContentAsString(),
+					ApiResult.class
+				);
+				assertEquals("INTERNAL_SERVER_ERROR", response.getStatus());
+				assertTrue(response.getMessage().contains("Token validation failed"));
+			});
+	}
+
+	@Test
+	public void verifyPasswordWithNonexistentUser() throws Exception {
+		// Given - Get a valid token first
+		AuthRequestDTO loginRequest = AuthRequestDTO.builder()
+			.email("test@test.com")
+			.simplePassword("1234")
+			.build();
+
+		MvcResult loginResult = mockMvc.perform(post("/api/cert/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(loginRequest)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		AuthResponseDTO loginResponse = objectMapper.readValue(
+			loginResult.getResponse().getContentAsString(),
+			AuthResponseDTO.class
+		);
+
+		// Delete the user
+		userRepository.deleteAll();
+
+		// When & Then
+		VerifyPasswordRequestDTO verifyRequest = VerifyPasswordRequestDTO.builder()
+			.simplePassword("1234")
+			.build();
+
+		mockMvc.perform(post("/api/cert/verify")
+				.header("Authorization", "Bearer " + loginResponse.getAccessToken())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(verifyRequest)))
+			.andExpect(status().isNotFound());
 	}
 }
