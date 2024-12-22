@@ -61,7 +61,7 @@ public class RedisController {
 			ApiResponse response = new ApiResponse(
 				200,
 				"success",
-				"<Redis> 계좌 이체 필요정보 -> 정상적으로 수행했습니다.",
+				"<Redis> 정보저장 -> 정상적으로 수행했습니다.",
 				transferDetails
 			);
 
