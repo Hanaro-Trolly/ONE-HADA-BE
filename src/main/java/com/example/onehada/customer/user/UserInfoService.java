@@ -69,7 +69,7 @@ public class UserInfoService {
 		String updateUserPhone = userUpdate.getUserPhone();
 		String updateUserAddress = userUpdate.getUserAddress();
 		if (updateUserPhone.isEmpty() && updateUserAddress.isEmpty()) {
-			throw new BadRequestException("잘못된 형식의 데이터 입니다.");
+			throw new BadRequestException("잘못된 형식의 데이터입니다.");
 		}
 		if (!updateUserPhone.isEmpty()) {
 			user.setPhoneNumber(updateUserPhone);

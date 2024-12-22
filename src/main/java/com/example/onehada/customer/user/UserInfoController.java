@@ -38,6 +38,6 @@ public class UserInfoController {
 	@DeleteMapping("")
 	public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String token) {
 		userInfoService.deleteUser(token);
-		return ResponseEntity.ok(new ApiResponse(200, "OK", "사용사 탈퇴 완료", null));
+		return ResponseEntity.ok(new ApiResponse(200, "OK", "사용자 탈퇴 완료", null));
 	}
 }
