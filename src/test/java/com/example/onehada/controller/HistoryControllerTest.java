@@ -125,23 +125,6 @@ public class HistoryControllerTest {
 			.build();
 		historyRepository.save(testHistory2);
 
-		// HistoryDTO testHistory1 = HistoryDTO.builder()
-		// 	.userId(testUser1.getUserId())
-		// 	.historyId(1L)
-		// 	.historyName("History 1")
-		// 	.historyElements(Map.of("type", "transfer", "amount", "1000"))
-		// 	.activityDate(LocalDateTime.now())
-		// 	.build();
-		// testHistoryList.add(testHistory1);
-		// HistoryDTO.builder()
-		// 	.userId(testUser1.getUserId())
-		// 	.historyId(2L)
-		// 	.historyName("History 2")
-		// 	.historyElements(Map.of("type", "deposit", "amount", "2000"))
-		// 	.activityDate(LocalDateTime.now())
-		// 	.build();
-		// testHistoryList.add(testHistory1);
-
 		authService.login(AuthRequestDTO.builder()
 			.email(testUser1.getUserEmail())
 			.simplePassword(testUser1.getSimplePassword())
