@@ -706,4 +706,83 @@ public class AuthIntegrationTest {
 		// 토큰이 블랙리스트에 있는지 확인
 		assertTrue(redisService.isBlacklisted(token));
 	}
+
+	@Test
+	public void signInWithExistingUser() throws Exception {
+		// Given - 기존 유저 생성
+		User existingUser = User.builder()
+			.userName("기존유저")
+			.userGender("M")
+			.userBirth("19900101")
+			.phoneNumber("01012341234")
+			.userEmail("existing@test.com")
+			.userGoogleId("google@test.com")
+			.simplePassword("1234")
+			.build();
+
+		userRepository.save(existingUser);
+
+		// When - 기존 유저로 로그인 시도
+		SignInRequestDTO request = SignInRequestDTO.builder()
+			.provider("google")
+			.email("google@test.com")
+			.build();
+
+		MvcResult result = mockMvc.perform(post("/api/cert/signin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		// Then
+		SignInResponseDTO response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			SignInResponseDTO.class
+		);
+
+		assertEquals(200, response.getCode());
+		assertEquals("EXIST", response.getStatus());
+		assertNotNull(response.getData().getAccessToken());
+		assertNotNull(response.getData().getRefreshToken());
+		assertEquals(String.valueOf(existingUser.getUserId()), response.getData().getUserId());
+	}
+
+	@Test
+	public void logoutWithInvalidBearerToken() throws Exception {
+		// When & Then - 잘못된 Bearer 토큰으로 시도
+		mockMvc.perform(post("/api/cert/logout")
+				.header("Authorization", "Bearer invalid.token"))
+			.andExpect(status().isUnauthorized())
+			.andExpect(result -> {
+				ApiResult response = objectMapper.readValue(
+					result.getResponse().getContentAsString(),
+					ApiResult.class
+				);
+				assertEquals(500, response.getCode());
+				assertEquals("INTERNAL_SERVER_ERROR", response.getStatus());
+				assertEquals("Token validation failed", response.getMessage());
+			});
+	}
+
+
+	@Test
+	public void signInWithMalformedRequest() throws Exception {
+		// Given - 잘못된 형식의 요청
+		String malformedJson = "{\"provider\":\"google\", \"email\":}";  // 유효하지 않은 JSON 형식
+
+		// When & Then
+		mockMvc.perform(post("/api/cert/signin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(malformedJson))
+			.andExpect(status().isInternalServerError())  // JSON 파싱 오류는 500 에러로 처리됨
+			.andExpect(result -> {
+				ApiResult response = objectMapper.readValue(
+					result.getResponse().getContentAsString(),
+					ApiResult.class
+				);
+				assertEquals(500, response.getCode());
+				assertEquals("INTERNAL_SERVER_ERROR", response.getStatus());
+				assertTrue(response.getMessage().contains("JSON parse error"));
+			});
+	}
 }
