@@ -1,8 +1,8 @@
 package com.example.onehada.security.filter;
 
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.api.service.RedisService;
-import com.example.onehada.db.dto.ApiResponse;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.redis.RedisService;
+import com.example.onehada.db.dto.ApiResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -47,15 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 토큰이 블랙리스트에 있는지 확인
             if (redisService.isBlacklisted(jwt)) {
-                ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Token is blacklisted", null);
+                ApiResult apiResult = new ApiResult(403, "FORBIDDEN", "Token is blacklisted", null);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
-                response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+                response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
                 return;
             }
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Redis에서 저장된 액세스 토큰 확인
                 if (jwtService.isValidToken(jwt)) {
 
                     List<SimpleGrantedAuthority> authorities =
@@ -75,24 +74,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Invalid token", null);
+                    ApiResult apiResult = new ApiResult(400, "BAD_REQUEST", "Invalid token", null);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
-                    response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+                    response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
                     return;
                 }
             }
         } catch (ExpiredJwtException e) {
-            ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Token is expired", null);
+            ApiResult apiResult = new ApiResult(401, "UNAUTHORIZED", "Token is expired", null);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
             return;
         } catch (Exception e) {
-            ApiResponse apiResponse = new ApiResponse(401, "UNAUTHORIZED", "Token validation failed", null);
+            ApiResult apiResult = new ApiResult(500, "INTERNAL_SERVER_ERROR", "Token validation failed", null);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResult));
             return;
         }
 

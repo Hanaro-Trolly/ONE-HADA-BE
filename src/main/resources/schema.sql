@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS History (
     history_name varchar(100) not null,
     history_elements JSON,
     activity_date timestamp not null,
-    foreign key (user_id) references user(user_id)
+    foreign key (user_id) references button(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS Shortcut (
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS Shortcut (
     shortcut_name varchar(100) not null,
     shortcut_elements JSON,
     is_favorite boolean not null default false,
-    foreign key (user_id) references user(user_id)
+    foreign key (user_id) references button(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS Agent (
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Consultation (
     consultation_title varchar(100) not null,
     consultation_content varchar(1000),
     consultation_date timestamp not null,
-    foreign key (user_id) references user(user_id),
+    foreign key (user_id) references button(user_id),
     foreign key (agent_id) references agent(agent_id)
 );
 
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS Account (
     account_number varchar(31) not null,
     account_type varchar(31) not null,
     balance bigint not null default 0,
-    foreign key (user_id) references user(user_id)
+    foreign key (user_id) references button(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS Transaction (

@@ -1,22 +1,21 @@
 package com.example.onehada.controller;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.dto.AuthResponse;
-import com.example.onehada.api.auth.service.AuthService;
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.api.service.AccountService;
-import com.example.onehada.db.dto.AccountDTO;
-import com.example.onehada.db.entity.Account;
-import com.example.onehada.db.entity.User;
-import com.example.onehada.db.repository.AccountRepository;
-import com.example.onehada.db.repository.ConsultationRepository;
-import com.example.onehada.db.repository.HistoryRepository;
-import com.example.onehada.db.repository.UserRepository;
+import com.example.onehada.auth.dto.AuthRequestDTO;
+import com.example.onehada.auth.service.AuthService;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.account.AccountService;
+import com.example.onehada.customer.account.Account;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -28,8 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.List;
+import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,9 +52,17 @@ public class AccountControllerTest {
 	@Autowired
 	private JwtService jwtService;
 	@Autowired
+	private HistoryRepository historyRepository;
+	@Autowired
+	private ShortcutRepository shortcutRepository;
+	@Autowired
+	private ConsultationRepository consultationRepository;
+	@Autowired
 	private UserRepository userRepository;
 	@Autowired
 	private AccountRepository accountRepository;
+	@Autowired
+	private TransactionRepository transactionRepository;
 	@Autowired
 	private AuthService authService;
 
@@ -68,7 +73,11 @@ public class AccountControllerTest {
 
 	@BeforeAll
 	public void setUp() {
+		transactionRepository.deleteAll();
 		accountRepository.deleteAll();
+		consultationRepository.deleteAll();
+		shortcutRepository.deleteAll();
+		historyRepository.deleteAll();
 		userRepository.deleteAll();
 
 		// 테스트용 사용자 생성 및 JWT 토큰 생성
@@ -114,7 +123,7 @@ public class AccountControllerTest {
 			.build();
 		accountRepository.save(testAccount2);
 
-		authService.login(AuthRequest.builder()
+		authService.login(AuthRequestDTO.builder()
 			.email(testUser1.getUserEmail())
 			.simplePassword(testUser1.getSimplePassword())
 			.build());
@@ -170,28 +179,29 @@ public class AccountControllerTest {
 			.andExpect(jsonPath("$.message").value("User does not have access to this account"));
 	}
 
-	// @Test
-	// @Order(5)
-	// public void testCheckAccountExistence() throws Exception {
-	// 	mockMvc.perform(get("/api/accounts/exist/{accountNumber}", testAccount1.getAccountNumber())
-	// 			.contentType(MediaType.APPLICATION_JSON))
-	// 		.andExpect(status().isOk())
-	// 		.andExpect(jsonPath("$.status").value("200"))
-	// 		.andExpect(jsonPath("$.message").value("계좌 존재 여부 확인 성공"))
-	// 		.andExpect(jsonPath("$.data.accountNumber").value(testAccount1.getAccountNumber()));
-	// }
-	//
-	// @Test
-	// @Order(6)
-	// public void testCheckAccountExistenceNotFound() throws Exception {
-	// 	mockMvc.perform(get("/api/accounts/exist/{accountNumber}", "999-9999-9999")
-	// 			.header("Authorization", "Bearer " + token)
-	// 			.contentType(MediaType.APPLICATION_JSON))
-	// 		.andExpect(status().isOk())
-	// 		.andExpect(jsonPath("$.status").value("200"))
-	// 		.andExpect(jsonPath("$.message").value("계좌 존재 여부 확인 성공"))
-	// 		.andExpect(jsonPath("$.data").doesNotExist());
-	// }
+	@Test
+	@Order(5)
+	public void testCheckAccountExistence() throws Exception {
+		mockMvc.perform(get("/api/accounts/exist/{accountNumber}", testAccount1.getAccountNumber())
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("true"))
+			.andExpect(jsonPath("$.message").value("계좌 존재 여부 확인 성공"))
+			.andExpect(jsonPath("$.data.accountId").value(testAccount1.getAccountId()));
+	}
+
+	@Test
+	@Order(6)
+	public void testCheckAccountExistenceNotFound() throws Exception {
+		mockMvc.perform(get("/api/accounts/exist/{accountNumber}", "999-9999-9999")
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value(" AccountNumber: 999-9999-9999"))
+			.andExpect(jsonPath("$.data").doesNotExist());
+	}
 
 	@AfterAll
 	public void AfterAll() {

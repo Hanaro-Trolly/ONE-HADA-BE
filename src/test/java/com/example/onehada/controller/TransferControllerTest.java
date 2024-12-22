@@ -5,9 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-import org.junit.After;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
@@ -22,16 +20,19 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.onehada.api.auth.dto.AuthRequest;
-import com.example.onehada.api.auth.service.AuthService;
-import com.example.onehada.api.auth.service.JwtService;
-import com.example.onehada.db.dto.AccountDTO;
-import com.example.onehada.db.dto.TransactionDTO;
-import com.example.onehada.db.entity.Account;
-import com.example.onehada.db.entity.User;
-import com.example.onehada.db.repository.AccountRepository;
-import com.example.onehada.db.repository.TransactionRepository;
-import com.example.onehada.db.repository.UserRepository;
+import com.example.onehada.auth.dto.AuthRequestDTO;
+import com.example.onehada.auth.service.AuthService;
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.account.AccountDTO;
+import com.example.onehada.customer.transaction.TransactionDTO;
+import com.example.onehada.customer.account.Account;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -46,6 +47,12 @@ public class TransferControllerTest {
 	private MockMvc mockMvc;
 	@Autowired
 	ObjectMapper objectMapper;
+	@Autowired
+	private HistoryRepository historyRepository;
+	@Autowired
+	private ShortcutRepository shortcutRepository;
+	@Autowired
+	private ConsultationRepository consultationRepository;
 	@Autowired
 	UserRepository userRepository;
 	@Autowired
@@ -63,7 +70,11 @@ public class TransferControllerTest {
 
 	@BeforeAll
 	public void setUp() {
+		transactionRepository.deleteAll();
 		accountRepository.deleteAll();
+		consultationRepository.deleteAll();
+		shortcutRepository.deleteAll();
+		historyRepository.deleteAll();
 		userRepository.deleteAll();
 
 		// 테스트용 사용자 생성 및 JWT 토큰 생성
@@ -109,7 +120,7 @@ public class TransferControllerTest {
 			.build();
 		accountRepository.save(testToAccount);
 
-		authService.login(AuthRequest.builder()
+		authService.login(AuthRequestDTO.builder()
 			.email(testUser1.getUserEmail())
 			.simplePassword(testUser1.getSimplePassword())
 			.build());
@@ -157,7 +168,7 @@ public class TransferControllerTest {
 				.content(new ObjectMapper().writeValueAsString(transferRequest)))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("잔액 부족"));
+			.andExpect(jsonPath("$.message").value("잔액이 부족합니다."));
 	}
 	// 계좌 정보가 존재하지 않는 경우 테스트
 	@Test
@@ -176,9 +187,9 @@ public class TransferControllerTest {
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(transferRequest)))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-			.andExpect(jsonPath("$.message").value("계좌를 찾을 수 없습니다."));
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.message").value("받는 계좌를 찾을 수 없습니다."));
 	}
 
 	// 거래 내역 조회 테스트
@@ -192,13 +203,11 @@ public class TransferControllerTest {
 		TransactionDTO.transactionRequest request = TransactionDTO.transactionRequest.builder()
 			.startDate(startDate)
 			.endDate(now())
-			.transactionType("출금")
+			.transactionType("전체")
 			.keyword("")
-			.page(1)
-			.limit(5)
 			.build();
 		// 거래 내역 조회 요청
-		mockMvc.perform(get("/api/transaction/{accountId}", testToAccount.getAccountId())  // accountId는 테스트용 계좌의 ID
+		mockMvc.perform(post("/api/transaction/{accountId}", testToAccount.getAccountId())  // accountId는 테스트용 계좌의 ID
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
@@ -221,11 +230,9 @@ public class TransferControllerTest {
 			.endDate(now())
 			.transactionType("출금")
 			.keyword("")
-			.page(1)
-			.limit(5)
 			.build();
 
-		mockMvc.perform(get("/api/transaction/{accountId}", testToAccount.getAccountId())
+		mockMvc.perform(post("/api/transaction/{accountId}", testToAccount.getAccountId())
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
@@ -245,13 +252,11 @@ public class TransferControllerTest {
 		TransactionDTO.transactionRequest request = TransactionDTO.transactionRequest.builder()
 			.startDate(startDate)
 			.endDate(now())
-			.transactionType("출금")
+			.transactionType("전체")
 			.keyword("")
-			.page(1)
-			.limit(5)
 			.build();
 
-		mockMvc.perform(get("/api/transaction/{accountId}", 99999L)
+		mockMvc.perform(post("/api/transaction/{accountId}", 99999L)
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
