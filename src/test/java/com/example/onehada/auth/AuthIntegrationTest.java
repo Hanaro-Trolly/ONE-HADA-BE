@@ -94,11 +94,6 @@ public class AuthIntegrationTest {
 
 	@Test
 	public void setUptest() {
-		// Given 유저 생성
-
-		// When 저장
-
-		// Then
 		Optional<User> retrievedUser = userRepository.findByUserEmail("test@test.com");
 		assertTrue(retrievedUser.isPresent(), "User should be saved in the database");
 
@@ -545,5 +540,170 @@ public class AuthIntegrationTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(verifyRequest)))
 			.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void registerExistingUserWithSocialAccount() throws Exception {
+		// Given - Create an existing user first
+		User existingUser = User.builder()
+			.userName("기존유저")
+			.userGender("M")
+			.userBirth("19900101")
+			.phoneNumber("01012341234")
+			.userEmail("existing@test.com")
+			.simplePassword("oldpass")
+			.build();
+
+		userRepository.save(existingUser);
+
+		// When - Try to register with same personal info but different social accounts
+		RegisterRequestDTO request = RegisterRequestDTO.builder()
+			.name("기존유저")
+			.gender("M")
+			.birth("1990-01-01")
+			.phone("010-1234-1234")
+			.address("서울시 강남구")
+			.google("google@test.com")
+			.kakao("kakao@test.com")
+			.naver("naver@test.com")
+			.simplePassword("newpass")
+			.build();
+
+		MvcResult result = mockMvc.perform(post("/api/cert/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		// Then
+		ApiResult response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			ApiResult.class
+		);
+
+		assertEquals(200, response.getCode());
+		assertEquals("EXIST", response.getStatus());
+
+		// Verify user was updated correctly
+		Optional<User> updatedUser = userRepository.findById(existingUser.getUserId());
+		assertTrue(updatedUser.isPresent());
+		User user = updatedUser.get();
+
+		assertEquals("google@test.com", user.getUserGoogleId());
+		assertEquals("kakao@test.com", user.getUserKakaoId());
+		assertEquals("naver@test.com", user.getUserNaverId());
+		assertEquals("newpass", user.getSimplePassword());
+	}
+
+	@Test
+	public void registerExistingUserWithPartialSocialAccounts() throws Exception {
+		// Given - Create an existing user first
+		User existingUser = User.builder()
+			.userName("기존유저")
+			.userGender("F")
+			.userBirth("19951231")
+			.phoneNumber("01098765432")
+			.userEmail("existing@test.com")
+			.simplePassword("oldpass")
+			.build();
+
+		userRepository.save(existingUser);
+
+		// When - Try to register with same personal info but only Google social account
+		RegisterRequestDTO request = RegisterRequestDTO.builder()
+			.name("기존유저")
+			.gender("F")
+			.birth("1995-12-31")
+			.phone("010-9876-5432")
+			.address("서울시 서초구")
+			.google("google@test.com")  // Only providing Google account
+			.simplePassword("newpass")
+			.build();
+
+		MvcResult result = mockMvc.perform(post("/api/cert/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		// Then
+		ApiResult response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			ApiResult.class
+		);
+
+		assertEquals(200, response.getCode());
+		assertEquals("EXIST", response.getStatus());
+
+		// Verify user was updated correctly
+		Optional<User> updatedUser = userRepository.findById(existingUser.getUserId());
+		assertTrue(updatedUser.isPresent());
+		User user = updatedUser.get();
+
+		assertEquals("google@test.com", user.getUserGoogleId());
+		assertNull(user.getUserKakaoId());
+		assertNull(user.getUserNaverId());
+		assertEquals("newpass", user.getSimplePassword());
+	}
+
+	@Test
+	public void testIsTokenValidWithValidCredentials() throws Exception {
+		// Given - 로그인하여 유효한 토큰 얻기
+		AuthRequestDTO request = AuthRequestDTO.builder()
+			.email("test@test.com")
+			.simplePassword("1234")
+			.build();
+
+		MvcResult result = mockMvc.perform(post("/api/cert/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		AuthResponseDTO response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			AuthResponseDTO.class
+		);
+
+		// When & Then - 엑세스 토큰으로 보호된 엔드포인트 접근
+		mockMvc.perform(get("/api/cert/test")
+				.header("Authorization", "Bearer " + response.getAccessToken()))
+			.andExpect(status().isOk());
+
+		// 토큰 블랙리스트에 없는지 확인
+		assertFalse(redisService.isBlacklisted(response.getAccessToken()));
+	}
+
+	@Test
+	public void testTokenExpirationValidation() throws Exception {
+		// Given - 로그인하여 토큰 얻기
+		AuthRequestDTO request = AuthRequestDTO.builder()
+			.email("test@test.com")
+			.simplePassword("1234")
+			.build();
+
+		MvcResult result = mockMvc.perform(post("/api/cert/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		AuthResponseDTO response = objectMapper.readValue(
+			result.getResponse().getContentAsString(),
+			AuthResponseDTO.class
+		);
+
+		String token = response.getAccessToken();
+
+		// When - 토큰을 블랙리스트에 추가
+		redisService.addToBlacklist(token, 3600L);
+
+		// Then - 블랙리스트에 있는 토큰으로 접근 시도
+		mockMvc.perform(get("/api/cert/test")
+				.header("Authorization", "Bearer " + token))
+			.andExpect(status().isUnauthorized());
+
+		// 토큰이 블랙리스트에 있는지 확인
+		assertTrue(redisService.isBlacklisted(token));
 	}
 }
