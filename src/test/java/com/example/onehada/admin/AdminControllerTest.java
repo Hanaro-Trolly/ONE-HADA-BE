@@ -231,6 +231,81 @@ public class AdminControllerTest {
 	}
 
 	@Test
+	void searchUsersByPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
+	}
+
+	@Test
+	void searchUsersByNameAndPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
+	}
+
+	@Test
+	void searchUsersByBirthAndPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserBirth("19900101");
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
+	}
+
+	@Test
+	void searchUsersByAllParamsTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserName("테스트");
+		request.setUserBirth("19900101");
+		request.setUserPhone("01012345678");
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data[0].userName").value("테스트 사용자"))
+			.andExpect(jsonPath("$.data[0].userBirth").value("19900101"))
+			.andExpect(jsonPath("$.data[0].userPhone").value("01012345678"));
+	}
+
+	@Test
+	void searchUsersByInvalidPhoneTest() throws Exception {
+		UserSearchRequestDTO request = new UserSearchRequestDTO();
+		request.setUserPhone("01099999999"); // 존재하지 않는 전화번호
+
+		mockMvc.perform(post("/api/admin/user/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.data").isEmpty());
+	}
+
+	@Test
 	void searchUsersWithNoParamsTest() throws Exception {
 		UserSearchRequestDTO request = new UserSearchRequestDTO();
 
