@@ -14,9 +14,9 @@ spring:
     #    password: Hanaro0526!
     #    driver-class-name: com.mysql.cj.jdbc.Driver
     # local testDB
-    url: jdbc:mysql://localhost:3306/ONEHADA_localDB
-    username: Trolli
-    password: Trolli1!
+    url: jdbc:mysql://127.0.0.1:3308/ONEHADA_localDB
+    username: root
+    password: TestRoot
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

@@ -4,7 +4,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.MethodOrderer;
@@ -76,4 +78,23 @@ public class RedisControllerTest {
 	// 		.andExpect(jsonPath("$.message").value("계좌 이체 정보를 저장하는 중 오류가 발생했습니다: Redis 오류"))
 	// 		.andExpect(jsonPath("$.data").isEmpty());
 	// }
+
+	@Test
+	@Order(3)
+	public void testGetValidationValue_Success() throws Exception {
+		List<String> keys = Arrays.asList("key1", "key2");
+		Map<String, String> redisMockData = new HashMap<>();
+
+		String requestBody = objectMapper.writeValueAsString(keys);
+
+		mockMvc.perform(post("/api/redis/get")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.message").value("<Redis> 단일 정보 조회 -> 응답을 정상적으로 수행했습니다."))
+			.andExpect(jsonPath("$.data.key1").value("value11"))
+			.andExpect(jsonPath("$.data.key2").value("value2"));
+	}
 }
