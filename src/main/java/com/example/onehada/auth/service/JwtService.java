@@ -78,10 +78,10 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public boolean isTokenValid(String token, String userEmail) {
-        final String email = extractEmail(token);
-        return (email.equals(userEmail)) && !isTokenExpired(token);
-    }
+    // public boolean isTokenValid(String token, String userEmail) {
+    //     final String email = extractEmail(token);
+    //     return (email.equals(userEmail)) && !isTokenExpired(token);
+    // }
 
 
     public boolean isValidToken(String token) {

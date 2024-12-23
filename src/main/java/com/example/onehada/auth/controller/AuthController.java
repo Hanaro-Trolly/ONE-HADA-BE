@@ -40,21 +40,21 @@ public class AuthController {
     private final JwtService jwtService;
 
     //토큰 생성 테스트용
-    @PostMapping("/jwt")
-    public ResponseEntity<?> generateJwt(@RequestBody Map<String, Object> payload) {
-        try {
-
-            String email = (String) payload.get("email");
-            String name = (String) payload.get("name");
-            Long userId = (Long) payload.get("userId");
-
-            AuthResponseDTO tokens = authService.generateTokens(email, name, userId);
-            return ResponseEntity.ok(tokens);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse(e.getMessage()));
-        }
-    }
+    // @PostMapping("/jwt")
+    // public ResponseEntity<?> generateJwt(@RequestBody Map<String, Object> payload) {
+    //     try {
+    //
+    //         String email = (String) payload.get("email");
+    //         String name = (String) payload.get("name");
+    //         Long userId = (Long) payload.get("userId");
+    //
+    //         AuthResponseDTO tokens = authService.generateTokens(email, name, userId);
+    //         return ResponseEntity.ok(tokens);
+    //     } catch (RuntimeException e) {
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+    //             .body(new ErrorResponse(e.getMessage()));
+    //     }
+    // }
 
     // (비상용) 일반 로그인
     @PostMapping("/login")
@@ -210,9 +210,9 @@ public class AuthController {
                     null
                 ));
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.ok()
                 .body(new ApiResult(
-                    401,
+                    200,
                     "UNAUTHORIZED",
                     "인증실패: 잘못된 비밀번호 입니다.",
                     null

@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
-import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -66,7 +64,7 @@ public class HistoryService {
 			.build();
 	}
 
-	private static Map<String, Object> getHistoryElements(History history) {
+	public static Map<String, Object> getHistoryElements(History history) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Map<String, Object> historyElements;
 		try {
@@ -76,7 +74,7 @@ public class HistoryService {
 				}
 			);
 		} catch (Exception e) {
-			throw new RuntimeException("JSON 파싱 에러: " + e.getMessage(), e);
+			throw new RuntimeException("올바른 JSON 형식이 아닙니다.");
 		}
 		return historyElements;
 	}
@@ -91,13 +89,15 @@ public class HistoryService {
 		newHistory.setActivityDate(history.getActivityDate());
 
 		ObjectMapper objectMapper = new ObjectMapper();
+		String elements;
 		try {
-			String elements = objectMapper.writeValueAsString(history.getHistoryElements());
-			newHistory.setHistoryElements(elements);
-			historyRepository.save(newHistory);
-		} catch (JsonProcessingException e) {
-			throw new BadRequestException("잘못된 요청입니다." + e.getMessage());
+			elements = objectMapper.writeValueAsString(history.getHistoryElements());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
+		newHistory.setHistoryElements(elements);
+			historyRepository.save(newHistory);
+
 		return HistoryDTO.builder().historyId(newHistory.getHistoryId()).build();
 	}
 }
