@@ -115,4 +115,18 @@ public class RedisControllerTest {
 			.andExpect(jsonPath("$.data.key2").value("updatedValue2"));
 	}
 
+	@Test
+	@Order(4)
+	public void testDeleteTransferDetails_Success() throws Exception {
+		List<String> keys = Arrays.asList("key1", "key2");
+
+		mockMvc.perform(post("/api/redis/delete")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(keys)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.message").value("<Redis> -> 삭제가 정상적으로 수행되었습니다."))
+			.andExpect(jsonPath("$.data").isArray());
+	}
 }
