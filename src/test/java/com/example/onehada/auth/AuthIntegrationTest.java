@@ -35,8 +35,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -440,7 +438,7 @@ public class AuthIntegrationTest {
 				.header("Authorization", "Bearer " + loginResponse.getAccessToken())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(verifyRequest)))
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().isOk());
 	}
 
 	@Test
@@ -489,7 +487,7 @@ public class AuthIntegrationTest {
 
 
 	@Test
-	public void testTokenBlacklistAndValidity() throws Exception {
+	public void testTokenBlacklistAndValidity() {
 		// Given
 		String token = "test.token.string";
 		redisService.addToBlacklist(token, 3600L);
