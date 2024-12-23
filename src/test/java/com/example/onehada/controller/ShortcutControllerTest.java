@@ -24,10 +24,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.service.AuthService;
 import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.agent.AgentRepository;
+import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
 import com.example.onehada.customer.shortcut.Shortcut;
 import com.example.onehada.customer.shortcut.ShortcutDTO;
 import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.shortcut.ShortcutService;
+import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,7 +58,22 @@ public class ShortcutControllerTest {
 	private AuthService authService;
 
 	@Autowired
+	private HistoryRepository historyRepository;
+
+	@Autowired
 	private ShortcutRepository shortcutRepository;
+
+	@Autowired
+	private ConsultationRepository consultationRepository;
+
+	@Autowired
+	private AccountRepository accountRepository;
+
+	@Autowired
+	private AgentRepository agentRepository;
+
+	@Autowired
+	private TransactionRepository transactionRepository;
 
 
 	private String token;
@@ -65,6 +85,12 @@ public class ShortcutControllerTest {
 
 	@BeforeAll
 	public void setUp() {
+		transactionRepository.deleteAll();
+		accountRepository.deleteAll();
+		shortcutRepository.deleteAll();
+		historyRepository.deleteAll();
+		consultationRepository.deleteAll();
+		agentRepository.deleteAll();
 		userRepository.deleteAll();
 
 		User testUser1 = User.builder()
@@ -93,6 +119,7 @@ public class ShortcutControllerTest {
 			.shortcutElements("{\"key1\":\"value1\",\"key2\":\"value2\"}")
 			.build();
 		shortcutRepository.save(testShortcut2);
+
 
 		authService.login(AuthRequestDTO.builder()
 			.email(testUser1.getUserEmail())

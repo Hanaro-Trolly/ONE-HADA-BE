@@ -27,6 +27,7 @@ import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.service.AuthService;
 import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.account.AccountRepository;
+import com.example.onehada.customer.agent.AgentRepository;
 import com.example.onehada.customer.consultation.ConsultationRepository;
 import com.example.onehada.customer.history.History;
 import com.example.onehada.customer.history.HistoryDTO;
@@ -38,10 +39,13 @@ import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.transaction.Transactional;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class HistoryControllerTest {
 
 	@Autowired
@@ -75,6 +79,9 @@ public class HistoryControllerTest {
 	private AccountRepository accountRepository;
 
 	@Autowired
+	private AgentRepository agentRepository;
+
+	@Autowired
 	private TransactionRepository transactionRepository;
 
 	private String token;
@@ -83,10 +90,13 @@ public class HistoryControllerTest {
 
 	@BeforeAll
 	public void setUp() {
+
 		transactionRepository.deleteAll();
 		accountRepository.deleteAll();
-		consultationRepository.deleteAll();
 		shortcutRepository.deleteAll();
+		historyRepository.deleteAll();
+		consultationRepository.deleteAll();
+		agentRepository.deleteAll();
 		userRepository.deleteAll();
 
 		testUser1 = User.builder()
@@ -243,14 +253,5 @@ public class HistoryControllerTest {
 		Exception exception = assertThrows(RuntimeException.class, () -> historyService.createHistory(historyDTO, "Bearer " + token));
 
 		assertNotNull(exception.getMessage());
-	}
-
-	@AfterAll
-	public void afterAll() {
-		transactionRepository.deleteAll();
-		accountRepository.deleteAll();
-		consultationRepository.deleteAll();
-		shortcutRepository.deleteAll();
-		userRepository.deleteAll();
 	}
 }

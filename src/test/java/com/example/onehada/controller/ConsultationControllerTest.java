@@ -22,23 +22,27 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.onehada.auth.dto.AuthRequestDTO;
 import com.example.onehada.auth.service.AuthService;
 import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.agent.Agent;
 import com.example.onehada.customer.agent.AgentRepository;
 import com.example.onehada.customer.consultation.Consultation;
 import com.example.onehada.customer.consultation.ConsultationRepository;
+import com.example.onehada.customer.history.HistoryRepository;
+import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class ConsultationControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
-
-	@Autowired
-	private UserRepository userRepository;
 
 	@Autowired
 	private JwtService jwtService;
@@ -47,15 +51,37 @@ public class ConsultationControllerTest {
 	private AuthService authService;
 
 	@Autowired
-	private AgentRepository agentRepository;
+	private AccountRepository accountRepository;
+
+	@Autowired
+	private HistoryRepository historyRepository;
+
+	@Autowired
+	private ShortcutRepository shortcutRepository;
+
+	@Autowired
+	private TransactionRepository transactionRepository;
 
 	@Autowired
 	private ConsultationRepository consultationRepository;
+
+	@Autowired
+	private AgentRepository agentRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+
 
 	private String token;
 
 	@BeforeAll
 	public void setUp() {
+		transactionRepository.deleteAll();
+		accountRepository.deleteAll();
+		shortcutRepository.deleteAll();
+		historyRepository.deleteAll();
+		consultationRepository.deleteAll();
+		agentRepository.deleteAll();
 		userRepository.deleteAll();
 
 		User testUser1 = User.builder()
@@ -112,11 +138,5 @@ public class ConsultationControllerTest {
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data.consultations[0].consultationTitle").value("Test Consultation title2"))
 			.andDo(print());
-	}
-
-	@Test
-	@AfterAll
-	public void afterAll() {
-		userRepository.deleteAll();
 	}
 }

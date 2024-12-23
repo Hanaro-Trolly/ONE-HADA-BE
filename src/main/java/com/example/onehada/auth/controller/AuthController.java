@@ -210,9 +210,9 @@ public class AuthController {
                     null
                 ));
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.ok()
                 .body(new ApiResult(
-                    401,
+                    200,
                     "UNAUTHORIZED",
                     "인증실패: 잘못된 비밀번호 입니다.",
                     null

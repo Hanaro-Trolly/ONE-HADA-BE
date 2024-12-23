@@ -7,6 +7,7 @@ import com.example.onehada.auth.dto.RegisterRequestDTO;
 import com.example.onehada.auth.dto.SignInRequestDTO;
 import com.example.onehada.auth.dto.SignInResponseDTO;
 import com.example.onehada.auth.dto.VerifyPasswordRequestDTO;
+import com.example.onehada.customer.agent.AgentRepository;
 import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.db.dto.ApiResult;
@@ -62,11 +63,15 @@ public class AuthIntegrationTest {
 
 	@Autowired
 	private ShortcutRepository shortcutRepository;
+
 	@Autowired
 	private TransactionRepository transactionRepository;
 
 	@Autowired
 	private ConsultationRepository consultationRepository;
+
+	@Autowired
+	private AgentRepository agentRepository;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -78,6 +83,7 @@ public class AuthIntegrationTest {
 		shortcutRepository.deleteAll();
 		historyRepository.deleteAll();
 		accountRepository.deleteAll();
+		agentRepository.deleteAll();
 		userRepository.deleteAll();
 
 		User testUser = User.builder()
