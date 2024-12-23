@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -111,5 +112,11 @@ public class ConsultationControllerTest {
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data.consultations[0].consultationTitle").value("Test Consultation title2"))
 			.andDo(print());
+	}
+
+	@Test
+	@AfterAll
+	public void afterAll() {
+		userRepository.deleteAll();
 	}
 }

@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -127,5 +128,11 @@ public class UserInfoControllerTest {
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.message").value("사용자 탈퇴 완료"))
 			.andDo(print());
+	}
+
+	@Test
+	@AfterAll
+	public void afterAll() {
+		userRepository.deleteAll();
 	}
 }

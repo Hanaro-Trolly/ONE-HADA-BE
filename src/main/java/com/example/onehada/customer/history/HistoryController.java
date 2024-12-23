@@ -36,7 +36,6 @@ public class HistoryController {
 		"history_id") Long historyId) {
 		HistoryDTO historyDTO = historyService.getUserHistory(historyId, token);
 		return ResponseEntity.ok(new ApiResponse(200, "OK", "활동내역 상세 조회 성공", historyDTO));
-
 	}
 
 	@PostMapping("")

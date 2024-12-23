@@ -141,7 +141,6 @@ public class HistoryControllerTest {
 
 	}
 
-	//활동내역 추가 테스트
 	@Test
 	@Order(1)
 	public void testGetHistories() throws Exception {
@@ -195,7 +194,6 @@ public class HistoryControllerTest {
 			.andExpect(jsonPath("$.message").value("해당 활동 내역을 찾을 수 없습니다."))
 			.andDo(print());
 	}
-	//다른 유저의 token 보내서 확인하는것 만들기
 
 	@Test
 	@Order(5)
@@ -237,7 +235,7 @@ public class HistoryControllerTest {
 		Object testObject = new Object();
 
 		HistoryDTO historyDTO = HistoryDTO.builder()
-			.historyName("Test History with Circular Reference")
+			.historyName("Test History with ObjectMapper")
 			.historyElements(Map.of("test", testObject))
 			.activityDate(LocalDateTime.now())
 			.build();

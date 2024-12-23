@@ -7,6 +7,7 @@ import com.example.onehada.customer.account.AccountRepository;
 import com.example.onehada.customer.consultation.ConsultationRepository;
 import com.example.onehada.customer.history.HistoryRepository;
 import com.example.onehada.customer.shortcut.ShortcutRepository;
+import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;
 
@@ -21,16 +22,18 @@ public class UserInfoService {
 	private final ShortcutRepository shortcutRepository;
 	private final ConsultationRepository consultationRepository;
 	private final AccountRepository accountRepository;
+	private final TransactionRepository transactionRepository;
 
 	public UserInfoService(JwtService jwtService, UserRepository userRepository, HistoryRepository historyRepository,
 		ShortcutRepository shortcutRepository, ConsultationRepository consultationRepository,
-		AccountRepository accountRepository) {
+		AccountRepository accountRepository, TransactionRepository transactionRepository) {
 		this.jwtService = jwtService;
 		this.userRepository = userRepository;
 		this.historyRepository = historyRepository;
 		this.shortcutRepository = shortcutRepository;
 		this.consultationRepository = consultationRepository;
 		this.accountRepository = accountRepository;
+		this.transactionRepository = transactionRepository;
 	}
 
 	private String getEmailFromToken(String token) {
@@ -90,6 +93,7 @@ public class UserInfoService {
 		consultationRepository.deleteAllByUser(user);
 		shortcutRepository.deleteAllByUser(user);
 		historyRepository.deleteAllByUser(user);
+		transactionRepository.deleteAll();
 		accountRepository.deleteAllByUser(user);
 		userRepository.deleteById(userId);
 	}
