@@ -1,12 +1,12 @@
 package com.example.onehada.controller;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,17 +55,19 @@ public class ShortcutControllerTest {
 	@Autowired
 	private ShortcutRepository shortcutRepository;
 
-	@Autowired
-	private ShortcutService shortcutService;
 
 	private String token;
-	private User testUser1;
+	private String token2;
+	private Shortcut testShortcut1;
+
+	@Autowired
+	private ShortcutService shortcutService;
 
 	@BeforeAll
 	public void setUp() {
 		userRepository.deleteAll();
 
-		testUser1 = User.builder()
+		User testUser1 = User.builder()
 			.userName("testUser1")
 			.userEmail("testuser1@example.com")
 			.userGender("M")
@@ -78,16 +80,18 @@ public class ShortcutControllerTest {
 
 		objectMapper = new ObjectMapper();
 
-		Shortcut testShortcut1 = new Shortcut();
-		testShortcut1.setUser(testUser1);
-		testShortcut1.setShortcutName("ShortCut 1");
-		testShortcut1.setShortcutElements("{\"key1\":\"value1\",\"key2\":\"value2\"}");
+		testShortcut1 = Shortcut.builder()
+			.user(testUser1)
+			.shortcutName("ShortCut 1")
+			.shortcutElements("{\"key1\":\"value1\",\"key2\":\"value2\"}")
+			.build();
 		shortcutRepository.save(testShortcut1);
 
-		Shortcut testShortcut2 = new Shortcut();
-		testShortcut2.setUser(testUser1);
-		testShortcut2.setShortcutName("ShortCut 2");
-		testShortcut2.setShortcutElements("{\"key1\":\"value1\",\"key2\":\"value2\"}");
+		Shortcut testShortcut2 = Shortcut.builder()
+			.user(testUser1)
+			.shortcutName("ShortCut 2")
+			.shortcutElements("{\"key1\":\"value1\",\"key2\":\"value2\"}")
+			.build();
 		shortcutRepository.save(testShortcut2);
 
 		authService.login(AuthRequestDTO.builder()
@@ -96,6 +100,25 @@ public class ShortcutControllerTest {
 			.build());
 
 		this.token = jwtService.generateAccessToken(testUser1.getUserEmail(), testUser1.getUserId());
+
+		User testUser2 = User.builder()
+			.userName("testUser2")
+			.userEmail("testuser2@example.com")
+			.userGender("M")
+			.phoneNumber("01012345678")
+			.userAddress("서울시 강남구")
+			.userBirth("19900101")
+			.simplePassword("12345678")
+			.build();
+		userRepository.save(testUser2);
+
+		authService.login(AuthRequestDTO.builder()
+			.email(testUser2.getUserEmail())
+			.simplePassword(testUser2.getSimplePassword())
+			.build());
+
+		this.token2 = jwtService.generateAccessToken(testUser2.getUserEmail(), testUser2.getUserId());
+
 	}
 
 	@Test
@@ -113,6 +136,17 @@ public class ShortcutControllerTest {
 
 	@Test
 	@Order(2)
+	public void testGetShortcutElementsInvalidJson() {
+		Shortcut shortcut = new Shortcut();
+		shortcut.setShortcutElements("{\"key1\":\"value1\",\"key2\":\"value2\"");
+
+		Exception exception = assertThrows(RuntimeException.class, () -> ShortcutService.getShortcutElements(shortcut));
+
+		assertTrue(exception.getMessage().contains("올바른 JSON 형식이 아닙니다."));
+	}
+
+	@Test
+	@Order(3)
 	public void testCreateShortcut() throws Exception {
 		ShortcutDTO test = ShortcutDTO.builder()
 			.shortcutName("New Shortcut")
@@ -131,21 +165,23 @@ public class ShortcutControllerTest {
 	}
 
 	@Test
-	@Order(3)
-	public void testDeleteShortcut() throws Exception {
-		Shortcut test = shortcutRepository.findAll().get(0);
-		Long shortcutId = test.getShortcutId();
-		mockMvc.perform(delete("/api/shortcut/" + shortcutId)
-			.header("Authorization", "Bearer " + token)
-			.contentType(MediaType.APPLICATION_JSON))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.code").value(200))
-			.andExpect(jsonPath("$.message").value("바로가기가 삭제되었습니다."))
-			.andDo(print());
+	@Order(4)
+	public void testCreateShortcutObjectMapper() {
+		Object testObject = new Object();
+
+		ShortcutDTO shortcutDTO = ShortcutDTO.builder()
+			.shortcutName("Test Shortcut with ObjectMapper")
+			.shortcutElements(Map.of("type", testObject))
+			.build();
+
+		Exception exception = assertThrows(RuntimeException.class, () -> shortcutService.createShortcut(shortcutDTO,
+			"Bearer " + token));
+
+		assertNotNull(exception.getMessage());
 	}
 
 	@Test
-	@Order(4)
+	@Order(5)
 	public void testUpdateFavorite() throws Exception {
 		Map<String, String> updateFavorite = new HashMap<>();
 		updateFavorite.put("isFavorite", "true");
@@ -162,7 +198,7 @@ public class ShortcutControllerTest {
 	}
 
 	@Test
-	@Order(5)
+	@Order(6)
 	public void testGetFavorites() throws Exception {
 		mockMvc.perform(get("/api/shortcut/favorite")
 			.header("Authorization", "Bearer " + token)
@@ -170,6 +206,66 @@ public class ShortcutControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.data.shortcuts[0].isFavorite").value(true))
+			.andDo(print());
+	}
+
+	@Test
+	@Order(7)
+	public void testUpdateFavoriteNotFoundShortcut() throws Exception {
+		long shortcutId = 2000000L;
+		Map<String, String> updateFavorite = new HashMap<>();
+		updateFavorite.put("isFavorite", "true");
+		String testJson = objectMapper.writeValueAsString(updateFavorite);
+		mockMvc.perform(patch("/api/shortcut/" + shortcutId + "/favorite")
+			.header("Authorization", "Bearer " + token)
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(testJson))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.code").value(404))
+			.andExpect(jsonPath("$.message").value("존재하지 않는 바로가기 입니다."))
+			.andDo(print());
+	}
+
+	@Test
+	@Order(8)
+	public void testUpdateFavoriteNotFoundUser() throws Exception {
+		long shortcutId = shortcutRepository.findAll().get(0).getShortcutId();
+		Map<String, String> updateFavorite = new HashMap<>();
+		updateFavorite.put("isFavorite", "true");
+		String testJson = objectMapper.writeValueAsString(updateFavorite);
+		mockMvc.perform(patch("/api/shortcut/" + shortcutId + "/favorite")
+				.header("Authorization", "Bearer " + token2)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(testJson))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.code").value(404))
+			.andExpect(jsonPath("$.message").value("존재하지 않는 바로가기 입니다."))
+			.andDo(print());
+	}
+
+	@Test
+	@Order(9)
+	public void testDeleteShortcut() throws Exception {
+		Long shortcutId = testShortcut1.getShortcutId();
+		mockMvc.perform(delete("/api/shortcut/" + shortcutId)
+				.header("Authorization", "Bearer " + token)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.message").value("바로가기가 삭제되었습니다."))
+			.andDo(print());
+	}
+
+	@Test
+	@Order(10)
+	public void testDeleteShortcutNotFound() throws Exception {
+		long shortcutId = 999999L;
+		mockMvc.perform(delete("/api/shortcut/" + shortcutId)
+			.header("Authorization", "Bearer " + token)
+			.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.code").value(404))
+			.andExpect(jsonPath("$.message").value("존재하지 않는 바로가기입니다."))
 			.andDo(print());
 	}
 

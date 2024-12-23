@@ -6,12 +6,18 @@ import org.hibernate.annotations.OnDeleteAction;
 import com.example.onehada.customer.user.User;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Shortcut {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,5 +35,6 @@ public class Shortcut {
 	private String shortcutElements;
 
 	@Column(name = "is_favorite", nullable = false)
+	@Builder.Default
 	private boolean favorite = false;
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
-import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -53,7 +52,7 @@ public class ShortcutService {
 			}).collect(Collectors.toList());
 	}
 
-	private Map<String , Object > getShortcutElements(Shortcut shortcut) {
+	public static Map<String , Object > getShortcutElements(Shortcut shortcut) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Map<String, Object> shortcutElements;
 		try {
@@ -62,7 +61,7 @@ public class ShortcutService {
 				}
 			);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException("JSON 파싱 에러: " + e.getMessage(), e);
+			throw new RuntimeException("올바른 JSON 형식이 아닙니다." + e.getMessage(), e);
 		}
 		return shortcutElements;
 	}
@@ -81,11 +80,10 @@ public class ShortcutService {
 		try {
 			String elements = objectMapper.writeValueAsString(shortcut.getShortcutElements());
 			newShortcut.setShortcutElements(elements);
-			System.out.println("elements = " + elements);
 			shortcutRepository.save(newShortcut);
 
 		} catch (JsonProcessingException e) {
-			throw new BadRequestException( "잘못된 요청입니다." + e.getMessage());
+			throw new RuntimeException( "올바른 JSON 형식이 아닙니다." + e.getMessage());
 		}
 
 		return ShortcutDTO.builder().shortcutId(newShortcut.getShortcutId()).build();
