@@ -10,7 +10,7 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
 
 	List<Consultation> findByAgent(Agent agent);
 
-	List<Consultation> findByUserUserId(Long userId);
+	List<Consultation> findByUserUserIdOrderByConsultationIdDesc(Long userId);
 
 	void deleteAllByUser(User user);
 }
