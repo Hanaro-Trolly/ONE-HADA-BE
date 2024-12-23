@@ -3,6 +3,8 @@ package com.example.onehada.customer.history;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.example.onehada.customer.user.User;
 
@@ -22,6 +24,7 @@ public class History {
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
 	@Column(length = 100 , nullable = false)
@@ -29,9 +32,6 @@ public class History {
 
 	@Column(name = "history_elements", columnDefinition = "JSON")
 	private String historyElements;
-
-	@Column(name = "history_url")
-	private String historyUrl;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
