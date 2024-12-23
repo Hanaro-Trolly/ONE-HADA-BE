@@ -4,6 +4,7 @@ import com.example.onehada.auth.service.JwtService;
 import com.example.onehada.db.data.Button;
 import com.example.onehada.db.data.ButtonSession;
 import com.example.onehada.db.data.service.ButtonService;
+import com.example.onehada.db.data.service.RecommendService;
 import com.example.onehada.db.dto.ApiResult;
 
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,12 @@ public class ButtonNodeController {
     
     private final ButtonService buttonService;
     private final JwtService jwtService;
+    private final RecommendService recommendService;
 
-    public ButtonNodeController(ButtonService buttonService, JwtService jwtService) {
+    public ButtonNodeController(ButtonService buttonService, JwtService jwtService, RecommendService recommendService) {
         this.buttonService = buttonService;
         this.jwtService = jwtService;
+        this.recommendService = recommendService;
     }
 
     @Operation(summary = "사용자 세션 조회", description = "특정 사용자의 버튼 클릭 세션 정보를 조회합니다.")
@@ -49,8 +52,15 @@ public class ButtonNodeController {
     public ResponseEntity<ApiResult> logButtonClick(@RequestHeader("Authorization") String token,@PathVariable String buttonId) {
         String accessToken = token.replace("Bearer ", "");
         String userId = jwtService.extractUserId(accessToken).toString();
+        Button button = buttonService.getButtonByName(buttonId);
+        System.out.println("Button: " + button);
+        if(button == null) {
+            button = new Button(buttonId, "normal");
+
+            buttonService.saveButton(button);
+        }
         buttonService.saveButtonLog(userId, buttonId);
-        Button button = buttonService.getButtonById(buttonId);
+        // Button button = buttonService.getButtonById(buttonId);
 
         if ("product".equals(button.getType())) {
             buttonService.processUserClickHistory(userId);

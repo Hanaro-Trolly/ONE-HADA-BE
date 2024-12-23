@@ -1,11 +1,17 @@
 package com.example.onehada.db.data.service;
 
+import com.example.onehada.db.data.ButtonIdDTO;
 import com.example.onehada.db.data.ButtonNode;
 import com.example.onehada.db.data.ProductNode;
 import com.example.onehada.db.data.repository.ButtonNodeRepository;
 import com.example.onehada.db.data.repository.ButtonRepository;
 import com.example.onehada.db.data.repository.ProductNodeRepository;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,22 +24,45 @@ import java.util.Set;
 @Service
 public class RecommendService {
 
+	private final MongoTemplate mongoTemplate;
+
 	private final ButtonNodeRepository buttonNodeRepository;
 
     private final ProductNodeRepository productNodeRepository;
     private final ButtonRepository buttonRepository;
 
 	// 생성자 주입
-	public RecommendService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository, ButtonRepository buttonRepository) {
+	public RecommendService(ButtonNodeRepository buttonNodeRepository, ProductNodeRepository productNodeRepository, ButtonRepository buttonRepository , MongoTemplate mongoTemplate) {
 		this.buttonNodeRepository = buttonNodeRepository;
 		this.productNodeRepository = productNodeRepository;
         this.buttonRepository = buttonRepository;
+		this.mongoTemplate = mongoTemplate;
     }
 
     @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
     public List<ProductNode> getRecommendProducts(String userId) {
-        String buttonId = buttonRepository.findMostClickedButtonByUserId(userId);   
-        return productNodeRepository.findTop3RecommendedProductsByButton(buttonId);
+		Aggregation aggregation = Aggregation.newAggregation(
+			Aggregation.match(Criteria.where("userId").is(userId)),
+			Aggregation.match(Criteria.where("buttonType").is("start")),
+			Aggregation.group("buttonId").count().as("count"),
+			Aggregation.sort(Sort.by(Sort.Order.desc("count"))),
+			Aggregation.limit(1),
+			Aggregation.project().and("$_id").as("buttonId").andExclude("_id")
+		);
+		AggregationResults<ButtonIdDTO> results = mongoTemplate.aggregate(aggregation, "button_logs", ButtonIdDTO.class);
+		if(results.getMappedResults().isEmpty()){
+			aggregation = Aggregation.newAggregation(
+				Aggregation.match(Criteria.where("buttonType").is("start")),
+				Aggregation.group("buttonId").count().as("count"),
+				Aggregation.sort(Sort.by(Sort.Order.desc("count"))),
+				Aggregation.limit(1),
+				Aggregation.project().and("$_id").as("buttonId").andExclude("_id")
+				);
+			results = mongoTemplate.aggregate(aggregation, "button_logs", ButtonIdDTO.class);
+			
+		}
+
+        return productNodeRepository.findTop3RecommendedProductsByButton(results.getUniqueMappedResult().getButtonId());
 	}
 
 	@Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
@@ -51,10 +80,10 @@ public class RecommendService {
 	public ButtonNode createButton(String name) {
 		return buttonNodeRepository.save(new ButtonNode(name));
 	}
-    @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
-    public String getMostClickedButton(String userId) {
-        return buttonRepository.findMostClickedButtonByUserId(userId);
-    }
+    // @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
+    // public String getMostClickedButton(String userId) {
+    //     return buttonRepository.findMostClickedButtonByUserId(userId);
+    // }
 
 
 

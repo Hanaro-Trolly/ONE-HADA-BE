@@ -51,18 +51,6 @@ public class AdminController {
 		));
 	}
 
-	@Operation(summary = "활동 로그 조회", description = "특정 사용자의 활동 로그를 조회합니다.")
-	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "조회 성공"),
-		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
-	})
-	@GetMapping("/activityLogs/{userId}")
-	public ResponseEntity<?> getActivityLogs(@PathVariable Long userId) throws NotFoundException {
-		return ResponseEntity.ok(new ApiResult(
-			200, "OK", "활동 로그 조회 성공",
-			adminService.getActivityLogs(userId)
-		));
-	}
 
 	@Operation(summary = "상담 데이터 생성", description = "새로운 상담 데이터를 추가합니다.")
 	@ApiResponses(value = {
