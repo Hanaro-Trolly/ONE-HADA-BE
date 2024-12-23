@@ -80,7 +80,7 @@ public class RedisControllerTest {
 	// }
 
 	@Test
-	@Order(3)
+	@Order(2)
 	public void testGetValidationValue_Success() throws Exception {
 		List<String> keys = Arrays.asList("key1", "key2");
 		Map<String, String> redisMockData = new HashMap<>();
@@ -97,4 +97,22 @@ public class RedisControllerTest {
 			.andExpect(jsonPath("$.data.key1").value("value11"))
 			.andExpect(jsonPath("$.data.key2").value("value2"));
 	}
+	@Test
+	@Order(3)
+	public void testUpdateTransferDetails_Success() throws Exception {
+		Map<String, String> transferRequest = new HashMap<>();
+		transferRequest.put("key1", "updatedValue1");
+		transferRequest.put("key2", "updatedValue2");
+
+		mockMvc.perform(patch("/api/redis")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(transferRequest)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.message").value("<Redis> -> 수정이 정상적으로 수행되었습니다."))
+			.andExpect(jsonPath("$.data.key1").value("updatedValue1"))
+			.andExpect(jsonPath("$.data.key2").value("updatedValue2"));
+	}
+
 }

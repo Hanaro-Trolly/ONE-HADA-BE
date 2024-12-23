@@ -111,7 +111,7 @@ public class RedisController {
 			ApiResult response = new ApiResult(
 				200,
 				"success",
-				"<Redis> 계좌 이체 필요정보 -> 수정이 정상적으로 수행되었습니다.",
+				"<Redis> -> 수정이 정상적으로 수행되었습니다.",
 				transferDetails
 			);
 
