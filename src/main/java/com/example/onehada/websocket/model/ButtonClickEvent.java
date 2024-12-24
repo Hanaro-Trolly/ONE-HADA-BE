@@ -7,5 +7,6 @@ public class ButtonClickEvent {
 	private String type;
 	private String customerId;
 	private String buttonId;
+	private String screenshot;
 	private String timestamp;
 }
