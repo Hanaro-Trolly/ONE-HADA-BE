@@ -90,6 +90,12 @@ public class AccountController {
 		@PathVariable("accountNumber") String accountNumber) {
 		boolean exists = accountService.doesAccountExist(accountNumber);
 		AccountDTO.accountExistDTO account = accountService.getExistAccount(accountNumber);
+
+		if (account == null) {
+			return ResponseEntity.ok(new ApiResult(200, String.valueOf(exists),
+				"존재하지 않는 계좌 AccountNumber: " + accountNumber, null));
+		}
+
 		return ResponseEntity.ok(new ApiResult(200, String.valueOf(exists), "계좌 존재 여부 확인 성공", account));
 	}
 }
