@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS Account (
 
 CREATE TABLE IF NOT EXISTS Transaction (
     transaction_id bigint auto_increment primary key,
-    sender_account_id bigint not null,
-    receiver_account_id bigint not null,
+    sender_account_id bigint,
+    receiver_account_id bigint,
     amount bigint not null,
     sender_name varchar(31),
     receiver_name varchar(31),
