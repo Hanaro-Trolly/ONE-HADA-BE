@@ -51,7 +51,7 @@ public class RedisController {
 
 		for (String key : keys) {
 			String value = redisService.getValue(key + user.getUserId());
-			result.put(key+user.getUserId(), value != null ? value : "No value found");
+			result.put(key, value != null ? value : "No value found");
 		}
 
 		return ResponseEntity.ok(new ApiResult(
@@ -76,7 +76,7 @@ public class RedisController {
 		User user = userService.getUserByEmail(email);
 
 		for (Map.Entry<String, String> entry : transferRequest.entrySet()) {
-			transferDetails.put(entry.getKey() + user.getUserId(), entry.getValue());
+			transferDetails.put(entry.getKey(), entry.getValue());
 			redisService.saveValue(entry.getKey()+ user.getUserId(), entry.getValue());
 		}
 
@@ -104,7 +104,7 @@ public class RedisController {
 		User user = userService.getUserByEmail(email);
 
 		for (Map.Entry<String, String> entry : transferRequest.entrySet()) {
-			transferDetails.put(entry.getKey() + user.getUserId(), entry.getValue());
+			transferDetails.put(entry.getKey(), entry.getValue());
 			redisService.saveValue(entry.getKey()+user.getUserId(), entry.getValue()); // 수정된 값 Redis에 저장
 		}
 
