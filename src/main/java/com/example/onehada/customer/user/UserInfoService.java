@@ -1,12 +1,12 @@
 package com.example.onehada.customer.user;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.account.Account;
 import com.example.onehada.customer.account.AccountRepository;
-import com.example.onehada.customer.consultation.ConsultationRepository;
-import com.example.onehada.customer.history.HistoryRepository;
-import com.example.onehada.customer.shortcut.ShortcutRepository;
 import com.example.onehada.customer.transaction.TransactionRepository;
 import com.example.onehada.exception.BadRequestException;
 import com.example.onehada.exception.NotFoundException;
@@ -18,20 +18,13 @@ public class UserInfoService {
 
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
-	private final HistoryRepository historyRepository;
-	private final ShortcutRepository shortcutRepository;
-	private final ConsultationRepository consultationRepository;
 	private final AccountRepository accountRepository;
 	private final TransactionRepository transactionRepository;
 
-	public UserInfoService(JwtService jwtService, UserRepository userRepository, HistoryRepository historyRepository,
-		ShortcutRepository shortcutRepository, ConsultationRepository consultationRepository,
+	public UserInfoService(JwtService jwtService, UserRepository userRepository,
 		AccountRepository accountRepository, TransactionRepository transactionRepository) {
 		this.jwtService = jwtService;
 		this.userRepository = userRepository;
-		this.historyRepository = historyRepository;
-		this.shortcutRepository = shortcutRepository;
-		this.consultationRepository = consultationRepository;
 		this.accountRepository = accountRepository;
 		this.transactionRepository = transactionRepository;
 	}
@@ -90,10 +83,11 @@ public class UserInfoService {
 		Long userId = getUserIdFromToken(token);
 		User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
-		consultationRepository.deleteAllByUser(user);
-		shortcutRepository.deleteAllByUser(user);
-		historyRepository.deleteAllByUser(user);
-		transactionRepository.deleteAll();
+		List<Account> userAccounts = accountRepository.findAccountsByUserUserEmail(user.getUserEmail());
+		for (Account account : userAccounts) {
+			transactionRepository.updateSenderAccountToNull(account.getAccountId());
+			transactionRepository.updateReceiverAccountToNull(account.getAccountId());
+		}
 		accountRepository.deleteAllByUser(user);
 		userRepository.deleteById(userId);
 	}
