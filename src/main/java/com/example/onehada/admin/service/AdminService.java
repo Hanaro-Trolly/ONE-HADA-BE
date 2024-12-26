@@ -1,7 +1,5 @@
 package com.example.onehada.admin.service;
 
-import com.example.onehada.admin.dto.ActivityLogDetailDTO;
-import com.example.onehada.admin.dto.ActivityLogResponseDTO;
 import com.example.onehada.admin.dto.AdminLoginRequestDTO;
 import com.example.onehada.admin.dto.AdminLoginResponseDTO;
 import com.example.onehada.admin.dto.AgentResponseDTO;
@@ -15,7 +13,6 @@ import com.example.onehada.customer.agent.Agent;
 import com.example.onehada.customer.agent.AgentRepository;
 import com.example.onehada.customer.consultation.Consultation;
 import com.example.onehada.customer.consultation.ConsultationRepository;
-import com.example.onehada.customer.history.History;
 import com.example.onehada.customer.history.HistoryRepository;
 import com.example.onehada.customer.user.User;
 import com.example.onehada.customer.user.UserRepository;
@@ -73,25 +70,6 @@ public class AdminService {
 				agent.getAgentPw()
 			))
 			.collect(Collectors.toList());
-	}
-
-	public ActivityLogResponseDTO getActivityLogs(Long userId) throws NotFoundException {
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new NotFoundException("활동로그 조회 중 유저를 찾을 수 없습니다."));
-
-		List<History> histories = historyRepository.findByUser(user);
-		List<ActivityLogDetailDTO> logs = histories.stream()
-			.map(history -> new ActivityLogDetailDTO(
-				history.getActivityDate(),
-				history.getHistoryName()
-			))
-			.collect(Collectors.toList());
-
-		return new ActivityLogResponseDTO(
-			userId,
-			user.getUserName(),
-			logs
-		);
 	}
 
 	@Transactional

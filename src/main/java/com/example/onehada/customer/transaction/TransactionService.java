@@ -39,13 +39,17 @@ public class TransactionService {
 			.orElseThrow(() -> new NotFoundException("받는 계좌를 찾을 수 없습니다."));
 		Long amount = transferRequest.getAmount();
 
+		if (fromAccountDto.getBalance() == 0){
+			throw new BadRequestException("올바른 금액을 입력해주세요.");
+		}
+
 		if (fromAccountDto.getBalance() < amount) {
 			throw new BadRequestException("잔액이 부족합니다.");
 		}
-		Long postReceiverBalance = toAccountDto.getBalance();
-		Long postSenderBalance = fromAccountDto.getBalance();
 		fromAccountDto.updateBalance(-amount);
 		toAccountDto.updateBalance(amount);
+		Long postReceiverBalance = toAccountDto.getBalance();
+		Long postSenderBalance = fromAccountDto.getBalance();
 
 		User fromUser = userRepository.findById(fromAccountDto.getUserId())
 			.orElseThrow(() -> new NotFoundException("보내는 계좌의 사용자를 찾을 수 없습니다."));

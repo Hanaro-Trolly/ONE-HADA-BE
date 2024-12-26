@@ -86,11 +86,10 @@ public class AccountService {
 		Optional<Account> accountOptional = accountRepository.findByAccountNumber(accountNumber);
 
 		return accountOptional.map(account -> AccountDTO.accountExistDTO.builder()
-				.accountId(account.getAccountId())
-				.userName(account.getUser().getUserName())
-				.bank(account.getBank())
-				.build())
-			//Todo 리팩토링 toAccountNotFound
-			.orElseThrow(() -> new NotFoundException(" AccountNumber: " + accountNumber));
+			.accountId(account.getAccountId())
+			.userName(account.getUser().getUserName())
+			.bank(account.getBank())
+			.build()).orElse(null);
+
 	}
 }

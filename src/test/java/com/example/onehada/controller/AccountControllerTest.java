@@ -197,9 +197,10 @@ public class AccountControllerTest {
 		mockMvc.perform(get("/api/accounts/exist/{accountNumber}", "999-9999-9999")
 				.header("Authorization", "Bearer " + token)
 				.contentType(MediaType.APPLICATION_JSON))
-			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.status").value("NOT_FOUND"))
-			.andExpect(jsonPath("$.message").value(" AccountNumber: 999-9999-9999"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.status").value("false"))
+			.andExpect(jsonPath("$.message").value("존재하지 않는 계좌 AccountNumber: 999-9999-9999"))
 			.andExpect(jsonPath("$.data").doesNotExist());
 	}
 
