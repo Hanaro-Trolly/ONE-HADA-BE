@@ -23,11 +23,11 @@ public class Transaction {
 	private Long transactionId;
 
 	@ManyToOne
-	@JoinColumn(name = "sender_account_id", nullable = false)
+	@JoinColumn(name = "sender_account_id")
 	private Account senderAccount;
 
 	@ManyToOne
-	@JoinColumn(name = "receiver_account_id", nullable = false)
+	@JoinColumn(name = "receiver_account_id")
 	private Account receiverAccount;
 
 	@Column(nullable = false)

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 		@Param("endDate") LocalDateTime endDate,
 		@Param("keyword") String keyword
 	);
+
+	@Modifying
+	@Query("UPDATE Transaction t SET t.senderAccount = NULL WHERE t.senderAccount.accountId = :accountId")
+	void updateSenderAccountToNull(Long accountId);
+
+	@Modifying
+	@Query("UPDATE Transaction t SET t.receiverAccount = NULL WHERE t.receiverAccount.accountId = :accountId")
+	void updateReceiverAccountToNull(Long accountId);
 }
