@@ -1,14 +1,16 @@
 package com.example.onehada.redis;
 
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.onehada.auth.service.JwtService;
+import com.example.onehada.customer.user.User;
+import com.example.onehada.customer.user.UserRepository;
 import com.example.onehada.exception.BaseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,22 +37,56 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class RedisControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
+
 	@Autowired
 	ObjectMapper objectMapper;
+
 	@Autowired
 	RedisService redisService;
 
+	@Autowired
+	JwtService jwtService;
+
+	@Autowired
+	private UserRepository userRepository;
+
+	private String testToken;
+
+	@BeforeAll
+	public void setUp() {
+		// 테스트 사용자 생성
+		User testUser = User.builder()
+			.userId(1L)
+			.userEmail("test@example.com")
+			.userName("테스트유저")
+			.userGender("M")
+			.userBirth("20000101")
+			.phoneNumber("01012345678")
+			.simplePassword("1234")
+			.userAddress("서울시 강남구")
+			.build();
+
+		// 테스트 사용자를 데이터베이스에 저장
+		userRepository.save(testUser);
+
+		// 테스트 토큰 생성
+		testToken = "Bearer " + jwtService.generateAccessToken("test@example.com", 1L);
+	}
+
+	@AfterAll
+	public void tearDown() {
+		userRepository.deleteAll();
+	}
 
 	@Test
 	@Order(1)
 	public void testSaveTransferDetails_Success() throws Exception {
-		// 준비: 테스트 데이터를 설정
 		Map<String, String> transferRequest = new HashMap<>();
 		transferRequest.put("key1", "value11");
 		transferRequest.put("key2", "value2");
 
-		// 요청을 보내고 응답 검증
 		mockMvc.perform(post("/api/redis")
+				.header("Authorization", testToken)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(transferRequest)))
 			.andExpect(status().isOk())
@@ -58,38 +97,15 @@ public class RedisControllerTest {
 			.andExpect(jsonPath("$.data.key2").value("value2"));
 	}
 
-	// @Test
-	// @Order(2)
-	// public void testSaveTransferDetails_Failure() throws Exception {
-	// 	// 준비: 테스트 데이터를 설정
-	// 	Map<String, String> transferRequest = new HashMap<>();
-	// 	transferRequest.put("key1", "value1");
-	// 	transferRequest.put("key2", "value2");
-	//
-	// 	doThrow(new BaseException("Redis 오류")).when(redisService).saveValue(anyString(), anyString());
-	//
-	// 	// 요청을 보내고 응답 검증
-	// 	mockMvc.perform(post("/api/redis")
-	// 			.contentType(MediaType.APPLICATION_JSON)
-	// 			.content(objectMapper.writeValueAsString(transferRequest)))
-	// 		.andExpect(status().isInternalServerError())
-	// 		.andExpect(jsonPath("$.statusCode").value(500))
-	// 		.andExpect(jsonPath("$.status").value("error"))
-	// 		.andExpect(jsonPath("$.message").value("계좌 이체 정보를 저장하는 중 오류가 발생했습니다: Redis 오류"))
-	// 		.andExpect(jsonPath("$.data").isEmpty());
-	// }
-
 	@Test
 	@Order(2)
 	public void testGetValidationValue_Success() throws Exception {
 		List<String> keys = Arrays.asList("key1", "key2");
-		Map<String, String> redisMockData = new HashMap<>();
-
-		String requestBody = objectMapper.writeValueAsString(keys);
 
 		mockMvc.perform(post("/api/redis/get")
+				.header("Authorization", testToken)
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(requestBody))
+				.content(objectMapper.writeValueAsString(keys)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.code").value(200))
 			.andExpect(jsonPath("$.status").value("success"))
@@ -97,6 +113,7 @@ public class RedisControllerTest {
 			.andExpect(jsonPath("$.data.key1").value("value11"))
 			.andExpect(jsonPath("$.data.key2").value("value2"));
 	}
+
 	@Test
 	@Order(3)
 	public void testUpdateTransferDetails_Success() throws Exception {
@@ -105,6 +122,7 @@ public class RedisControllerTest {
 		transferRequest.put("key2", "updatedValue2");
 
 		mockMvc.perform(patch("/api/redis")
+				.header("Authorization", testToken)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(transferRequest)))
 			.andExpect(status().isOk())
@@ -121,6 +139,7 @@ public class RedisControllerTest {
 		List<String> keys = Arrays.asList("key1", "key2");
 
 		mockMvc.perform(post("/api/redis/delete")
+				.header("Authorization", testToken)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(keys)))
 			.andExpect(status().isOk())
