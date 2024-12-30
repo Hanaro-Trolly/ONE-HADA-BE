@@ -24,7 +24,7 @@
 
 <br>
 
-## ⚙️ 아키텍쳐
+## ⚙️ 서비스 아키텍쳐
 <img width="406" alt="image" src="https://github.com/user-attachments/assets/f2618cb3-ccf4-4cef-9fba-d1674075f430" />
 
 
@@ -49,13 +49,13 @@
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="깃허브 주소"><img src="이미지주소" width="100px;" alt=""/><br /><sub><b> 문규빈 </b></sub></a><br /></td>
-    <td align="center"><a href="깃허브 주소"><img src="이미지주소" width="100px;" alt=""/><br /><sub><b> 강민관 </b></sub></a><br /></td>
-      <td align="center"><a href="깃허브 주소"><img src="이미지주소" width="100px;" alt=""/><br /><sub><b> 박시온 </b></sub></a><br /></td>
-<td align="center"><a href="깃허브 주소"><img src="이미지주소" width="100px;" alt=""/><br /><sub><b> 정성현 </b></sub></a><br /></td>
-<td align="center"><a href="깃허브 주소"><img src="이미지주소" width="100px;" alt=""/><br /><sub><b> 조서현 </b></sub></a><br /></td>
-<td align="center"><a href="깃허브 주소"><img src="이미지주소" width="100px;" alt=""/><br /><sub><b> 천혜민 </b></sub></a><br /></td>
-<td align="center"><a href="깃허브 주소"><img src="이미지주소" width="100px;" alt=""/><br /><sub><b> 최강희 </b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/somea82"><img src="https://avatars.githubusercontent.com/u/97287973?v=4" width="100px;" alt=""/><br /><sub><b> 문규빈 </b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/mingwan21"><img src="https://avatars.githubusercontent.com/u/77828363?v=4" width="100px;" alt=""/><br /><sub><b> 강민관 </b></sub></a><br /></td>
+      <td align="center"><a href="https://github.com/Sionparadox"><img src="https://avatars.githubusercontent.com/u/99112680?v=4" width="100px;" alt=""/><br /><sub><b> 박시온 </b></sub></a><br /></td>
+<td align="center"><a href="https://github.com/awaySH"><img src="https://avatars.githubusercontent.com/u/172378447?v=4" width="100px;" alt=""/><br /><sub><b> 정성현 </b></sub></a><br /></td>
+<td align="center"><a href="https://github.com/j0j00h"><img src="https://avatars.githubusercontent.com/u/172246696?v=4" width="100px;" alt=""/><br /><sub><b> 조서현 </b></sub></a><br /></td>
+<td align="center"><a href="https://github.com/hyemch"><img src="https://avatars.githubusercontent.com/u/102580205?v=4" width="100px;" alt=""/><br /><sub><b> 천혜민 </b></sub></a><br /></td>
+<td align="center"><a href="https://github.com/rkdgml3577"><img src="https://avatars.githubusercontent.com/u/101076374?v=4" width="100px;" alt=""/><br /><sub><b> 최강희 </b></sub></a><br /></td>
     </tr>
   </tbody>
 </table>
