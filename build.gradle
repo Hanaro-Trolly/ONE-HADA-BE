@@ -71,28 +71,9 @@ tasks.named('test') {
 
 test {
 	finalizedBy jacocoTestReport
-
-	jacoco {
-		excludes += [
-				"com/example/onehada/db/**",
-				"com/example/onehada/websocket/**"
-		]
-	}
 }
 jacocoTestReport {
 	dependsOn test
-	reports {
-		html.required.set(true)
-	}
-	afterEvaluate {
-
-		classDirectories.setFrom(files(classDirectories.files.collect {
-			fileTree(dir: it,
-					exclude: [
-							"com/example/onehada/db/**",
-							"com/example/onehada/websocket/**"])
-		}))
-	}
 }
 check.dependsOn jacocoTestReport
 
